@@ -2,9 +2,11 @@ package com.hrassistant.config;
 
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
+import dev.langchain4j.model.ollama.OllamaStreamingChatModel;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +31,15 @@ public class OllamaConfig {
     @Bean
     public ChatModel chatLanguageModel() {
         return OllamaChatModel.builder()
+                .baseUrl(baseUrl)
+                .modelName(model)
+                .timeout(timeout)
+                .build();
+    }
+
+    @Bean
+    public StreamingChatModel streamingChatLanguageModel() {
+        return OllamaStreamingChatModel.builder()
                 .baseUrl(baseUrl)
                 .modelName(model)
                 .timeout(timeout)

@@ -99,11 +99,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Create StreamingRagService.java for streaming generation in src/main/java/com/hrassistant/service/StreamingRagService.java
-- [ ] T034 [US3] Configure StreamingChatLanguageModel bean in OllamaConfig.java
-- [ ] T035 [US3] Implement GET /api/chat/stream SSE endpoint in ChatController.java
-- [ ] T036 [US3] Implement error handling during streaming in StreamingRagService.java
-- [ ] T037 [US3] Add sources metadata at end of stream in StreamingRagService.java
+- [x] T033 [US3] Create StreamingRagService.java for streaming generation in src/main/java/com/hrassistant/service/StreamingRagService.java
+- [x] T034 [US3] Configure StreamingChatLanguageModel bean in OllamaConfig.java
+- [x] T035 [US3] Implement POST /api/chat/stream SSE endpoint in ChatController.java
+- [x] T036 [US3] Implement error handling during streaming in StreamingRagService.java
+- [x] T037 [US3] Add sources metadata at end of stream in StreamingRagService.java
 
 **Checkpoint**: User Story 3 complete - streaming responses work with proper error handling
 
