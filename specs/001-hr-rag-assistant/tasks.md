@@ -33,16 +33,16 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T005 Create OllamaConfig.java with ChatLanguageModel and EmbeddingModel beans in src/main/java/com/hrassistant/config/OllamaConfig.java
-- [ ] T006 [P] Create HrAssistantException.java custom exception in src/main/java/com/hrassistant/exception/HrAssistantException.java
-- [ ] T007 [P] Create ErrorInfo.java DTO in src/main/java/com/hrassistant/model/ErrorInfo.java
-- [ ] T008 [P] Create DocumentType.java enum (PDF, TXT) in src/main/java/com/hrassistant/model/DocumentType.java
-- [ ] T009 [P] Create DocumentStatus.java enum (PENDING, INDEXED, FAILED) in src/main/java/com/hrassistant/model/DocumentStatus.java
-- [ ] T010 [P] Create Document.java entity in src/main/java/com/hrassistant/model/Document.java
-- [ ] T011 [P] Create DocumentChunk.java entity in src/main/java/com/hrassistant/model/DocumentChunk.java
-- [ ] T012 Create EmbeddingService.java for text to vector conversion in src/main/java/com/hrassistant/service/EmbeddingService.java
-- [ ] T013 Create VectorStoreService.java with InMemoryEmbeddingStore in src/main/java/com/hrassistant/service/VectorStoreService.java
-- [ ] T014 Create GlobalExceptionHandler.java for error handling in src/main/java/com/hrassistant/config/GlobalExceptionHandler.java
-- [ ] T015 Create HealthController.java with GET /api/health endpoint in src/main/java/com/hrassistant/controller/HealthController.java
+- [X] T006 [P] Create HrAssistantException.java custom exception in src/main/java/com/hrassistant/exception/HrAssistantException.java
+- [X] T007 [P] Create ErrorInfo.java DTO in src/main/java/com/hrassistant/model/ErrorInfo.java
+- [X] T008 [P] Create DocumentType.java enum (PDF, TXT) in src/main/java/com/hrassistant/model/DocumentType.java
+- [X] T009 [P] Create DocumentStatus.java enum (PENDING, INDEXED, FAILED) in src/main/java/com/hrassistant/model/DocumentStatus.java
+- [x] T010 [P] Create Document.java entity in src/main/java/com/hrassistant/model/Document.java
+- [x] T011 [P] Create DocumentChunk.java entity in src/main/java/com/hrassistant/model/DocumentChunk.java
+- [x] T012 Create EmbeddingService.java for text to vector conversion in src/main/java/com/hrassistant/service/EmbeddingService.java
+- [x] T013 Create VectorStoreService.java with InMemoryEmbeddingStore in src/main/java/com/hrassistant/service/VectorStoreService.java
+- [x] T014 Create GlobalExceptionHandler.java for error handling in src/main/java/com/hrassistant/config/GlobalExceptionHandler.java
+- [x] T015 Create HealthController.java with GET /api/health endpoint in src/main/java/com/hrassistant/controller/HealthController.java
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
