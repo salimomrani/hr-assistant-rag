@@ -71,6 +71,23 @@ See `SPEC.md` for detailed development roadmap. Current phase: Phase 1 (Core RAG
 - **Comments**: ALWAYS write comments in English, NEVER in French
 - **Javadoc**: Use English for all documentation
 - **Code**: Use Lombok annotations to reduce boilerplate
+- **Utilities**: Use Spring utilities like StringUtils for string operations
+- **Mappings**: Use MapStruct for object mappings (Entity ↔ DTO conversions)
+- **Don't Reinvent the Wheel**: ALWAYS use existing libraries and utilities instead of writing custom implementations. If a well-maintained library exists for a task, use it.
+
+## Development Workflow
+
+**IMPORTANT**: Work step-by-step with user validation at each step
+
+1. **Implement ONE file or ONE method at a time**
+2. **Show the code to the user**
+3. **Wait for user validation before proceeding to the next step**
+4. **Never implement multiple tasks without explicit approval**
+
+Example workflow:
+- Create DTO → Show → Wait for validation
+- Create Service → Show → Wait for validation
+- Create Controller → Show → Wait for validation
 
 ## LangChain4j Patterns
 

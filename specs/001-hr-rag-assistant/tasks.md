@@ -77,15 +77,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T024 [P] [US2] Create DocumentInfo.java DTO in src/main/java/com/hrassistant/model/DocumentInfo.java
-- [ ] T025 [US2] Create DocumentService.java for upload, chunking, and indexing in src/main/java/com/hrassistant/service/DocumentService.java
-- [ ] T026 [US2] Implement PDF text extraction using PDFBox in DocumentService.java
-- [ ] T027 [US2] Implement TXT file reading in DocumentService.java
-- [ ] T028 [US2] Implement chunking logic (500 chars, 50 overlap) in DocumentService.java
-- [ ] T029 [US2] Implement file validation (type, size) in DocumentService.java
-- [ ] T030 [US2] Create DocumentController.java with POST /api/documents endpoint in src/main/java/com/hrassistant/controller/DocumentController.java
-- [ ] T031 [US2] Implement DELETE /api/documents/{id} endpoint in DocumentController.java
-- [ ] T032 [US2] Handle corrupted/unreadable document errors in DocumentService.java
+- [x] T024 [P] [US2] Create DocumentInfo.java DTO in src/main/java/com/hrassistant/model/DocumentInfo.java
+- [x] T025 [US2] Create DocumentService.java for upload, chunking, and indexing in src/main/java/com/hrassistant/service/DocumentService.java
+- [x] T026 [US2] Implement PDF text extraction using PDFBox in DocumentService.java
+- [x] T027 [US2] Implement TXT file reading in DocumentService.java
+- [x] T028 [US2] Implement chunking logic (500 chars, 50 overlap) in DocumentService.java
+- [x] T029 [US2] Implement file validation (type, size) in DocumentService.java
+- [x] T030 [US2] Create DocumentController.java with POST /api/documents endpoint in src/main/java/com/hrassistant/controller/DocumentController.java
+- [x] T031 [US2] Implement DELETE /api/documents/{id} endpoint in DocumentController.java
+- [x] T032 [US2] Handle corrupted/unreadable document errors in DocumentService.java
 
 **Checkpoint**: User Story 2 complete - documents can be uploaded, indexed, and deleted
 
@@ -117,9 +117,9 @@
 
 ### Implementation for User Story 4
 
-- [ ] T038 [US4] Implement GET /api/documents endpoint in DocumentController.java
-- [ ] T039 [US4] Implement document listing with metadata in DocumentService.java
-- [ ] T040 [US4] Handle empty document list response in DocumentController.java
+- [x] T038 [US4] Implement GET /api/documents endpoint in DocumentController.java
+- [x] T039 [US4] Implement document listing with metadata in DocumentService.java
+- [x] T040 [US4] Handle empty document list response in DocumentController.java
 
 **Checkpoint**: User Story 4 complete - document list is accessible
 
