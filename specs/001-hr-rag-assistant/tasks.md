@@ -56,8 +56,8 @@
 
 ### Implementation for User Story 1
 
-- [ ] T016 [P] [US1] Create ChatRequest.java DTO in src/main/java/com/hrassistant/model/ChatRequest.java
-- [ ] T017 [P] [US1] Create ChatResponse.java DTO in src/main/java/com/hrassistant/model/ChatResponse.java
+- [x] T016 [P] [US1] Create ChatRequest.java DTO in src/main/java/com/hrassistant/model/ChatRequest.java
+- [x] T017 [P] [US1] Create ChatResponse.java DTO in src/main/java/com/hrassistant/model/ChatResponse.java
 - [ ] T018 [US1] Create GuardrailService.java for question validation and off-topic detection in src/main/java/com/hrassistant/service/GuardrailService.java
 - [ ] T019 [US1] Create RagService.java for RAG orchestration (retrieve + generate) in src/main/java/com/hrassistant/service/RagService.java
 - [ ] T020 [US1] Create ChatController.java with POST /api/chat endpoint in src/main/java/com/hrassistant/controller/ChatController.java

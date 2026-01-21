@@ -66,6 +66,12 @@ The application follows a layered architecture:
 
 See `SPEC.md` for detailed development roadmap. Current phase: Phase 1 (Core RAG).
 
+## Coding Standards
+
+- **Comments**: ALWAYS write comments in English, NEVER in French
+- **Javadoc**: Use English for all documentation
+- **Code**: Use Lombok annotations to reduce boilerplate
+
 ## LangChain4j Patterns
 
 - Use `${langchain4j.version}` property for version consistency
