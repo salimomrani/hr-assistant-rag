@@ -1,0 +1,11 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: hr-assistant-rag
+
+# TODO: Configuration Ollama
+# ollama:
+#   base-url: http://localhost:11434
+#   model: llama3.2
