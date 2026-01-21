@@ -1,0 +1,203 @@
+/* Import fonts matching header */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=DM+Sans:wght@400;500&display=swap');
+
+/* Overlay Spinner */
+.spinner-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(250, 250, 252, 0.8);
+  backdrop-filter: blur(12px) saturate(180%);
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.spinner-container {
+  animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s backwards;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.spinner-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2.5rem;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(250, 250, 252, 0.9) 100%
+  );
+  border-radius: 20px;
+  box-shadow:
+    0 8px 32px rgba(102, 126, 234, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Inline Spinner */
+.spinner-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+/* Spinner Wrapper with gradient effect */
+.spinner-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  opacity: 0.15;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.15;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.25;
+    transform: scale(1.05);
+  }
+}
+
+/* Override PrimeNG spinner styles */
+.spinner-wrapper ::ng-deep .p-progress-spinner-circle {
+  stroke: url(#spinnerGradient) !important;
+  stroke-linecap: round;
+  animation: spinnerRotate 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes spinnerRotate {
+  0% {
+    stroke-dashoffset: 187;
+  }
+  50% {
+    stroke-dashoffset: 46.75;
+  }
+  100% {
+    stroke-dashoffset: 187;
+  }
+}
+
+/* Add gradient definition for spinner */
+.spinner-wrapper ::ng-deep svg {
+  filter: drop-shadow(0 2px 8px rgba(102, 126, 234, 0.3));
+}
+
+/* Spinner Message */
+.spinner-message {
+  text-align: center;
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.spinner-message p {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #475569;
+  letter-spacing: -0.01em;
+}
+
+/* Size variants */
+[data-size="small"] .spinner-wrapper ::ng-deep .p-progress-spinner {
+  width: 40px;
+  height: 40px;
+}
+
+[data-size="small"] .spinner-message p {
+  font-size: 0.875rem;
+}
+
+[data-size="medium"] .spinner-wrapper ::ng-deep .p-progress-spinner {
+  width: 60px;
+  height: 60px;
+}
+
+[data-size="large"] .spinner-wrapper ::ng-deep .p-progress-spinner {
+  width: 80px;
+  height: 80px;
+}
+
+[data-size="large"] .spinner-message p {
+  font-size: 1.0625rem;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .spinner-overlay,
+  .spinner-container,
+  .spinner-message {
+    animation: none;
+  }
+
+  .spinner-wrapper::before {
+    animation: none;
+    opacity: 0.15;
+  }
+
+  .spinner-wrapper ::ng-deep .p-progress-spinner-circle {
+    animation: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .spinner-content {
+    border: 2px solid #000;
+    background: white;
+  }
+
+  .spinner-wrapper::before {
+    display: none;
+  }
+
+  .spinner-message p {
+    color: #000;
+  }
+}

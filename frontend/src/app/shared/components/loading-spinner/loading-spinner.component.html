@@ -1,0 +1,31 @@
+@if (overlay()) {
+  <div class="spinner-overlay">
+    <div class="spinner-container" [attr.data-size]="size()">
+      <div class="spinner-content">
+        <div class="spinner-wrapper">
+          <p-progressSpinner
+            strokeWidth="3"
+            animationDuration="1.2s">
+          </p-progressSpinner>
+        </div>
+        <div class="spinner-message">
+          <p>{{ message() }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+} @else {
+  <div class="spinner-inline" [attr.data-size]="size()">
+    <div class="spinner-wrapper">
+      <p-progressSpinner
+        strokeWidth="3"
+        animationDuration="1.2s">
+      </p-progressSpinner>
+    </div>
+    @if (message()) {
+      <div class="spinner-message">
+        <p>{{ message() }}</p>
+      </div>
+    }
+  </div>
+}

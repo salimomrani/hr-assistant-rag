@@ -1,0 +1,28 @@
+<div class="message-container" [attr.data-severity]="severity()">
+  <div class="message-content">
+    <!-- Icon -->
+    <div class="message-icon">
+      <i [class]="'pi ' + getIcon()"></i>
+    </div>
+
+    <!-- Text Content -->
+    <div class="message-text">
+      <h4 class="message-title">{{ getTitle() }}</h4>
+      <p class="message-body">{{ message() }}</p>
+    </div>
+
+    <!-- Close Button -->
+    @if (closeable()) {
+      <button
+        type="button"
+        class="message-close"
+        (click)="onClose()"
+        aria-label="Close message">
+        <i class="pi pi-times"></i>
+      </button>
+    }
+  </div>
+
+  <!-- Animated border -->
+  <div class="message-border"></div>
+</div>
