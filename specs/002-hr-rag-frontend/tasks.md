@@ -79,44 +79,44 @@ US3 (Upload - P1) ──┐
 
 ### Core Models (src/app/core/models/)
 
-- [ ] T011 [P] Create Question interface in src/app/core/models/question.model.ts
-- [ ] T012 [P] Create Answer interface in src/app/core/models/answer.model.ts
-- [ ] T013 [P] Create SourceDocumentReference interface in src/app/core/models/source-document-reference.model.ts
-- [ ] T014 [P] Create ConversationMessage interface in src/app/core/models/conversation-message.model.ts
-- [ ] T015 [P] Create Document interface and DocumentStatus enum in src/app/core/models/document.model.ts
-- [ ] T016 [P] Create UploadProgress interface and UploadStatus enum in src/app/core/models/upload-progress.model.ts
-- [ ] T017 [P] Create ApiError interface in src/app/core/models/api-error.model.ts
-- [ ] T018 [P] Create Environment interface in src/app/core/models/environment.model.ts
-- [ ] T019 Create index.ts barrel file exporting all models in src/app/core/models/
+- [x] T011 [P] Create Question interface in src/app/core/models/question.model.ts
+- [x] T012 [P] Create Answer interface in src/app/core/models/answer.model.ts
+- [x] T013 [P] Create SourceDocumentReference interface in src/app/core/models/source-document-reference.model.ts
+- [x] T014 [P] Create ConversationMessage interface in src/app/core/models/conversation-message.model.ts
+- [x] T015 [P] Create Document interface and DocumentStatus enum in src/app/core/models/document.model.ts
+- [x] T016 [P] Create UploadProgress interface and UploadStatus enum in src/app/core/models/upload-progress.model.ts
+- [x] T017 [P] Create ApiError interface in src/app/core/models/api-error.model.ts
+- [x] T018 [P] Create Environment interface in src/app/core/models/environment.model.ts
+- [x] T019 Create index.ts barrel file exporting all models in src/app/core/models/
 
 ### Core Services (src/app/core/services/)
 
-- [ ] T020 [P] Create ApiService with HttpClient injection in src/app/core/services/api.service.ts
-- [ ] T021 [P] Create StorageService for localStorage operations in src/app/core/services/storage.service.ts
-- [ ] T022 [P] Create ConversationService for managing chat history in src/app/core/services/conversation.service.ts
-- [ ] T023 [P] Create DocumentService for document management in src/app/core/services/document.service.ts
-- [ ] T024 Create index.ts barrel file exporting all services in src/app/core/services/
+- [x] T020 [P] Create ApiService with HttpClient injection in src/app/core/services/api.service.ts
+- [x] T021 [P] Create StorageService for localStorage operations in src/app/core/services/storage.service.ts
+- [x] T022 [P] Create ConversationService for managing chat history in src/app/core/services/conversation.service.ts
+- [x] T023 [P] Create DocumentService for document management in src/app/core/services/document.service.ts
+- [x] T024 Create index.ts barrel file exporting all services in src/app/core/services/
 
 ### HTTP Interceptors (src/app/core/interceptors/)
 
-- [ ] T025 Create ErrorInterceptor for global error handling in src/app/core/interceptors/error.interceptor.ts
-- [ ] T026 Create HeadersInterceptor for adding common headers in src/app/core/interceptors/headers.interceptor.ts
-- [ ] T027 Register interceptors in app.config.ts providers array
+- [x] T025 Create ErrorInterceptor for global error handling in src/app/core/interceptors/error.interceptor.ts
+- [x] T026 Create HeadersInterceptor for adding common headers in src/app/core/interceptors/headers.interceptor.ts
+- [x] T027 Register interceptors in app.config.ts providers array
 
 ### Navigation & Layout
 
-- [ ] T028 Create HeaderComponent with separate files in src/app/layout/header/
-- [ ] T029 Implement header template with PrimeNG p-menubar in header.component.html
-- [ ] T030 Add navigation links (Chat, Admin) with active route indication in header template
-- [ ] T031 Style header component with responsive design in header.component.css
-- [ ] T032 Configure app routing in src/app/app.routes.ts with lazy-loaded feature routes
-- [ ] T033 Update AppComponent to include header and router-outlet in src/app/app.component.html
+- [x] T028 Create HeaderComponent with separate files in src/app/layout/header/
+- [x] T029 Implement header template with PrimeNG p-menubar in header.component.html
+- [x] T030 Add navigation links (Chat, Admin) with active route indication in header template
+- [x] T031 Style header component with responsive design in header.component.css
+- [x] T032 Configure app routing in src/app/app.routes.ts with lazy-loaded feature routes
+- [x] T033 Update AppComponent to include header and router-outlet in src/app/app.component.html
 
 ### Shared Components (src/app/shared/components/)
 
-- [ ] T034 [P] Create LoadingSpinnerComponent with PrimeNG p-progressSpinner in src/app/shared/components/loading-spinner/
-- [ ] T035 [P] Create ErrorMessageComponent with PrimeNG p-message in src/app/shared/components/error-message/
-- [ ] T036 Create index.ts barrel file exporting shared components in src/app/shared/components/
+- [x] T034 [P] Create LoadingSpinnerComponent with PrimeNG p-progressSpinner in src/app/shared/components/loading-spinner/
+- [x] T035 [P] Create ErrorMessageComponent with PrimeNG p-message in src/app/shared/components/error-message/
+- [x] T036 Create index.ts barrel file exporting shared components in src/app/shared/components/
 
 **Parallel Opportunities**:
 - Models (T011-T018) can all be created in parallel
