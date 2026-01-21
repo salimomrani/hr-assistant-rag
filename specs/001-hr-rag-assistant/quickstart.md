@@ -55,11 +55,7 @@ curl http://localhost:8080/api/health
 Réponse attendue:
 ```json
 {
-  "status": "UP",
-  "components": {
-    "ollama": "UP",
-    "vectorStore": "UP"
-  }
+  "status": "UP"
 }
 ```
 
@@ -89,7 +85,10 @@ curl -X POST http://localhost:8080/api/chat \
 ### 4. Poser une question en streaming
 
 ```bash
-curl -N "http://localhost:8080/api/chat/stream?question=Combien%20de%20jours%20de%20cong%C3%A9s%20ai-je%20droit%20%3F"
+curl -X POST http://localhost:8080/api/chat/stream \
+  -H "Content-Type: application/json" \
+  -N \
+  -d '{"question": "Combien de jours de congés ai-je droit ?"}'
 ```
 
 ## Configuration
