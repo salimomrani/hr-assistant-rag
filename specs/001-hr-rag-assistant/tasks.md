@@ -21,8 +21,8 @@
 
 - [x] T001 Add PDFBox dependency to pom.xml for PDF parsing
 - [x] T002 [P] Create application.yml with Ollama and RAG configuration in src/main/resources/application.yml
-- [ ] T003 [P] Create RAG system prompt template in src/main/resources/prompts/rag-prompt.txt
-- [ ] T004 [P] Create package directories for config, controller, service, model, exception
+- [X] T003 [P] Create RAG system prompt template in src/main/resources/prompts/rag-prompt.txt
+- [x] T004 [P] Create package directories for config, controller, service, model, exception
 
 ---
 
@@ -32,7 +32,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create OllamaConfig.java with ChatLanguageModel and EmbeddingModel beans in src/main/java/com/hrassistant/config/OllamaConfig.java
+- [X] T005 Create OllamaConfig.java with ChatLanguageModel and EmbeddingModel beans in src/main/java/com/hrassistant/config/OllamaConfig.java
 - [ ] T006 [P] Create HrAssistantException.java custom exception in src/main/java/com/hrassistant/exception/HrAssistantException.java
 - [ ] T007 [P] Create ErrorInfo.java DTO in src/main/java/com/hrassistant/model/ErrorInfo.java
 - [ ] T008 [P] Create DocumentType.java enum (PDF, TXT) in src/main/java/com/hrassistant/model/DocumentType.java
