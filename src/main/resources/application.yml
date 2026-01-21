@@ -4,8 +4,31 @@ server:
 spring:
   application:
     name: hr-assistant-rag
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
-# TODO: Configuration Ollama
-# ollama:
-#   base-url: http://localhost:11434
-#   model: llama3.2
+# Configuration HR Assistant
+hr-assistant:
+  ollama:
+    base-url: http://localhost:11434
+    model: llama3.2
+    embedding-model: nomic-embed-text
+    timeout: 60s
+  rag:
+    chunk-size: 500
+    chunk-overlap: 50
+    max-results: 5
+    similarity-threshold: 0.3
+  documents:
+    allowed-types: pdf,txt
+    max-size-mb: 10
+
+# Logging
+logging:
+  level:
+    com.hrassistant: DEBUG
+    dev.langchain4j: INFO
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

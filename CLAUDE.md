@@ -71,3 +71,10 @@ See `SPEC.md` for detailed development roadmap. Current phase: Phase 1 (Core RAG
 - Use `${langchain4j.version}` property for version consistency
 - Embedding models and chat models are configured as Spring beans in `OllamaConfig`
 - Vector store uses `InMemoryEmbeddingStore` for development
+
+## Active Technologies
+- Java 17 + Spring Boot 4.0.1, LangChain4j 1.10.0, Spring WebFlux (001-hr-rag-assistant)
+- In-Memory (InMemoryEmbeddingStore) - MVP, pgvector prévu ultérieuremen (001-hr-rag-assistant)
+
+## Recent Changes
+- 001-hr-rag-assistant: Added Java 17 + Spring Boot 4.0.1, LangChain4j 1.10.0, Spring WebFlux

@@ -1,0 +1,362 @@
+openapi: 3.1.0
+info:
+  title: HR Assistant RAG API
+  description: API REST pour l'assistant RH intelligent basé sur RAG
+  version: 1.0.0
+  contact:
+    name: HR Assistant Team
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+tags:
+  - name: Chat
+    description: Endpoints pour poser des questions
+  - name: Documents
+    description: Gestion des documents RH
+  - name: Health
+    description: Vérification de l'état du service
+
+paths:
+  /api/chat:
+    post:
+      tags:
+        - Chat
+      summary: Poser une question (réponse complète)
+      description: Envoie une question et reçoit une réponse complète basée sur les documents indexés
+      operationId: askQuestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            example:
+              question: "Combien de jours de congés ai-je droit ?"
+              conversationId: null
+      responses:
+        '200':
+          description: Réponse générée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              example:
+                answer: "Selon le guide des congés, vous avez droit à 25 jours de congés payés par an."
+                sources:
+                  - "guide_conges.pdf"
+                conversationId: "550e8400-e29b-41d4-a716-446655440000"
+                error: null
+        '400':
+          description: Question invalide
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service LLM indisponible
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: "HR-001"
+                message: "Le service est temporairement indisponible. Veuillez réessayer plus tard."
+                details: "Ollama service unavailable"
+
+  /api/chat/stream:
+    get:
+      tags:
+        - Chat
+      summary: Poser une question (streaming SSE)
+      description: Envoie une question et reçoit la réponse en streaming token par token
+      operationId: askQuestionStream
+      parameters:
+        - name: question
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          description: La question à poser
+        - name: conversationId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: ID de conversation (optionnel)
+      responses:
+        '200':
+          description: Stream de tokens
+          content:
+            text/event-stream:
+              schema:
+                type: string
+              example: |
+                data: {"token": "Selon"}
+                data: {"token": " le"}
+                data: {"token": " guide"}
+                data: {"done": true, "sources": ["guide_conges.pdf"]}
+        '400':
+          description: Question invalide
+        '503':
+          description: Service LLM indisponible
+
+  /api/documents:
+    get:
+      tags:
+        - Documents
+      summary: Lister les documents indexés
+      description: Retourne la liste de tous les documents avec leurs métadonnées
+      operationId: listDocuments
+      responses:
+        '200':
+          description: Liste des documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentInfo'
+              example:
+                - id: "550e8400-e29b-41d4-a716-446655440001"
+                  name: "guide_conges.pdf"
+                  type: "PDF"
+                  uploadedAt: "2026-01-21T10:30:00Z"
+                  status: "INDEXED"
+                  chunkCount: 45
+                - id: "550e8400-e29b-41d4-a716-446655440002"
+                  name: "reglement_interieur.txt"
+                  type: "TXT"
+                  uploadedAt: "2026-01-21T11:00:00Z"
+                  status: "INDEXED"
+                  chunkCount: 23
+
+    post:
+      tags:
+        - Documents
+      summary: Uploader un document
+      description: Upload et indexe un nouveau document RH (PDF ou TXT)
+      operationId: uploadDocument
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Fichier PDF ou TXT (max 10MB)
+      responses:
+        '201':
+          description: Document uploadé et en cours d'indexation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentInfo'
+        '400':
+          description: Format de fichier non supporté ou fichier invalide
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: "HR-003"
+                message: "Format de fichier non supporté. Seuls PDF et TXT sont acceptés."
+                details: "Received file type: application/x-msdownload"
+        '413':
+          description: Fichier trop volumineux
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/documents/{id}:
+    delete:
+      tags:
+        - Documents
+      summary: Supprimer un document
+      description: Supprime un document et ses chunks de l'index
+      operationId: deleteDocument
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID du document à supprimer
+      responses:
+        '204':
+          description: Document supprimé avec succès
+        '404':
+          description: Document non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/health:
+    get:
+      tags:
+        - Health
+      summary: Vérifier l'état du service
+      description: Retourne l'état de santé de l'API et de ses dépendances
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service opérationnel
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: "UP"
+                components:
+                  ollama: "UP"
+                  vectorStore: "UP"
+                timestamp: "2026-01-21T12:00:00Z"
+        '503':
+          description: Service dégradé ou indisponible
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: "DOWN"
+                components:
+                  ollama: "DOWN"
+                  vectorStore: "UP"
+                timestamp: "2026-01-21T12:00:00Z"
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - question
+      properties:
+        question:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: Question en langage naturel
+        conversationId:
+          type: string
+          format: uuid
+          nullable: true
+          description: ID pour grouper les échanges (optionnel)
+
+    ChatResponse:
+      type: object
+      required:
+        - answer
+        - sources
+        - conversationId
+      properties:
+        answer:
+          type: string
+          description: Réponse générée par le LLM
+        sources:
+          type: array
+          items:
+            type: string
+          description: Noms des documents utilisés comme sources
+        conversationId:
+          type: string
+          format: uuid
+          description: ID de conversation
+        error:
+          $ref: '#/components/schemas/ErrorInfo'
+          nullable: true
+
+    DocumentInfo:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - uploadedAt
+        - status
+        - chunkCount
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - PDF
+            - TXT
+        uploadedAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - PENDING
+            - INDEXED
+            - FAILED
+        chunkCount:
+          type: integer
+          minimum: 0
+
+    ErrorInfo:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Code d'erreur (HR-001, HR-002, etc.)
+        message:
+          type: string
+          description: Message utilisateur
+        details:
+          type: string
+          nullable: true
+          description: Détails techniques
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: string
+          nullable: true
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum:
+            - UP
+            - DOWN
+            - DEGRADED
+        components:
+          type: object
+          additionalProperties:
+            type: string
+        timestamp:
+          type: string
+          format: date-time
