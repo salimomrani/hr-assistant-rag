@@ -23,7 +23,7 @@ hr-assistant-rag/
 - **LLM**: Ollama (llama3.2) running locally on port 11434
 - **Streaming**: WebFlux / SSE
 - **Vector Store**: In-Memory (planned: pgvector)
-- **Frontend**: To be defined
+- **Frontend**: Angular 21, TypeScript 5.6+, PrimeNG v20, RxJS 7.8+
 
 ## Build & Run Commands
 
@@ -47,7 +47,21 @@ lsof -ti:8080 | xargs kill -9
 **Frontend:**
 ```bash
 cd frontend
-# Commands to be defined
+
+# Install dependencies
+npm install
+
+# Start development server (with backend proxy)
+ng serve --proxy-config proxy.conf.json
+
+# Run unit tests
+ng test
+
+# Run E2E tests
+npx cypress run
+
+# Build for production
+ng build --configuration=production
 ```
 
 ## Prerequisites
@@ -123,6 +137,141 @@ Example workflow:
 ## Active Technologies
 - Java 17 + Spring Boot 4.0.1, LangChain4j 1.10.0, Spring WebFlux (001-hr-rag-assistant)
 - In-Memory (InMemoryEmbeddingStore) - MVP, pgvector prévu ultérieuremen (001-hr-rag-assistant)
+- Angular 21 + TypeScript 5.6+, PrimeNG v20, RxJS 7.8+ (002-hr-rag-frontend)
 
 ## Recent Changes
 - 001-hr-rag-assistant: Added Java 17 + Spring Boot 4.0.1, LangChain4j 1.10.0, Spring WebFlux
+- 002-hr-rag-frontend: Added Angular 21 + TypeScript 5.6+, PrimeNG v20, RxJS 7.8+
+
+## Frontend Architecture (002-hr-rag-frontend)
+
+**IMPORTANT**: When developing the frontend, ALWAYS use the `/frontend-design` skill for creating components, pages, and UI elements. This skill is specifically designed for building production-grade, distinctive frontend interfaces with high design quality.
+
+The frontend (`frontend/`) follows Angular 21 best practices with standalone components:
+
+**Structure:**
+- **Core Module** (`src/app/core/`) - Singleton services, guards, interceptors
+  - `services/` - API, conversation, document, storage services
+  - `models/` - TypeScript interfaces and types
+  - `interceptors/` - HTTP interceptors for headers/errors
+
+- **Shared Module** (`src/app/shared/`) - Reusable components, directives, pipes
+
+- **Feature Modules** (`src/app/features/`) - Lazy-loaded feature modules
+  - `chat/` - Chat page with streaming SSE responses
+  - `admin/` - Document management (upload, edit, delete)
+
+- **Layout Components** (`src/app/layout/`) - Header, navigation
+
+**Key Patterns:**
+- **Standalone Components**: No NgModules, simpler architecture
+- **Signals**: UI reactivity (replacing RxJS subscriptions where possible)
+- **RxJS**: Async operations (HTTP, SSE streams)
+- **Separation**: Each component has separate .ts, .html, .css files
+- **localStorage**: Conversation history (50 message limit)
+- **State Management**: Services + RxJS → Signals at UI boundary
+
+## Frontend Coding Standards (Angular 21)
+
+- **Comments**: ALWAYS write comments in English, NEVER in French
+- **Component Separation**: ALWAYS separate .ts, .html, .css files (NEVER inline templates/styles for feature components)
+- **Naming**: Use kebab-case for file names (`chat-message.component.ts`)
+- **Angular Style Guide**: Follow official Angular style guide
+
+### Angular 21 Specific Best Practices
+
+- **Standalone Components**: Use standalone components (default in Angular 20+)
+  - Do NOT set `standalone: true` in decorators (it's the default)
+
+- **Inputs/Outputs**: Use `input()` and `output()` functions instead of decorators
+  ```typescript
+  // GOOD (Angular 21)
+  firstName = input<string>();           // Signal<string|undefined>
+  lastName = input.required<string>();   // Signal<string>
+  age = input(0);                        // Signal<number>
+  clicked = output<void>();              // EventEmitter
+
+  // BAD (old style)
+  @Input() firstName?: string;
+  @Output() clicked = new EventEmitter<void>();
+  ```
+
+- **Dependency Injection**: Use `inject()` function instead of constructor injection
+  ```typescript
+  // GOOD (Angular 21)
+  private http = inject(HttpClient);
+  private router = inject(Router);
+
+  // BAD (old style)
+  constructor(private http: HttpClient) {}
+  ```
+
+- **Control Flow**: Use native control flow (`@if`, `@for`, `@switch`) instead of structural directives
+  ```typescript
+  // GOOD (Angular 21)
+  @if (isLoggedIn) { <p>Welcome</p> }
+  @for (item of items; track item.id) { <p>{{item.name}}</p> }
+
+  // BAD (old style)
+  *ngIf="isLoggedIn"
+  *ngFor="let item of items; trackBy: trackById"
+  ```
+
+- **Signals**: Use signals for state management
+  - Use `signal()` for writable state
+  - Use `computed()` for derived state
+  - Use `effect()` for side effects
+  - Prefer signals over subscriptions where possible
+  - Use `toSignal()` to convert Observables to Signals
+
+- **Change Detection**: Set `changeDetection: ChangeDetectionStrategy.OnPush` in `@Component` decorator
+
+- **Host Bindings**: Use `host` object in decorator instead of `@HostBinding`/`@HostListener`
+  ```typescript
+  // GOOD (Angular 21)
+  @Component({
+    host: {
+      '(click)': 'onClick()',
+      '[class.active]': 'isActive()'
+    }
+  })
+
+  // BAD (old style)
+  @HostListener('click') onClick() {}
+  @HostBinding('class.active') isActive = false;
+  ```
+
+- **Templates**:
+  - Do NOT use `ngClass`, use `class` bindings instead
+  - Do NOT use `ngStyle`, use `style` bindings instead
+  - Do NOT write arrow functions in templates (not supported)
+  - Keep templates simple, avoid complex logic
+
+- **Images**: Use `NgOptimizedImage` for all static images (not for inline base64)
+
+- **Lazy Loading**: Feature modules should be lazy-loaded with `loadComponent`
+
+- **Error Handling**: Use functional HTTP interceptors (Angular 14+)
+
+- **Don't Reinvent the Wheel**: Use PrimeNG v20 components exclusively (80+ components available)
+
+### PrimeNG v20 Best Practices
+
+- **Installation**: Install with `npm install primeng @primeuix/themes`
+- **Theme Configuration**: Use Aura preset theme via `providePrimeNG` in app.config.ts
+- **Animations**: Enable with `provideAnimationsAsync()`
+- **Component Import**: Import standalone PrimeNG components directly
+  ```typescript
+  import { ButtonModule } from 'primeng/button';
+  import { CardModule } from 'primeng/card';
+  import { TableModule } from 'primeng/table';
+  ```
+- **80+ Components Available**: Use rich component library for complex UI needs
+  - Forms: InputText, Dropdown, Calendar, FileUpload
+  - Data: Table, DataView, Tree
+  - Overlay: Dialog, Menu, Tooltip
+  - Messages: Toast, Message
+  - And many more...
+- **Accessibility**: PrimeNG is WCAG 2.0 compliant
+- **Theming**: Design-agnostic API with Material, Bootstrap, custom themes
+- **TypeScript**: First-class TypeScript support with types

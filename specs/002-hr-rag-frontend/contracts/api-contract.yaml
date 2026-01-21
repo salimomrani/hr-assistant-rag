@@ -1,0 +1,390 @@
+openapi: 3.0.3
+info:
+  title: HR RAG Assistant API
+  description: |
+    REST API for HR RAG Assistant frontend to interact with Spring Boot backend.
+    Provides chat functionality with SSE streaming and document management.
+  version: 1.0.0
+  contact:
+    name: HR Assistant Team
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+tags:
+  - name: Chat
+    description: Question/answer endpoints with RAG
+  - name: Documents
+    description: Document upload and management
+  - name: Health
+    description: System health checks
+
+paths:
+  /api/health:
+    get:
+      tags:
+        - Health
+      summary: Health check endpoint
+      description: Verify backend and Ollama service availability
+      operationId: healthCheck
+      responses:
+        '200':
+          description: System healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "UP"
+                  ollama:
+                    type: string
+                    example: "connected"
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/chat:
+    post:
+      tags:
+        - Chat
+      summary: Ask question (blocking)
+      description: Submit a question and receive complete answer in single response
+      operationId: askQuestionBlocking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Answer generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Invalid question (empty, too long, off-topic)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: LLM service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/chat/stream:
+    post:
+      tags:
+        - Chat
+      summary: Ask question (streaming SSE)
+      description: |
+        Submit a question and receive answer as Server-Sent Events stream.
+        Each event contains a text chunk. Final event includes sources.
+      operationId: askQuestionStreaming
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: SSE stream of answer chunks
+          content:
+            text/event-stream:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                    description: |
+                      JSON-encoded ChatStreamEvent sent as SSE data.
+                      Example: data: {"chunk":"Hello","done":false}
+              example: |
+                data: {"chunk":"Based on","done":false}
+                data: {"chunk":" the documents,","done":false}
+                data: {"chunk":" you have 25 vacation days.","sources":[...],"done":true}
+        '400':
+          description: Invalid question
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: LLM service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/documents:
+    get:
+      tags:
+        - Documents
+      summary: List all documents
+      description: Retrieve list of all indexed documents with metadata
+      operationId: listDocuments
+      responses:
+        '200':
+          description: Documents retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentListResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - Documents
+      summary: Upload document
+      description: |
+        Upload a PDF or TXT document for indexing.
+        File must be <= 10MB and type must be PDF or TXT.
+      operationId: uploadDocument
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: PDF or TXT file (max 10MB)
+              required:
+                - file
+      responses:
+        '200':
+          description: Document uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '400':
+          description: Invalid file (wrong type, too large, empty)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: File too large (> 10MB)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/documents/{id}:
+    delete:
+      tags:
+        - Documents
+      summary: Delete document
+      description: Permanently remove a document from the system
+      operationId: deleteDocument
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Document ID
+          schema:
+            type: string
+            example: "doc-123-abc"
+      responses:
+        '204':
+          description: Document deleted successfully
+        '404':
+          description: Document not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - question
+      properties:
+        question:
+          type: string
+          description: User's HR-related question
+          minLength: 1
+          maxLength: 1000
+          example: "Combien de jours de congés ai-je?"
+
+    ChatResponse:
+      type: object
+      required:
+        - answer
+        - sources
+      properties:
+        answer:
+          type: string
+          description: Generated answer from RAG system
+          example: "Selon le document 'Politique RH 2026', vous avez 25 jours de congés payés par an."
+        sources:
+          type: array
+          description: Source documents used to generate answer
+          items:
+            $ref: '#/components/schemas/SourceDocumentReference'
+
+    ChatStreamEvent:
+      type: object
+      required:
+        - chunk
+        - done
+      properties:
+        chunk:
+          type: string
+          description: Text chunk for streaming response
+          example: "Based on the documents, "
+        sources:
+          type: array
+          description: Source documents (included only in final event)
+          items:
+            $ref: '#/components/schemas/SourceDocumentReference'
+        done:
+          type: boolean
+          description: True if this is the final event
+          example: false
+
+    SourceDocumentReference:
+      type: object
+      required:
+        - documentName
+        - excerpt
+      properties:
+        documentName:
+          type: string
+          description: Name of the source document
+          example: "Politique RH 2026.pdf"
+        excerpt:
+          type: string
+          description: Relevant text excerpt from the document
+          example: "Les employés bénéficient de 25 jours de congés payés..."
+
+    Document:
+      type: object
+      required:
+        - id
+        - filename
+        - fileType
+        - fileSizeBytes
+        - status
+        - uploadTimestamp
+      properties:
+        id:
+          type: string
+          description: Unique document identifier
+          example: "doc-123-abc-456"
+        filename:
+          type: string
+          description: Document display name
+          maxLength: 255
+          example: "Politique RH 2026.pdf"
+        fileType:
+          type: string
+          enum: [PDF, TXT]
+          description: Document file type
+          example: "PDF"
+        fileSizeBytes:
+          type: integer
+          format: int64
+          description: File size in bytes
+          minimum: 1
+          maximum: 10485760
+          example: 524288
+        status:
+          type: string
+          enum: [pending, indexed, failed]
+          description: Document indexing status
+          example: "indexed"
+        uploadTimestamp:
+          type: string
+          format: date-time
+          description: When document was uploaded (ISO 8601)
+          example: "2026-01-21T14:30:00Z"
+        failureReason:
+          type: string
+          description: Error message if status is 'failed'
+          example: "Unable to extract text from corrupted PDF"
+
+    DocumentListResponse:
+      type: object
+      required:
+        - documents
+      properties:
+        documents:
+          type: array
+          description: List of all documents
+          items:
+            $ref: '#/components/schemas/Document'
+
+    Error:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        message:
+          type: string
+          description: User-friendly error message
+          example: "Invalid file type. Only PDF and TXT are supported."
+        details:
+          type: string
+          description: Technical error details (optional)
+          example: "Unsupported media type: application/msword"
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp (ISO 8601)
+          example: "2026-01-21T14:35:00Z"
+
+  securitySchemes: {}
+  # No authentication required for MVP
+
+security: []
