@@ -138,10 +138,12 @@ public class StreamingRagService {
 
     /**
      * Appends source citations to the stream.
+     * Adds extra spacing before sources for visual separation in frontend.
      */
     private void appendSources(reactor.core.publisher.FluxSink<String> sink, List<String> sources) {
         if (!sources.isEmpty()) {
-            String sourcesText = "\n\n**Sources:**\n" +
+            // Add extra newlines for visual spacing (frontend will render with pre-line)
+            String sourcesText = "\n\n\n\n**Sources:**\n" +
                     sources.stream()
                             .map(source -> "- " + source)
                             .collect(Collectors.joining("\n"));

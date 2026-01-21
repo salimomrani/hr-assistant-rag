@@ -61,6 +61,7 @@ export class ChatContainerComponent {
     this.apiService.chatStream(questionText).subscribe({
       next: (chunk: string) => {
         // Update streaming content with each chunk
+        // Backend handles spacing and formatting
         const currentContent = this.streamingContent();
         this.streamingContent.set(currentContent + chunk);
       },
@@ -80,8 +81,7 @@ export class ChatContainerComponent {
         // When streaming completes, save the Q&A pair
         const finalContent = this.streamingContent();
 
-        // TODO: Parse sources from final SSE event
-        // For now, using empty sources array
+        // Backend handles all formatting (spacing, sources, etc.)
         const answer: Answer = {
           content: finalContent,
           sources: [] as SourceDocumentReference[],

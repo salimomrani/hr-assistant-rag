@@ -1,0 +1,392 @@
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=DM+Sans:wght@400;500;600&display=swap');
+
+.document-list-container {
+  min-height: 300px;
+}
+
+/* Loading Skeleton */
+.loading-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.skeleton-row {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  border-radius: 12px;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 2rem;
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.12) 100%);
+  border-radius: 20px;
+  color: #667eea;
+  margin-bottom: 1.5rem;
+}
+
+.empty-icon svg {
+  width: 40px;
+  height: 40px;
+}
+
+.empty-state h3 {
+  margin: 0 0 0.75rem 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1a202c;
+  letter-spacing: -0.02em;
+}
+
+.empty-state p {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #64748b;
+  max-width: 400px;
+}
+
+/* Table Styling */
+.document-list-container ::ng-deep .document-table {
+  font-family: 'DM Sans', sans-serif;
+}
+
+.document-list-container ::ng-deep .document-table .p-datatable-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.document-list-container ::ng-deep .document-table .p-datatable-thead > tr > th {
+  background: linear-gradient(
+    135deg,
+    rgba(250, 250, 252, 0.95) 0%,
+    rgba(245, 247, 250, 0.9) 100%
+  );
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+}
+
+.document-list-container ::ng-deep .document-table .p-datatable-tbody > tr {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.document-list-container ::ng-deep .document-table .p-datatable-tbody > tr:hover {
+  background: rgba(102, 126, 234, 0.04) !important;
+}
+
+.document-list-container ::ng-deep .document-table .p-datatable-tbody > tr > td {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  font-size: 0.9375rem;
+  color: #1a202c;
+}
+
+/* File Info Cell */
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.file-icon-small {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.12) 100%);
+  border-radius: 10px;
+  color: #667eea;
+}
+
+.file-icon-small svg {
+  width: 22px;
+  height: 22px;
+}
+
+.filename-text {
+  font-weight: 500;
+  color: #1a202c;
+  word-break: break-word;
+}
+
+/* File Type Badge */
+.file-type-badge {
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  color: #667eea;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Size Cell */
+.size-cell {
+  font-family: 'DM Sans', monospace;
+  color: #64748b;
+}
+
+/* Date Cell */
+.date-cell {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+/* Status Badge Styling */
+.document-list-container ::ng-deep .status-badge {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.document-list-container ::ng-deep .status-badge.p-tag-success {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(22, 163, 74, 0.15) 100%);
+  color: #16a34a;
+}
+
+.document-list-container ::ng-deep .status-badge.p-tag-warn {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);
+  color: #f59e0b;
+}
+
+.document-list-container ::ng-deep .status-badge.p-tag-danger {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.15) 100%);
+  color: #dc2626;
+}
+
+/* Actions Column */
+.actions-column {
+  width: 100px;
+  text-align: center;
+}
+
+.delete-button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.delete-button:hover:not(:disabled) {
+  transform: scale(1.1);
+}
+
+/* Paginator Styling */
+.document-list-container ::ng-deep .p-paginator {
+  background: linear-gradient(
+    135deg,
+    rgba(250, 250, 252, 0.95) 0%,
+    rgba(245, 247, 250, 0.9) 100%
+  );
+  border-top: 1px solid rgba(102, 126, 234, 0.1);
+  padding: 1.25rem 1.5rem;
+}
+
+.document-list-container ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.document-list-container ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+}
+
+.document-list-container ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page:not(.p-highlight):hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+/* Confirm Dialog Styling */
+.document-list-container ::ng-deep .p-confirm-dialog .p-dialog-header {
+  background: linear-gradient(
+    135deg,
+    rgba(250, 250, 252, 0.95) 0%,
+    rgba(245, 247, 250, 0.9) 100%
+  );
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.document-list-container ::ng-deep .p-confirm-dialog .p-dialog-content {
+  font-family: 'DM Sans', sans-serif;
+  padding: 2rem;
+}
+
+.document-list-container ::ng-deep .p-confirm-dialog .p-confirm-dialog-message {
+  margin-left: 1rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #1a202c;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .document-list-container ::ng-deep .document-table .p-datatable-thead > tr > th,
+  .document-list-container ::ng-deep .document-table .p-datatable-tbody > tr > td {
+    padding: 1rem 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Mobile: Stack table cells vertically */
+  .document-list-container ::ng-deep .document-table .p-datatable-thead {
+    display: none;
+  }
+
+  .document-list-container ::ng-deep .document-table .p-datatable-tbody > tr {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    background: white;
+  }
+
+  .document-list-container ::ng-deep .document-table .p-datatable-tbody > tr > td {
+    padding: 0;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .document-list-container ::ng-deep .document-table .p-datatable-tbody > tr > td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #64748b;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .filename-cell::before {
+    content: 'Fichier';
+  }
+
+  .size-cell::before {
+    content: 'Taille';
+  }
+
+  .date-cell::before {
+    content: 'Date';
+  }
+
+  .actions-column {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .empty-state {
+    padding: 2rem 1.5rem;
+  }
+
+  .empty-icon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .empty-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .empty-state h3 {
+    font-size: 1.5rem;
+  }
+
+  .empty-state p {
+    font-size: 0.9375rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .file-info {
+    gap: 0.625rem;
+  }
+
+  .file-icon-small {
+    width: 36px;
+    height: 36px;
+  }
+
+  .file-icon-small svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .filename-text {
+    font-size: 0.875rem;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .empty-state,
+  .document-list-container ::ng-deep .document-table .p-datatable-tbody > tr,
+  .delete-button:hover {
+    animation: none;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .document-list-container ::ng-deep .document-table .p-datatable-thead > tr > th {
+    border-bottom: 2px solid #000;
+  }
+
+  .document-list-container ::ng-deep .document-table .p-datatable-tbody > tr > td {
+    border-bottom: 1px solid #000;
+  }
+}

@@ -36,31 +36,9 @@
             </div>
             <div class="message-wrapper">
               <div class="message-content">
+                <!-- Backend handles all formatting (spacing, sources) -->
                 <p>{{ message.answer.content }}</p>
               </div>
-
-              <!-- Sources -->
-              @if (message.answer.sources && message.answer.sources.length > 0) {
-                <div class="message-sources">
-                  <div class="sources-header">
-                    <i class="pi pi-book"></i>
-                    <span>Sources citées ({{ message.answer.sources.length }})</span>
-                  </div>
-                  <div class="sources-list">
-                    @for (source of message.answer.sources; track $index) {
-                      <div class="source-item">
-                        <span class="source-number">{{ $index + 1 }}</span>
-                        <div class="source-content">
-                          <strong>{{ source.documentName }}</strong>
-                          @if (source.excerpt) {
-                            <p>{{ source.excerpt }}</p>
-                          }
-                        </div>
-                      </div>
-                    }
-                  </div>
-                </div>
-              }
 
               <div class="message-meta">
                 <span class="message-time">{{ formatTime(message.answer.timestamp) }}</span>
@@ -82,6 +60,7 @@
           </div>
           <div class="message-wrapper">
             <div class="message-content">
+              <!-- Backend handles all formatting (spacing, sources) -->
               <p>{{ streamingContent() }}</p>
               <span class="streaming-cursor"></span>
             </div>

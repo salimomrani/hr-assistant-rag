@@ -1,0 +1,54 @@
+<div class="admin-container">
+  <!-- Toast notifications -->
+  <p-toast position="top-right" />
+
+  <!-- Page Header -->
+  <div class="admin-header">
+    <div class="header-content">
+      <h1>Gestion des Documents</h1>
+      <p>Uploadez et gérez les documents RH pour l'assistant intelligent</p>
+    </div>
+    @if (documents().length > 0) {
+      <div class="document-count">
+        <span>{{ documents().length }}</span>
+        <small>document{{ documents().length > 1 ? 's' : '' }}</small>
+      </div>
+    }
+  </div>
+
+  <!-- Upload Section -->
+  <p-card styleClass="upload-card">
+    <ng-template pTemplate="header">
+      <div class="section-header">
+        <h2>Upload de Documents</h2>
+        <p>Formats acceptés: PDF, TXT • Taille max: 10 MB</p>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+      <app-document-upload
+        (uploadSuccess)="onUploadSuccess($event)"
+        (uploadError)="onUploadError($event)">
+      </app-document-upload>
+    </ng-template>
+  </p-card>
+
+  <!-- Document List Section -->
+  <p-card styleClass="list-card">
+    <ng-template pTemplate="header">
+      <div class="section-header">
+        <h2>Documents Indexés</h2>
+        <p>Tous les documents disponibles pour l'assistant RH</p>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+      <app-document-list
+        [documents]="documents()"
+        [isLoading]="isLoading()"
+        (documentDeleted)="onDocumentDeleted($event)"
+        (deleteError)="onDeleteError($event)">
+      </app-document-list>
+    </ng-template>
+  </p-card>
+</div>

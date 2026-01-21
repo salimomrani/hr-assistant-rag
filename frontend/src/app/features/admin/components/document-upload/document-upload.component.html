@@ -1,0 +1,123 @@
+<div class="upload-container">
+  <!-- Error Message -->
+  @if (hasError()) {
+    <app-error-message
+      [message]="errorMessage()"
+      [severity]="'error'"
+      [closeable]="true"
+      (closed)="onErrorClosed()">
+    </app-error-message>
+  }
+
+  <!-- File Upload Component -->
+  <p-fileUpload
+    name="file"
+    [customUpload]="true"
+    (uploadHandler)="onUpload($event)"
+    (onSelect)="onSelect($event)"
+    (onRemove)="onRemove()"
+    [accept]="ACCEPTED_EXTENSIONS.join(',')"
+    [maxFileSize]="MAX_FILE_SIZE"
+    [showUploadButton]="!isUploading()"
+    [showCancelButton]="false"
+    [multiple]="false"
+    [auto]="false"
+    chooseLabel="Choisir un fichier"
+    uploadLabel="Uploader"
+    cancelLabel="Annuler"
+    styleClass="custom-file-upload">
+
+    <ng-template pTemplate="header" let-files let-chooseCallback="chooseCallback">
+      <div class="upload-header">
+        <button
+          type="button"
+          pButton
+          label="Choisir un fichier"
+          icon="pi pi-file"
+          (click)="chooseCallback()"
+          [disabled]="isUploading()"
+          class="choose-button">
+        </button>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="content" let-files let-uploadedFiles let-removeFileCallback="removeFileCallback" let-uploadCallback="uploadCallback">
+      <div class="upload-content">
+        <!-- Drag & Drop Zone (when no file selected) -->
+        @if (!selectedFile() && !isUploading()) {
+          <div class="drop-zone">
+            <div class="drop-zone-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 18C5.17107 18.4117 4 19.0443 4 19.7537C4 20.9943 7.58172 22 12 22C16.4183 22 20 20.9943 20 19.7537C20 19.0443 18.8289 18.4117 17 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 15V3M12 3L16 7M12 3L8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3>Glissez-déposez un fichier ici</h3>
+            <p>ou cliquez sur "Choisir un fichier" pour parcourir</p>
+            <div class="format-info">
+              <span class="format-badge">PDF</span>
+              <span class="format-badge">TXT</span>
+              <span class="size-limit">Max 10 MB</span>
+            </div>
+          </div>
+        }
+
+        <!-- Selected File Preview -->
+        @if (selectedFile() && !isUploading()) {
+          <div class="file-preview">
+            <div class="file-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 12H15M9 16H15M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H12.5858C12.851 3 13.1054 3.10536 13.2929 3.29289L18.7071 8.70711C18.8946 8.89464 19 9.149 19 9.41421V19C19 20.1046 18.1046 21 17 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="file-details">
+              <h4>{{ selectedFile()!.name }}</h4>
+              <p>{{ formattedFileSize() }} • {{ selectedFile()!.type.includes('pdf') ? 'PDF' : 'TXT' }}</p>
+            </div>
+            <button
+              type="button"
+              pButton
+              icon="pi pi-times"
+              class="p-button-rounded p-button-text p-button-danger remove-button"
+              (click)="removeFileCallback(); onRemove()"
+              aria-label="Supprimer le fichier">
+            </button>
+          </div>
+
+          <div class="upload-actions">
+            <button
+              type="button"
+              pButton
+              label="Uploader le document"
+              icon="pi pi-cloud-upload"
+              (click)="triggerUpload()"
+              class="upload-action-button">
+            </button>
+          </div>
+        }
+
+        <!-- Upload Progress -->
+        @if (isUploading()) {
+          <div class="upload-progress">
+            <div class="progress-icon">
+              <i class="pi pi-spin pi-spinner"></i>
+            </div>
+            <div class="progress-details">
+              <h4>Upload en cours...</h4>
+              <p>{{ selectedFile()?.name }}</p>
+            </div>
+          </div>
+          <p-progressBar
+            [value]="uploadProgress()"
+            [showValue]="true"
+            styleClass="upload-progress-bar">
+          </p-progressBar>
+        }
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="empty">
+      <!-- Empty template to override default -->
+    </ng-template>
+  </p-fileUpload>
+</div>

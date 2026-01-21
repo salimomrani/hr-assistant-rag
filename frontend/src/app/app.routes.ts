@@ -19,8 +19,8 @@ export const routes: Routes = [
   {
     path: 'admin',
     loadComponent: () =>
-      import('./features/admin/components/document-list/document-list.component').then(
-        m => m.DocumentListComponent
+      import('./features/admin/components/admin-container/admin-container.component').then(
+        m => m.AdminContainerComponent
       )
   },
   {
