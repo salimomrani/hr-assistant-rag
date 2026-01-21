@@ -6,6 +6,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 HR Assistant RAG - An intelligent HR assistant that answers employee questions using RAG (Retrieval-Augmented Generation) on internal documents.
 
+**Monorepo Structure:**
+```
+hr-assistant-rag/
+├── backend/          # Spring Boot API
+├── frontend/         # Frontend application (to be implemented)
+├── specs/            # Specifications and documentation
+├── CLAUDE.md         # This file
+└── README.md         # Project documentation
+```
+
 ## Tech Stack
 
 - **Backend**: Spring Boot 4.0.1, Java 17
@@ -13,10 +23,14 @@ HR Assistant RAG - An intelligent HR assistant that answers employee questions u
 - **LLM**: Ollama (llama3.2) running locally on port 11434
 - **Streaming**: WebFlux / SSE
 - **Vector Store**: In-Memory (planned: pgvector)
+- **Frontend**: To be defined
 
 ## Build & Run Commands
 
+**Backend:**
 ```bash
+cd backend
+
 # Build
 mvn clean install
 
@@ -30,6 +44,12 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 lsof -ti:8080 | xargs kill -9
 ```
 
+**Frontend:**
+```bash
+cd frontend
+# Commands to be defined
+```
+
 ## Prerequisites
 
 Ollama must be running locally:
@@ -39,32 +59,37 @@ ollama run llama3.2
 
 ## Architecture
 
-The application follows a layered architecture:
+The backend application (`backend/`) follows a layered architecture:
 
-1. **Controllers** (`controller/`) - REST endpoints for chat and document management
-2. **Services** (`service/`) - Business logic
-   - `RagService` - Orchestrates the RAG pipeline
+1. **Controllers** (`backend/src/main/java/com/hrassistant/controller/`) - REST endpoints for chat and document management
+2. **Services** (`backend/src/main/java/com/hrassistant/service/`) - Business logic
+   - `RagService` - Orchestrates the RAG pipeline (blocking)
+   - `StreamingRagService` - Orchestrates the RAG pipeline (streaming)
    - `EmbeddingService` - Converts text to vectors
    - `VectorStoreService` - Stores and searches embeddings
    - `DocumentService` - Handles document upload and chunking
    - `GuardrailService` - Input/output filtering
-   - `CacheService` - Semantic caching
-3. **Config** (`config/`) - Spring configuration beans for LangChain4j
-4. **Model** (`model/`) - DTOs (ChatRequest, ChatResponse, DocumentInfo)
+3. **Config** (`backend/src/main/java/com/hrassistant/config/`) - Spring configuration beans for LangChain4j
+4. **Model** (`backend/src/main/java/com/hrassistant/model/`) - DTOs (ChatRequest, ChatResponse, DocumentInfo)
+5. **Mapper** (`backend/src/main/java/com/hrassistant/mapper/`) - MapStruct mappers
 
 ## API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/chat` | Send question, get full response |
-| GET | `/api/chat/stream` | Send question, get streaming SSE response |
+| GET | `/api/health` | Health check |
+| POST | `/api/chat` | Send question, get full response (blocking) |
+| POST | `/api/chat/stream` | Send question, get streaming SSE response |
 | POST | `/api/documents` | Upload document |
 | GET | `/api/documents` | List indexed documents |
 | DELETE | `/api/documents/{id}` | Delete document |
 
-## Development Phases
+## Documentation
 
-See `SPEC.md` for detailed development roadmap. Current phase: Phase 1 (Core RAG).
+- **Specifications**: `specs/001-hr-rag-assistant/`
+- **Quickstart Guide**: `specs/001-hr-rag-assistant/quickstart.md`
+- **Tasks**: `specs/001-hr-rag-assistant/tasks.md`
+- **Backend README**: `backend/README.md`
 
 ## Coding Standards
 
