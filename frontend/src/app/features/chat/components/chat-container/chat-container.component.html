@@ -1,0 +1,49 @@
+<div class="chat-container">
+  <!-- Error Message -->
+  @if (errorMessage()) {
+    <div class="error-container">
+      <app-error-message
+        [message]="errorMessage()"
+        [severity]="'error'"
+        [closeable]="true"
+        (closed)="onErrorClosed()">
+      </app-error-message>
+    </div>
+  }
+
+  <!-- Chat Card -->
+  <p-card styleClass="chat-card">
+    <ng-template pTemplate="header">
+      <div class="chat-header">
+        <div class="header-content">
+          <h2>Assistant RH</h2>
+          <p>Posez vos questions sur les ressources humaines</p>
+        </div>
+        @if (messages().length > 0) {
+          <div class="message-count">
+            <span>{{ messages().length }}</span>
+            <small>message{{ messages().length > 1 ? 's' : '' }}</small>
+          </div>
+        }
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+      <div class="chat-content">
+        <!-- Message List -->
+        <app-message-list
+          [messages]="messages()"
+          [streamingContent]="streamingContent()"
+          [isLoading]="isLoading()">
+        </app-message-list>
+
+        <!-- Message Input -->
+        <div class="chat-input">
+          <app-message-input
+            (questionSubmitted)="onQuestionSubmitted($event)">
+          </app-message-input>
+        </div>
+      </div>
+    </ng-template>
+  </p-card>
+</div>

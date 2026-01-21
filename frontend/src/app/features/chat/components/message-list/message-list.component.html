@@ -1,0 +1,115 @@
+<div class="message-list-container">
+  @if (messages().length === 0 && !isLoading() && !streamingContent()) {
+    <!-- Empty State -->
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3>Commencez une conversation</h3>
+      <p>Posez une question sur les ressources humaines et obtenez une réponse instantanée avec des sources citées.</p>
+    </div>
+  } @else {
+    <!-- Message List -->
+    <div class="messages-scroll" #scrollContainer>
+      @for (message of messages(); track trackByMessageId($index, message)) {
+        <div class="message-group">
+          <!-- User Question -->
+          <div class="message message-user">
+            <div class="message-content">
+              <p>{{ message.question.text }}</p>
+            </div>
+            <div class="message-meta">
+              <span class="message-time">{{ formatTime(message.question.timestamp) }}</span>
+            </div>
+          </div>
+
+          <!-- Assistant Answer -->
+          <div class="message message-assistant">
+            <div class="message-avatar">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="message-wrapper">
+              <div class="message-content">
+                <p>{{ message.answer.content }}</p>
+              </div>
+
+              <!-- Sources -->
+              @if (message.answer.sources && message.answer.sources.length > 0) {
+                <div class="message-sources">
+                  <div class="sources-header">
+                    <i class="pi pi-book"></i>
+                    <span>Sources citées ({{ message.answer.sources.length }})</span>
+                  </div>
+                  <div class="sources-list">
+                    @for (source of message.answer.sources; track $index) {
+                      <div class="source-item">
+                        <span class="source-number">{{ $index + 1 }}</span>
+                        <div class="source-content">
+                          <strong>{{ source.documentName }}</strong>
+                          @if (source.excerpt) {
+                            <p>{{ source.excerpt }}</p>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <div class="message-meta">
+                <span class="message-time">{{ formatTime(message.answer.timestamp) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Streaming Message (partial response) -->
+      @if (streamingContent()) {
+        <div class="message message-assistant message-streaming">
+          <div class="message-avatar">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="message-wrapper">
+            <div class="message-content">
+              <p>{{ streamingContent() }}</p>
+              <span class="streaming-cursor"></span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Loading Indicator -->
+      @if (isLoading() && !streamingContent()) {
+        <div class="message message-assistant message-loading">
+          <div class="message-avatar">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="message-wrapper">
+            <div class="message-content">
+              <div class="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

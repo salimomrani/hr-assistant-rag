@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8080/api',
+  apiUrl: '/api', // Utilise le proxy Angular vers localhost:8080
   localStoragePrefix: 'hr-assistant-',
   maxConversationMessages: 50,
   maxFileSizeMB: 10

@@ -1,0 +1,44 @@
+<div class="message-input-container">
+  <form class="input-form" (ngSubmit)="onSubmit()">
+    <div class="input-wrapper">
+      <!-- Textarea -->
+      <textarea
+        pInputTextarea
+        [(ngModel)]="questionText"
+        name="question"
+        [disabled]="isDisabled()"
+        [class.error]="isOverLimit()"
+        (keydown)="onKeyDown($event)"
+        placeholder="Posez une question RH..."
+        rows="3"
+        [attr.aria-label]="'Question textinput'"
+        [attr.aria-invalid]="isOverLimit()"
+        class="question-input">
+      </textarea>
+
+      <!-- Character Counter -->
+      <div class="input-footer">
+        <div class="char-counter" [class.warning]="charCount() > MAX_LENGTH * 0.9" [class.error]="isOverLimit()">
+          <span>{{ charCount() }} / {{ MAX_LENGTH }}</span>
+        </div>
+
+        <!-- Submit Button -->
+        <p-button
+          type="submit"
+          [disabled]="!isValid() || isDisabled()"
+          [loading]="isDisabled()"
+          icon="pi pi-send"
+          label="Envoyer"
+          styleClass="p-button-raised"
+          [attr.aria-label]="'Send question'">
+        </p-button>
+      </div>
+    </div>
+
+    <!-- Hint Text -->
+    <div class="input-hint">
+      <i class="pi pi-info-circle"></i>
+      <span>Appuyez sur <kbd>Entrée</kbd> pour envoyer, <kbd>Maj + Entrée</kbd> pour un saut de ligne</span>
+    </div>
+  </form>
+</div>

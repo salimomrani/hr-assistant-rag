@@ -139,53 +139,53 @@ US3 (Upload - P1) ──┐
 
 ### Chat Page Structure
 
-- [ ] T037 [US1] Create chat.routes.ts with lazy-loaded chat component in src/app/features/chat/
-- [ ] T038 [US1] Create ChatContainerComponent with separate files in src/app/features/chat/components/chat-container/
-- [ ] T039 [US1] Design chat container template with PrimeNG p-card in chat-container.component.html
-- [ ] T040 [US1] Style chat container for responsive layout in chat-container.component.css
+- [x] T037 [US1] Create chat.routes.ts with lazy-loaded chat component in src/app/features/chat/
+- [x] T038 [US1] Create ChatContainerComponent with separate files in src/app/features/chat/components/chat-container/
+- [x] T039 [US1] Design chat container template with PrimeNG p-card in chat-container.component.html
+- [x] T040 [US1] Style chat container for responsive layout in chat-container.component.css
 
 ### Message Display
 
-- [ ] T041 [P] [US1] Create MessageListComponent with separate files in src/app/features/chat/components/message-list/
-- [ ] T042 [P] [US1] Implement message list template with PrimeNG p-scrollPanel in message-list.component.html
-- [ ] T043 [P] [US1] Add message display logic with user/assistant differentiation in message-list.component.ts
-- [ ] T044 [P] [US1] Style message bubbles (user vs assistant) in message-list.component.css
-- [ ] T045 [P] [US1] Implement auto-scroll to latest message in message-list.component.ts
-- [ ] T046 [US1] Add loading indicator during response generation using LoadingSpinnerComponent
+- [x] T041 [P] [US1] Create MessageListComponent with separate files in src/app/features/chat/components/message-list/
+- [x] T042 [P] [US1] Implement message list template with PrimeNG p-scrollPanel in message-list.component.html
+- [x] T043 [P] [US1] Add message display logic with user/assistant differentiation in message-list.component.ts
+- [x] T044 [P] [US1] Style message bubbles (user vs assistant) in message-list.component.css
+- [x] T045 [P] [US1] Implement auto-scroll to latest message in message-list.component.ts
+- [x] T046 [US1] Add loading indicator during response generation using LoadingSpinnerComponent
 
 ### Message Input
 
-- [ ] T047 [P] [US1] Create MessageInputComponent with separate files in src/app/features/chat/components/message-input/
-- [ ] T048 [P] [US1] Implement input form with PrimeNG p-inputTextarea and p-button in message-input.component.html
-- [ ] T049 [P] [US1] Add form validation (non-empty, max 1000 chars) in message-input.component.ts
-- [ ] T050 [P] [US1] Style input area with responsive design in message-input.component.css
-- [ ] T051 [US1] Implement form submit with output event emitter in message-input.component.ts
+- [x] T047 [P] [US1] Create MessageInputComponent with separate files in src/app/features/chat/components/message-input/
+- [x] T048 [P] [US1] Implement input form with PrimeNG p-inputTextarea and p-button in message-input.component.html
+- [x] T049 [P] [US1] Add form validation (non-empty, max 1000 chars) in message-input.component.ts
+- [x] T050 [P] [US1] Style input area with responsive design in message-input.component.css
+- [x] T051 [US1] Implement form submit with output event emitter in message-input.component.ts
 
 ### Chat Service & SSE Streaming
 
-- [ ] T052 [US1] Implement POST /api/chat method in ApiService (blocking mode)
-- [ ] T053 [US1] Implement POST /api/chat/stream method with EventSource in ApiService (SSE streaming)
-- [ ] T054 [US1] Wrap EventSource callbacks in NgZone.run() for change detection in ApiService
-- [ ] T055 [US1] Add error handling for network interruptions in SSE stream
-- [ ] T056 [US1] Parse SSE events and emit text chunks as RxJS Observable
+- [x] T052 [US1] Implement POST /api/chat method in ApiService (blocking mode)
+- [x] T053 [US1] Implement POST /api/chat/stream method with EventSource in ApiService (SSE streaming)
+- [x] T054 [US1] Wrap EventSource callbacks in NgZone.run() for change detection in ApiService
+- [x] T055 [US1] Add error handling for network interruptions in SSE stream
+- [x] T056 [US1] Parse SSE events and emit text chunks as RxJS Observable
 
 ### Conversation State Management
 
-- [ ] T057 [US1] Create conversation history signal in ConversationService
-- [ ] T058 [US1] Implement addMessage method in ConversationService
-- [ ] T059 [US1] Implement loadHistory method from localStorage in ConversationService
-- [ ] T060 [US1] Implement saveHistory method to localStorage with 50-message limit in ConversationService
-- [ ] T061 [US1] Implement FIFO eviction when message limit exceeded in ConversationService
-- [ ] T062 [US1] Add currentStreamingResponse signal for partial answers in ConversationService
+- [x] T057 [US1] Create conversation history signal in ConversationService
+- [x] T058 [US1] Implement addMessage method in ConversationService
+- [x] T059 [US1] Implement loadHistory method from localStorage in ConversationService
+- [x] T060 [US1] Implement saveHistory method to localStorage with 50-message limit in ConversationService
+- [x] T061 [US1] Implement FIFO eviction when message limit exceeded in ConversationService
+- [x] T062 [US1] Add currentStreamingResponse signal for partial answers in ConversationService
 
 ### Integration
 
-- [ ] T063 [US1] Connect ChatContainerComponent to ConversationService signals
-- [ ] T064 [US1] Implement question submission flow: input → service → API → display in ChatContainerComponent
-- [ ] T065 [US1] Handle streaming response chunks and update UI progressively
-- [ ] T066 [US1] Persist completed Q&A pairs to localStorage after each answer
-- [ ] T067 [US1] Load conversation history on component init and display in MessageListComponent
-- [ ] T068 [US1] Add error handling with ErrorMessageComponent for API failures
+- [x] T063 [US1] Connect ChatContainerComponent to ConversationService signals
+- [x] T064 [US1] Implement question submission flow: input → service → API → display in ChatContainerComponent
+- [x] T065 [US1] Handle streaming response chunks and update UI progressively
+- [x] T066 [US1] Persist completed Q&A pairs to localStorage after each answer
+- [x] T067 [US1] Load conversation history on component init and display in MessageListComponent
+- [x] T068 [US1] Add error handling with ErrorMessageComponent for API failures
 
 **Parallel Opportunities**:
 - MessageListComponent (T041-T046) and MessageInputComponent (T047-T051) can be built in parallel

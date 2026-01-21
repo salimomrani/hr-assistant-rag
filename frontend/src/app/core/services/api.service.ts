@@ -18,31 +18,71 @@ export class ApiService {
 
   /**
    * Send a chat question and get streaming response via SSE
+   * Uses XMLHttpRequest for streaming support with POST method
    * @param question The user's question
    * @returns Observable emitting text chunks as they arrive
    */
   chatStream(question: string): Observable<string> {
     return new Observable(observer => {
-      const eventSource = new EventSource(
-        `${this.apiUrl}/chat/stream?question=${encodeURIComponent(question)}`
-      );
+      const xhr = new XMLHttpRequest();
+      let lastIndex = 0;
 
-      eventSource.onmessage = (event) => {
+      xhr.open('POST', `${this.apiUrl}/chat/stream`, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.setRequestHeader('Accept', 'text/event-stream');
+
+      // Handle progressive response
+      xhr.onprogress = () => {
         this.ngZone.run(() => {
-          observer.next(event.data);
+          const responseText = xhr.responseText.substring(lastIndex);
+          lastIndex = xhr.responseText.length;
+
+          // Parse SSE format (data: ...)
+          const lines = responseText.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('data:')) {
+              const data = line.substring(5).trim();
+              if (data) {
+                observer.next(data);
+              }
+            }
+          }
         });
       };
 
-      eventSource.onerror = (error) => {
+      // Handle completion
+      xhr.onload = () => {
         this.ngZone.run(() => {
-          observer.error(error);
-          eventSource.close();
+          if (xhr.status >= 200 && xhr.status < 300) {
+            observer.complete();
+          } else {
+            observer.error(new Error(`HTTP error! status: ${xhr.status}`));
+          }
         });
       };
+
+      // Handle errors
+      xhr.onerror = () => {
+        this.ngZone.run(() => {
+          observer.error(new Error('Network error occurred'));
+        });
+      };
+
+      // Handle abort
+      xhr.onabort = () => {
+        this.ngZone.run(() => {
+          observer.error(new Error('Request aborted'));
+        });
+      };
+
+      // Send request
+      xhr.send(JSON.stringify({ question }));
 
       // Cleanup function
       return () => {
-        eventSource.close();
+        if (xhr.readyState !== XMLHttpRequest.DONE) {
+          xhr.abort();
+        }
       };
     });
   }
