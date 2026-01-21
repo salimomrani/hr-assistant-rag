@@ -77,7 +77,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T024 [P] [US2] Create DocumentInfo.java DTO in src/main/java/com/hrassistant/model/DocumentInfo.java
+- [x] T024 [P] [US2] Create DocumentInfo.java DTO in src/main/java/com/hrassistant/model/DocumentInfo.java
 - [ ] T025 [US2] Create DocumentService.java for upload, chunking, and indexing in src/main/java/com/hrassistant/service/DocumentService.java
 - [ ] T026 [US2] Implement PDF text extraction using PDFBox in DocumentService.java
 - [ ] T027 [US2] Implement TXT file reading in DocumentService.java
