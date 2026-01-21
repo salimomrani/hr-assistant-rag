@@ -58,16 +58,16 @@ US3 (Upload - P1) ──┐
 
 ### Tasks
 
-- [ ] T001 Create Angular 21 project with CLI in frontend/ directory
-- [ ] T002 Install dependencies: primeng, @primeuix/themes, primeicons, rxjs
-- [ ] T003 Configure PrimeNG providers with Aura theme in src/app/app.config.ts
-- [ ] T004 Add PrimeIcons CSS to src/styles.css
-- [ ] T005 Create environment files in src/environments/ (development and production)
-- [ ] T006 Configure proxy for backend API in proxy.conf.json
-- [ ] T007 Update angular.json with proxy configuration
-- [ ] T008 Create project directory structure per implementation plan (core/, shared/, features/, layout/)
-- [ ] T009 Configure TypeScript strict mode in tsconfig.json
-- [ ] T010 Create README.md with project overview and setup instructions
+- [x] T001 Create Angular 21 project with CLI in frontend/ directory
+- [x] T002 Install dependencies: primeng, @primeuix/themes, primeicons, rxjs
+- [x] T003 Configure PrimeNG providers with Aura theme in src/app/app.config.ts
+- [x] T004 Add PrimeIcons CSS to src/styles.css
+- [x] T005 Create environment files in src/environments/ (development and production)
+- [x] T006 Configure proxy for backend API in proxy.conf.json
+- [x] T007 Update angular.json with proxy configuration
+- [x] T008 Create project directory structure per implementation plan (core/, shared/, features/, layout/)
+- [x] T009 Configure TypeScript strict mode in tsconfig.json
+- [x] T010 Create README.md with project overview and setup instructions
 
 **Parallel Opportunities**: None (sequential setup required)
 
