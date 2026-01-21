@@ -4,6 +4,7 @@ import com.hrassistant.model.ChatRequest;
 import com.hrassistant.model.ChatResponse;
 import com.hrassistant.service.RagService;
 import com.hrassistant.service.StreamingRagService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -31,7 +32,7 @@ public class ChatController {
      * @return Chat response with answer and sources
      */
     @PostMapping
-    public ResponseEntity<ChatResponse> chat(@RequestBody ChatRequest request) {
+    public ResponseEntity<ChatResponse> chat(@Valid @RequestBody ChatRequest request) {
         log.info("Received chat request: {}", request.getQuestion());
 
         ChatResponse response = ragService.chat(request);
@@ -53,7 +54,7 @@ public class ChatController {
      * @return Flux of response tokens streamed in real-time
      */
     @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> chatStream(@RequestBody ChatRequest request) {
+    public Flux<String> chatStream(@Valid @RequestBody ChatRequest request) {
 
         log.info("Received streaming chat request: {}", request.getQuestion());
 

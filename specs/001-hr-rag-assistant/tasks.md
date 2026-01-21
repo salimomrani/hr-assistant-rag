@@ -129,11 +129,11 @@
 
 **Purpose**: Final improvements affecting multiple user stories
 
-- [ ] T041 [P] Add logging statements across all services using SLF4J
-- [ ] T042 [P] Add input validation annotations (@NotBlank, @Size) to DTOs
-- [ ] T043 Verify quickstart.md instructions work end-to-end
-- [ ] T044 Review and optimize embedding search performance
-- [ ] T045 Add request/response logging in controllers
+- [x] T041 [P] Add logging statements across all services using SLF4J
+- [x] T042 [P] Add input validation annotations (@NotBlank, @Size) to DTOs
+- [x] T043 Verify quickstart.md instructions work end-to-end
+- [x] T044 Review and optimize embedding search performance
+- [x] T045 Add request/response logging in controllers
 
 ---
 
