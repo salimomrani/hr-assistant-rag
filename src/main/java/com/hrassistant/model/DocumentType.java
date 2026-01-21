@@ -3,11 +3,6 @@ package com.hrassistant.model;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-/**
- * @author : salimomrani
- * @email : omrani_salim@outlook.fr
- * @created : 21/01/2026, mercredi
- **/
 @Getter
 @RequiredArgsConstructor
 public enum DocumentType {

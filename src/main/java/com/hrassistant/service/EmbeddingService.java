@@ -10,11 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-/**
- * @author : salimomrani
- * @email : omrani_salim@outlook.fr
- * @created : 21/01/2026, mercredi
- **/
 @Slf4j
 @Service
 @RequiredArgsConstructor

@@ -8,11 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-/**
- * @author : salimomrani
- * @email : omrani_salim@outlook.fr
- * @created : 21/01/2026, mercredi
- **/
 @RestController
 @RequestMapping("/api/health")
 @RequiredArgsConstructor

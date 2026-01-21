@@ -12,11 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * @author : salimomrani
- * @email : omrani_salim@outlook.fr
- * @created : 21/01/2026, mercredi
- **/
 @Slf4j
 @Service
 @RequiredArgsConstructor

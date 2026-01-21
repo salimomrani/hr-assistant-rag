@@ -9,11 +9,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
-/**
- * @author : salimomrani
- * @email : omrani_salim@outlook.fr
- * @created : 21/01/2026, mercredi
- **/
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
