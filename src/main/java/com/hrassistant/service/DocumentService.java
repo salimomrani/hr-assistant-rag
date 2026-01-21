@@ -1,11 +1,13 @@
 package com.hrassistant.service;
 
 import com.hrassistant.exception.HrAssistantException;
+import com.hrassistant.mapper.DocumentMapper;
 import com.hrassistant.model.*;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +27,7 @@ public class DocumentService {
 
     private final EmbeddingService embeddingService;
     private final VectorStoreService vectorStoreService;
+    private final DocumentMapper documentMapper;
 
     // In-memory storage for document metadata
     private final Map<String, Document> documents = new ConcurrentHashMap<>();
@@ -86,7 +89,7 @@ public class DocumentService {
             log.info("Document indexed successfully: {} ({} chunks)",
                     document.getFilename(), chunks.size());
 
-            return toDocumentInfo(document);
+            return documentMapper.toDocumentInfo(document);
 
         } catch (Exception e) {
             log.error("Failed to index document: {}", e.getMessage(), e);
@@ -150,7 +153,7 @@ public class DocumentService {
      * Extracts text from PDF using PDFBox.
      */
     private String extractTextFromPdf(MultipartFile file) throws IOException {
-        try (PDDocument document = PDDocument.load(file.getInputStream())) {
+        try (PDDocument document = Loader.loadPDF(file.getBytes())) {
             PDFTextStripper stripper = new PDFTextStripper();
             String text = stripper.getText(document);
 
@@ -263,7 +266,7 @@ public class DocumentService {
      */
     public List<DocumentInfo> getAllDocuments() {
         return documents.values().stream()
-                .map(this::toDocumentInfo)
+                .map(documentMapper::toDocumentInfo)
                 .toList();
     }
 
@@ -278,11 +281,11 @@ public class DocumentService {
                     "Document not found: " + id
             );
         }
-        return toDocumentInfo(document);
+        return documentMapper.toDocumentInfo(document);
     }
 
     /**
-     * Deletes a document (metadata only, chunks remain in VectorStore for now).
+     * Deletes a document and removes all associated embeddings from VectorStore.
      */
     public void deleteDocument(String id) {
         Document document = documents.remove(id);
@@ -293,24 +296,9 @@ public class DocumentService {
             );
         }
 
-        // TODO: Remove chunks from VectorStore (requires VectorStore.removeAll by documentId)
-        log.info("Document deleted: {} (chunks remain in VectorStore)", document.getFilename());
-    }
+        // Remove embeddings from VectorStore
+        vectorStoreService.removeByDocumentId(id);
 
-    /**
-     * Converts Document entity to DocumentInfo DTO.
-     */
-    private DocumentInfo toDocumentInfo(Document document) {
-        return DocumentInfo.builder()
-                .id(document.getId())
-                .filename(document.getFilename())
-                .type(document.getType())
-                .status(document.getStatus())
-                .size(document.getSize())
-                .chunkCount(document.getChunkCount())
-                .uploadedAt(document.getUploadedAt())
-                .indexedAt(document.getIndexedAt())
-                .errorMessage(document.getErrorMessage())
-                .build();
+        log.info("Document deleted: {} (metadata and embeddings removed)", document.getFilename());
     }
 }
