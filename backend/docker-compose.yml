@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: hr-assistant-pgvector
+    environment:
+      POSTGRES_USER: hr_assistant
+      POSTGRES_PASSWORD: hr_assistant_pwd
+      POSTGRES_DB: hr_assistant_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgvector_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hr_assistant -d hr_assistant_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgvector_data:
