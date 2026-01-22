@@ -2,15 +2,11 @@ package com.hrassistant.service;
 
 import com.hrassistant.exception.HrAssistantException;
 import com.hrassistant.model.ChatRequest;
-import dev.langchain4j.data.embedding.Embedding;
-import dev.langchain4j.data.message.ChatMessage;
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.model.chat.StreamingChatModel;
-import dev.langchain4j.model.chat.response.ChatResponse;
-import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
-import dev.langchain4j.store.embedding.EmbeddingMatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.document.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -19,12 +15,9 @@ import reactor.core.publisher.Flux;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * Service for streaming RAG responses.
- *
- * Uses the same RAG pipeline as RagService but streams tokens in real-time.
+ * Service for streaming RAG responses using Spring AI.
  */
 @Slf4j
 @Service
@@ -32,9 +25,8 @@ import java.util.stream.Collectors;
 public class StreamingRagService {
 
     private final GuardrailService guardrailService;
-    private final EmbeddingService embeddingService;
     private final VectorStoreService vectorStoreService;
-    private final StreamingChatModel streamingChatModel;
+    private final ChatModel chatModel;
 
     @Value("classpath:prompts/rag-prompt.txt")
     private Resource promptTemplate;
@@ -44,14 +36,10 @@ public class StreamingRagService {
      *
      * Pipeline:
      * 1. Validate question
-     * 2. Embed question
-     * 3. Search similar chunks
-     * 4. Build context
-     * 5. Stream response token by token
-     * 6. Add sources at end
-     *
-     * @param request The chat request
-     * @return Flux of response tokens
+     * 2. Search similar chunks (embedding done internally by VectorStore)
+     * 3. Build context
+     * 4. Stream response token by token
+     * 5. Add sources at end
      */
     public Flux<String> chatStream(ChatRequest request) {
         String question = request.getQuestion();
@@ -61,31 +49,27 @@ public class StreamingRagService {
             // Step 1: Validate question
             guardrailService.validateQuestion(question);
 
-            // Step 2: Embed question
-            Embedding questionEmbedding = embeddingService.embed(question);
-
-            // Step 3: Search similar chunks
-            List<EmbeddingMatch<TextSegment>> matches = vectorStoreService.search(questionEmbedding);
+            // Step 2: Search similar chunks
+            List<Document> matches = vectorStoreService.search(question);
 
             // Check if relevant information was found
             if (matches.isEmpty()) {
                 log.warn("No relevant documents found for question: {}", question);
-                return Flux.just("Je n'ai pas trouvé d'information pertinente dans les documents disponibles " +
-                        "pour répondre à votre question. Je vous suggère de contacter directement le service RH " +
-                        "pour obtenir une réponse précise.");
+                return Flux.just("I could not find relevant information in the available documents to answer " +
+                        "your question. I suggest contacting the HR department directly for a precise answer.");
             }
 
-            // Step 4: Build context from retrieved chunks
+            // Step 3: Build context from retrieved chunks
             String context = buildContext(matches);
 
-            // Step 5: Build prompt
-            String prompt = buildPrompt(context, question);
+            // Step 4: Build prompt
+            String promptText = buildPrompt(context, question);
 
-            // Step 6: Extract sources for later
+            // Step 5: Extract sources for later
             List<String> sources = extractSources(matches);
 
-            // Step 7: Stream response
-            return streamResponse(prompt, sources);
+            // Step 6: Stream response using Spring AI ChatModel
+            return streamResponse(promptText, sources);
 
         } catch (HrAssistantException e) {
             log.error("RAG pipeline error: {}", e.getMessage());
@@ -94,87 +78,61 @@ public class StreamingRagService {
             log.error("Unexpected error during streaming: {}", e.getMessage(), e);
             return Flux.error(new HrAssistantException(
                     HrAssistantException.ErrorCode.INTERNAL_ERROR,
-                    "Une erreur inattendue s'est produite",
+                    "An unexpected error occurred",
                     e
             ));
         }
     }
 
     /**
-     * Streams the LLM response token by token.
+     * Streams the LLM response token by token using Spring AI.
      */
-    private Flux<String> streamResponse(String prompt, List<String> sources) {
-        return Flux.create(sink -> streamingChatModel.chat(prompt, createStreamingHandler(sink, sources)));
+    private Flux<String> streamResponse(String promptText, List<String> sources) {
+        Prompt prompt = new Prompt(promptText);
+
+        return chatModel.stream(prompt)
+                .map(response -> {
+                    String content = response.getResult().getOutput().getText();
+                    return content != null ? content : "";
+                })
+                .filter(content -> !content.isEmpty())
+                .concatWith(Flux.defer(() -> {
+                    // Append sources at the end
+                    log.info("Streaming complete. Adding sources: {}", sources);
+                    return Flux.just(buildSourcesText(sources));
+                }))
+                .doOnError(error -> log.error("Streaming error: {}", error.getMessage(), error))
+                .onErrorMap(error -> new HrAssistantException(
+                        HrAssistantException.ErrorCode.LLM_ERROR,
+                        "The response generation service is temporarily unavailable. Please try again later.",
+                        error
+                ));
     }
 
     /**
-     * Creates a streaming response handler that feeds tokens to the Flux sink.
+     * Builds the sources text to append at the end of the response.
      */
-    private StreamingChatResponseHandler createStreamingHandler(
-            reactor.core.publisher.FluxSink<String> sink,
-            List<String> sources) {
-        return new StreamingChatResponseHandler() {
-
-            @Override
-            public void onPartialResponse(String token) {
-                log.trace("Received token: {}", token);
-                sink.next(token);
-            }
-
-            @Override
-            public void onCompleteResponse(ChatResponse completeResponse) {
-                log.info("Streaming complete. Adding sources: {}", sources);
-                appendSources(sink, sources);
-                sink.complete();
-            }
-
-            @Override
-            public void onError(Throwable error) {
-                log.error("Streaming error: {}", error.getMessage(), error);
-                sink.error(wrapStreamingError(error));
-            }
-        };
-    }
-
-    /**
-     * Appends source citations to the stream.
-     * Adds extra spacing before sources for visual separation in frontend.
-     */
-    private void appendSources(reactor.core.publisher.FluxSink<String> sink, List<String> sources) {
-        if (!sources.isEmpty()) {
-            // Add extra newlines for visual spacing (frontend will render with pre-line)
-            String sourcesText = "\n\n\n\n**Sources:**\n" +
-                    sources.stream()
-                            .map(source -> "- " + source)
-                            .collect(Collectors.joining("\n"));
-            sink.next(sourcesText);
+    private String buildSourcesText(List<String> sources) {
+        if (sources.isEmpty()) {
+            return "";
         }
+        return "\n\n\n\n**Sources:**\n" +
+                String.join("\n", sources.stream()
+                        .map(source -> "- " + source)
+                        .toList());
     }
 
     /**
-     * Wraps streaming errors into HrAssistantException.
+     * Builds context from retrieved documents.
      */
-    private HrAssistantException wrapStreamingError(Throwable error) {
-        return new HrAssistantException(
-                HrAssistantException.ErrorCode.LLM_ERROR,
-                "Le service de génération de réponses est temporairement indisponible. " +
-                        "Veuillez réessayer plus tard.",
-                error
-        );
-    }
-
-    /**
-     * Builds context from retrieved document chunks.
-     */
-    private String buildContext(List<EmbeddingMatch<TextSegment>> matches) {
-        return matches.stream()
-                .map(match -> {
-                    TextSegment segment = match.embedded();
-                    String docName = segment.metadata().getString("documentName");
-                    String text = segment.text();
+    private String buildContext(List<Document> matches) {
+        return String.join("\n\n", matches.stream()
+                .map(doc -> {
+                    String docName = (String) doc.getMetadata().get("documentName");
+                    String text = doc.getText();
                     return String.format("[Source: %s]\n%s", docName, text);
                 })
-                .collect(Collectors.joining("\n\n"));
+                .toList());
     }
 
     /**
@@ -199,10 +157,10 @@ public class StreamingRagService {
     /**
      * Extracts unique document names from matches.
      */
-    private List<String> extractSources(List<EmbeddingMatch<TextSegment>> matches) {
+    private List<String> extractSources(List<Document> matches) {
         return matches.stream()
-                .map(match -> match.embedded().metadata().getString("documentName"))
+                .map(doc -> (String) doc.getMetadata().get("documentName"))
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
     }
 }

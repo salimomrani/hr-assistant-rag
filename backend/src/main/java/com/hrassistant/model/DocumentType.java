@@ -3,6 +3,8 @@ package com.hrassistant.model;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Arrays;
+
 @Getter
 @RequiredArgsConstructor
 public enum DocumentType {
@@ -17,11 +19,9 @@ public enum DocumentType {
             return null;
         }
         String lower = filename.toLowerCase();
-        if (lower.endsWith(".pdf")) {
-            return PDF;
-        } else if (lower.endsWith(".txt")) {
-            return TXT;
-        }
-        return null;
+        return Arrays.stream(values())
+                .filter(type -> lower.endsWith(type.getExtension()))
+                .findFirst()
+                .orElse(null);
     }
 }

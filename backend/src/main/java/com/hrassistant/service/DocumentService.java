@@ -3,22 +3,22 @@ package com.hrassistant.service;
 import com.hrassistant.exception.HrAssistantException;
 import com.hrassistant.mapper.DocumentMapper;
 import com.hrassistant.model.*;
-import dev.langchain4j.data.embedding.Embedding;
-import dev.langchain4j.data.segment.TextSegment;
+import com.hrassistant.repository.DocumentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.springframework.ai.document.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
@@ -27,10 +27,8 @@ public class DocumentService {
 
     private final EmbeddingService embeddingService;
     private final VectorStoreService vectorStoreService;
+    private final DocumentRepository documentRepository;
     private final DocumentMapper documentMapper;
-
-    // In-memory storage for document metadata
-    private final Map<String, Document> documents = new ConcurrentHashMap<>();
 
     @Value("${hr-assistant.documents.max-size-mb:10}")
     private int maxSizeMb;
@@ -48,10 +46,10 @@ public class DocumentService {
      * 1. Validate file (type, size)
      * 2. Extract text (PDF or TXT)
      * 3. Chunk text
-     * 4. Generate embeddings
-     * 5. Store in VectorStore
-     * 6. Save metadata
+     * 4. Store in VectorStore (embedding generated automatically by Spring AI)
+     * 5. Save metadata to PostgreSQL
      */
+    @Transactional
     public DocumentInfo uploadDocument(MultipartFile file) {
         log.info("Starting document upload: {}", file.getOriginalFilename());
 
@@ -60,7 +58,7 @@ public class DocumentService {
 
         // Create document entity
         String documentId = UUID.randomUUID().toString();
-        Document document = Document.builder()
+        com.hrassistant.model.Document document = com.hrassistant.model.Document.builder()
                 .id(documentId)
                 .filename(file.getOriginalFilename())
                 .type(DocumentType.fromExtension(file.getOriginalFilename()))
@@ -69,7 +67,8 @@ public class DocumentService {
                 .uploadedAt(LocalDateTime.now())
                 .build();
 
-        documents.put(documentId, document);
+        // Save to PostgreSQL
+        documentRepository.save(document);
 
         try {
             // Step 2: Extract text
@@ -78,13 +77,14 @@ public class DocumentService {
             // Step 3: Chunk text
             List<DocumentChunk> chunks = chunkText(text, documentId, document.getFilename());
 
-            // Step 4 & 5: Embed and store chunks
+            // Step 4: Store chunks in VectorStore (embedding is automatic)
             indexChunks(chunks);
 
-            // Step 6: Update document status
+            // Step 5: Update document status
             document.setStatus(DocumentStatus.INDEXED);
             document.setChunkCount(chunks.size());
             document.setIndexedAt(LocalDateTime.now());
+            documentRepository.save(document);
 
             log.info("Document indexed successfully: {} ({} chunks)",
                     document.getFilename(), chunks.size());
@@ -95,6 +95,7 @@ public class DocumentService {
             log.error("Failed to index document: {}", e.getMessage(), e);
             document.setStatus(DocumentStatus.FAILED);
             document.setErrorMessage(e.getMessage());
+            documentRepository.save(document);
             throw new HrAssistantException(
                     HrAssistantException.ErrorCode.DOCUMENT_PROCESSING_ERROR,
                     "Failed to process document: " + e.getMessage(),
@@ -110,7 +111,7 @@ public class DocumentService {
         if (file.isEmpty()) {
             throw new HrAssistantException(
                     HrAssistantException.ErrorCode.INVALID_INPUT,
-                    "Le fichier est vide"
+                    "File is empty"
             );
         }
 
@@ -121,7 +122,7 @@ public class DocumentService {
         if (type == null) {
             throw new HrAssistantException(
                     HrAssistantException.ErrorCode.INVALID_INPUT,
-                    "Type de fichier non supporté. Formats acceptés: PDF, TXT"
+                    "Unsupported file type. Accepted formats: PDF, TXT"
             );
         }
 
@@ -130,7 +131,7 @@ public class DocumentService {
         if (file.getSize() > maxSizeBytes) {
             throw new HrAssistantException(
                     HrAssistantException.ErrorCode.INVALID_INPUT,
-                    String.format("Le fichier dépasse la taille maximale de %d MB", maxSizeMb)
+                    String.format("File exceeds maximum size of %d MB", maxSizeMb)
             );
         }
 
@@ -160,7 +161,7 @@ public class DocumentService {
             if (text == null || text.isBlank()) {
                 throw new HrAssistantException(
                         HrAssistantException.ErrorCode.DOCUMENT_PROCESSING_ERROR,
-                        "Le PDF ne contient pas de texte extractible"
+                        "PDF does not contain extractable text"
                 );
             }
 
@@ -171,7 +172,7 @@ public class DocumentService {
             log.error("Failed to parse PDF: {}", e.getMessage());
             throw new HrAssistantException(
                     HrAssistantException.ErrorCode.DOCUMENT_PROCESSING_ERROR,
-                    "Le fichier PDF est corrompu ou illisible",
+                    "PDF file is corrupted or unreadable",
                     e
             );
         }
@@ -187,7 +188,7 @@ public class DocumentService {
             if (text.isBlank()) {
                 throw new HrAssistantException(
                         HrAssistantException.ErrorCode.DOCUMENT_PROCESSING_ERROR,
-                        "Le fichier TXT est vide"
+                        "TXT file is empty"
                 );
             }
 
@@ -198,7 +199,7 @@ public class DocumentService {
             log.error("Failed to read TXT file: {}", e.getMessage());
             throw new HrAssistantException(
                     HrAssistantException.ErrorCode.DOCUMENT_PROCESSING_ERROR,
-                    "Impossible de lire le fichier TXT",
+                    "Unable to read TXT file",
                     e
             );
         }
@@ -206,10 +207,6 @@ public class DocumentService {
 
     /**
      * Chunks text with overlap.
-     *
-     * Example: chunkSize=500, overlap=50
-     * Chunk 1: chars 0-500
-     * Chunk 2: chars 450-950 (starts 50 chars before end of chunk 1)
      */
     private List<DocumentChunk> chunkText(String text, String documentId, String documentName) {
         log.debug("Chunking text: {} chars, chunkSize={}, overlap={}",
@@ -242,59 +239,57 @@ public class DocumentService {
     }
 
     /**
-     * Generates embeddings for chunks and stores them.
+     * Stores chunks in VectorStore.
+     * Spring AI automatically generates embeddings when storing.
      */
     private void indexChunks(List<DocumentChunk> chunks) {
         log.debug("Indexing {} chunks", chunks.size());
 
         for (DocumentChunk chunk : chunks) {
-            // Convert to TextSegment
-            TextSegment segment = embeddingService.toTextSegment(chunk);
+            // Convert to Spring AI Document
+            Document document = embeddingService.toDocument(chunk);
 
-            // Generate embedding
-            Embedding embedding = embeddingService.embed(chunk.getContent());
-
-            // Store in vector store
-            vectorStoreService.store(embedding, segment);
+            // Store in vector store (embedding is generated automatically)
+            vectorStoreService.store(document);
         }
 
         log.debug("All chunks indexed successfully");
     }
 
     /**
-     * Retrieves all documents.
+     * Retrieves all documents from PostgreSQL.
      */
     public List<DocumentInfo> getAllDocuments() {
-        return documents.values().stream()
+        return documentRepository.findAll().stream()
                 .map(documentMapper::toDocumentInfo)
                 .toList();
     }
 
     /**
-     * Retrieves a document by ID.
+     * Retrieves a document by ID from PostgreSQL.
      */
     public DocumentInfo getDocument(String id) {
-        Document document = documents.get(id);
-        if (document == null) {
-            throw new HrAssistantException(
-                    HrAssistantException.ErrorCode.DOCUMENT_NOT_FOUND,
-                    "Document not found: " + id
-            );
-        }
+        com.hrassistant.model.Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new HrAssistantException(
+                        HrAssistantException.ErrorCode.DOCUMENT_NOT_FOUND,
+                        "Document not found: " + id
+                ));
         return documentMapper.toDocumentInfo(document);
     }
 
     /**
      * Deletes a document and removes all associated embeddings from VectorStore.
      */
+    @Transactional
     public void deleteDocument(String id) {
-        Document document = documents.remove(id);
-        if (document == null) {
-            throw new HrAssistantException(
-                    HrAssistantException.ErrorCode.DOCUMENT_NOT_FOUND,
-                    "Document not found: " + id
-            );
-        }
+        com.hrassistant.model.Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new HrAssistantException(
+                        HrAssistantException.ErrorCode.DOCUMENT_NOT_FOUND,
+                        "Document not found: " + id
+                ));
+
+        // Remove from PostgreSQL
+        documentRepository.delete(document);
 
         // Remove embeddings from VectorStore
         vectorStoreService.removeByDocumentId(id);
