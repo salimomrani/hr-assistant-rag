@@ -27,7 +27,10 @@ export class ApiService {
     return new Observable(observer => {
       const abortController = new AbortController();
 
-      fetch(`${this.apiUrl}/chat/stream`, {
+      // Use direct backend URL to bypass proxy buffering for SSE
+      const streamUrl = 'http://localhost:8080/api/chat/stream';
+
+      fetch(streamUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -48,10 +51,12 @@ export class ApiService {
             throw new Error('Response body is null');
           }
 
+          console.log('[SSE] Starting to read stream...');
           let buffer = '';
 
           while (true) {
             const { done, value } = await reader.read();
+            console.log('[SSE] Read chunk, done:', done, 'value length:', value?.length);
 
             if (done) {
               this.ngZone.run(() => observer.complete());
@@ -70,6 +75,7 @@ export class ApiService {
             // Process complete events
             for (const event of events) {
               if (event.trim()) {
+                console.log('[SSE] Raw event:', event);
                 // Parse data: lines
                 const lines = event.split('\n');
 
@@ -77,6 +83,7 @@ export class ApiService {
                   if (line.startsWith('data:')) {
                     // Extract data after 'data:' prefix (5 chars)
                     const data = line.substring(5);
+                    console.log('[SSE] Parsed data:', JSON.stringify(data));
 
                     // Empty data line represents a newline in the original text
                     if (data === '') {

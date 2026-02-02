@@ -58,9 +58,7 @@ export class ChatContainerComponent {
     this.apiService.chatStream(questionText).subscribe({
       next: (chunk: string) => {
         // Update streaming content with each chunk
-        // Backend handles spacing and formatting
-        const currentContent = this.streamingContent();
-        this.streamingContent.set(currentContent + chunk);
+        this.streamingContent.update(current => current + chunk);
       },
       error: (error) => {
         // Handle error
