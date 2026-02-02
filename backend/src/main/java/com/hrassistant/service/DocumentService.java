@@ -29,6 +29,7 @@ public class DocumentService {
     private final VectorStoreService vectorStoreService;
     private final DocumentRepository documentRepository;
     private final DocumentMapper documentMapper;
+    private final CacheService cacheService;
 
     @Value("${hr-assistant.documents.max-size-mb:10}")
     private int maxSizeMb;
@@ -85,6 +86,9 @@ public class DocumentService {
             document.setChunkCount(chunks.size());
             document.setIndexedAt(LocalDateTime.now());
             documentRepository.save(document);
+
+            // Step 6: Invalidate cache (new documents may change answers)
+            cacheService.invalidateAll();
 
             log.info("Document indexed successfully: {} ({} chunks)",
                     document.getFilename(), chunks.size());
@@ -245,13 +249,9 @@ public class DocumentService {
     private void indexChunks(List<DocumentChunk> chunks) {
         log.debug("Indexing {} chunks", chunks.size());
 
-        for (DocumentChunk chunk : chunks) {
-            // Convert to Spring AI Document
-            Document document = embeddingService.toDocument(chunk);
-
-            // Store in vector store (embedding is generated automatically)
-            vectorStoreService.store(document);
-        }
+        chunks.stream()
+                .map(embeddingService::toDocument)
+                .forEach(vectorStoreService::store);
 
         log.debug("All chunks indexed successfully");
     }
@@ -293,6 +293,9 @@ public class DocumentService {
 
         // Remove embeddings from VectorStore
         vectorStoreService.removeByDocumentId(id);
+
+        // Invalidate cache (removed documents may change answers)
+        cacheService.invalidateAll();
 
         log.info("Document deleted: {} (metadata and embeddings removed)", document.getFilename());
     }

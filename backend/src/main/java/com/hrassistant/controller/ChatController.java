@@ -2,8 +2,8 @@ package com.hrassistant.controller;
 
 import com.hrassistant.model.ChatRequest;
 import com.hrassistant.model.ChatResponse;
+import com.hrassistant.service.CachingStreamingRagService;
 import com.hrassistant.service.RagService;
-import com.hrassistant.service.StreamingRagService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import reactor.core.publisher.Flux;
 public class ChatController {
 
     private final RagService ragService;
-    private final StreamingRagService streamingRagService;
+    private final CachingStreamingRagService cachingStreamingRagService;
 
     /**
      * Handles chat requests using RAG pipeline.
@@ -45,11 +45,6 @@ public class ChatController {
      * Handles streaming chat requests using RAG pipeline.
      * Returns tokens progressively via Server-Sent Events (SSE).
      *
-     * Example usage:
-     * POST /api/chat/stream
-     * Content-Type: application/json
-     * Body: {"question": "Combien de jours de congés?"}
-     *
      * @param request Chat request containing the user's question
      * @return Flux of response tokens streamed in real-time
      */
@@ -58,7 +53,7 @@ public class ChatController {
 
         log.info("Received streaming chat request: {}", request.getQuestion());
 
-        return streamingRagService.chatStream(request)
+        return cachingStreamingRagService.chatStream(request)
                 .doOnComplete(() -> log.info("Streaming completed for question: {}", request.getQuestion()))
                 .doOnError(error -> log.error("Streaming error for question: {}", request.getQuestion(), error));
     }
