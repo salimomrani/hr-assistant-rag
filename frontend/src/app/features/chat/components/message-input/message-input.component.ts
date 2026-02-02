@@ -1,15 +1,13 @@
 import { Component, output, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TextareaModule } from 'primeng/textarea';
-import { ButtonModule } from 'primeng/button';
 
 /**
- * Message Input Component - Text input for submitting questions
- * Features validation, character counter, and keyboard shortcuts
+ * Message Input Component - Gemini-style minimal input
+ * Simple rounded input with send button
  */
 @Component({
   selector: 'app-message-input',
-  imports: [FormsModule, TextareaModule, ButtonModule],
+  imports: [FormsModule],
   templateUrl: './message-input.component.html',
   styleUrl: './message-input.component.css'
 })

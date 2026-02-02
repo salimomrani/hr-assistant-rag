@@ -1,44 +1,34 @@
-<div class="message-input-container">
+<div class="input-container">
   <form class="input-form" (ngSubmit)="onSubmit()">
     <div class="input-wrapper">
-      <!-- Textarea -->
       <textarea
-        pInputTextarea
         [(ngModel)]="questionText"
         name="question"
         [disabled]="isDisabled()"
-        [class.error]="isOverLimit()"
         (keydown)="onKeyDown($event)"
-        placeholder="Posez une question RH..."
-        rows="3"
-        [attr.aria-label]="'Question textinput'"
-        [attr.aria-invalid]="isOverLimit()"
-        class="question-input">
+        placeholder="Posez une question..."
+        rows="1"
+        class="question-input"
+        [attr.aria-label]="'Question'">
       </textarea>
 
-      <!-- Character Counter -->
-      <div class="input-footer">
-        <div class="char-counter" [class.warning]="charCount() > MAX_LENGTH * 0.9" [class.error]="isOverLimit()">
-          <span>{{ charCount() }} / {{ MAX_LENGTH }}</span>
-        </div>
-
-        <!-- Submit Button -->
-        <p-button
-          type="submit"
-          [disabled]="!isValid() || isDisabled()"
-          [loading]="isDisabled()"
-          icon="pi pi-send"
-          label="Envoyer"
-          styleClass="p-button-raised"
-          [attr.aria-label]="'Send question'">
-        </p-button>
-      </div>
-    </div>
-
-    <!-- Hint Text -->
-    <div class="input-hint">
-      <i class="pi pi-info-circle"></i>
-      <span>Appuyez sur <kbd>Entrée</kbd> pour envoyer, <kbd>Maj + Entrée</kbd> pour un saut de ligne</span>
+      <button
+        type="submit"
+        class="send-button"
+        [disabled]="!isValid() || isDisabled()"
+        [class.loading]="isDisabled()"
+        aria-label="Envoyer">
+        @if (isDisabled()) {
+          <svg class="spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
+            <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>
+          </svg>
+        } @else {
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        }
+      </button>
     </div>
   </form>
 </div>

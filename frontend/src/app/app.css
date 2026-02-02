@@ -1,42 +1,38 @@
 /**
- * Root application styles
- * Provides global layout and theme variables
+ * Root application styles - Gemini-inspired design
+ * Clean, minimal, airy aesthetic with soft blue-gray background
  */
+
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&family=Google+Sans+Text:wght@400;500&display=swap');
 
 :host {
   display: block;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  background: linear-gradient(
-    180deg,
-    rgba(250, 250, 252, 1) 0%,
-    rgba(245, 247, 250, 1) 100%
-  );
+  height: 100vh;
+  background: #f0f4f9;
+  font-family: 'Google Sans Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  overflow: hidden;
 }
 
 .app-main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: 1400px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 2rem;
+  min-height: 0;
+  overflow: hidden;
 }
 
-@media (max-width: 768px) {
-  .app-main {
-    padding: 1.5rem 1.25rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .app-main {
-    padding: 1.25rem 1rem;
-  }
+/* Ensure routed components fill available space */
+.app-main > *:not(router-outlet) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }

@@ -1,49 +1,29 @@
 <div class="chat-container">
   <!-- Error Message -->
   @if (errorMessage()) {
-    <div class="error-container">
-      <app-error-message
-        [message]="errorMessage()"
-        [severity]="'error'"
-        [closeable]="true"
-        (closed)="onErrorClosed()">
-      </app-error-message>
+    <div class="error-banner">
+      <span>{{ errorMessage() }}</span>
+      <button class="error-close" (click)="onErrorClosed()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
     </div>
   }
 
-  <!-- Chat Card -->
-  <p-card styleClass="chat-card">
-    <ng-template pTemplate="header">
-      <div class="chat-header">
-        <div class="header-content">
-          <h2>Assistant RH</h2>
-          <p>Posez vos questions sur les ressources humaines</p>
-        </div>
-        @if (messages().length > 0) {
-          <div class="message-count">
-            <span>{{ messages().length }}</span>
-            <small>message{{ messages().length > 1 ? 's' : '' }}</small>
-          </div>
-        }
-      </div>
-    </ng-template>
+  <!-- Messages Area -->
+  <div class="chat-messages">
+    <app-message-list
+      [messages]="messages()"
+      [streamingContent]="streamingContent()"
+      [isLoading]="isLoading()">
+    </app-message-list>
+  </div>
 
-    <ng-template pTemplate="content">
-      <div class="chat-content">
-        <!-- Message List -->
-        <app-message-list
-          [messages]="messages()"
-          [streamingContent]="streamingContent()"
-          [isLoading]="isLoading()">
-        </app-message-list>
-
-        <!-- Message Input -->
-        <div class="chat-input">
-          <app-message-input
-            (questionSubmitted)="onQuestionSubmitted($event)">
-          </app-message-input>
-        </div>
-      </div>
-    </ng-template>
-  </p-card>
+  <!-- Input Area -->
+  <div class="chat-input-area">
+    <app-message-input
+      (questionSubmitted)="onQuestionSubmitted($event)">
+    </app-message-input>
+  </div>
 </div>

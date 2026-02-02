@@ -93,6 +93,16 @@ export class AdminContainerComponent {
    * Load documents from service
    */
   private loadDocuments(): void {
-    this.documentService.loadDocuments();
+    this.documentService.loadDocuments().subscribe({
+      error: (error) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur de chargement',
+          detail: 'Impossible de charger les documents',
+          life: 5000
+        });
+        console.error('Error loading documents:', error);
+      }
+    });
   }
 }

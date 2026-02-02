@@ -1,8 +1,6 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
-import { CardModule } from 'primeng/card';
 import { MessageListComponent } from '../message-list/message-list.component';
 import { MessageInputComponent } from '../message-input/message-input.component';
-import { ErrorMessageComponent } from '../../../../shared/components/error-message/error-message.component';
 import { ConversationService } from '../../../../core/services/conversation.service';
 import { ApiService } from '../../../../core/services/api.service';
 import { Question, Answer, SourceDocumentReference } from '../../../../core/models';
@@ -10,14 +8,13 @@ import { Question, Answer, SourceDocumentReference } from '../../../../core/mode
 /**
  * Chat Container Component - Main chat interface
  * Orchestrates message display, input, and conversation management
+ * Design inspired by Google Gemini - minimal, clean, flat
  */
 @Component({
   selector: 'app-chat-container',
   imports: [
-    CardModule,
     MessageListComponent,
-    MessageInputComponent,
-    ErrorMessageComponent
+    MessageInputComponent
   ],
   templateUrl: './chat-container.component.html',
   styleUrl: './chat-container.component.css'
