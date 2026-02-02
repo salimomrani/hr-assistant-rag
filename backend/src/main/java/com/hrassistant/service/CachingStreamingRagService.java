@@ -29,16 +29,27 @@ public class CachingStreamingRagService {
      * Processes a chat request with semantic caching.
      *
      * Flow:
-     * 1. Check cache for semantically similar question
+     * 1. Check cache for semantically similar question (only if no document filter applied)
      * 2. If cache hit: return cached response as stream
      * 3. If cache miss: execute RAG pipeline, cache result, return stream
+     *
+     * Note: Caching is bypassed when documentIds filter is applied to ensure
+     * filtered queries always return fresh results from the specified documents.
      *
      * @param request The chat request containing the user's question
      * @return Flux of response tokens (cached or freshly generated)
      */
     public Flux<String> chatStream(ChatRequest request) {
         String question = request.getQuestion();
-        log.debug("Processing request with cache check: {}", question);
+        List<String> documentIds = request.getDocumentIds();
+        log.debug("Processing request with cache check: {} (documentIds={})", question, documentIds);
+
+        // Skip cache when document filter is applied
+        boolean hasDocumentFilter = documentIds != null && !documentIds.isEmpty();
+        if (hasDocumentFilter) {
+            log.debug("Document filter applied, bypassing cache");
+            return streamingRagService.chatStream(request);
+        }
 
         // Step 1: Check cache for similar question
         Optional<CachedResponse> cached = cacheService.findSimilarCached(question);

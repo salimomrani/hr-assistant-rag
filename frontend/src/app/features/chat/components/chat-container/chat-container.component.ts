@@ -1,6 +1,7 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
 import { MessageListComponent } from '../message-list/message-list.component';
 import { MessageInputComponent } from '../message-input/message-input.component';
+import { DocumentSelectorComponent } from '../document-selector/document-selector.component';
 import { ConversationService } from '../../../../core/services/conversation.service';
 import { ApiService } from '../../../../core/services/api.service';
 import { Question, Answer, SourceDocumentReference } from '../../../../core/models';
@@ -14,7 +15,8 @@ import { Question, Answer, SourceDocumentReference } from '../../../../core/mode
   selector: 'app-chat-container',
   imports: [
     MessageListComponent,
-    MessageInputComponent
+    MessageInputComponent,
+    DocumentSelectorComponent
   ],
   templateUrl: './chat-container.component.html',
   styleUrl: './chat-container.component.css'
@@ -31,8 +33,18 @@ export class ChatContainerComponent {
   streamingContent = signal<string>('');
   errorMessage = signal<string>('');
 
+  // Selected document IDs for filtering RAG search
+  selectedDocumentIds = signal<string[]>([]);
+
   // Expose conversation service signals
   messages = this.conversationService.messages;
+
+  /**
+   * Handle document selection change from DocumentSelectorComponent
+   */
+  onDocumentSelectionChanged(documentIds: string[]): void {
+    this.selectedDocumentIds.set(documentIds);
+  }
 
   /**
    * Handle question submission
@@ -54,8 +66,12 @@ export class ChatContainerComponent {
     this.errorMessage.set('');
     this.messageInput()?.setDisabled(true);
 
-    // Call SSE streaming API
-    this.apiService.chatStream(questionText).subscribe({
+    // Get selected document IDs (empty array means search all)
+    const documentIds = this.selectedDocumentIds();
+    console.log('[Chat] Sending with documentIds:', documentIds);
+
+    // Call SSE streaming API with optional document filter
+    this.apiService.chatStream(questionText, documentIds.length > 0 ? documentIds : undefined).subscribe({
       next: (chunk: string) => {
         // Update streaming content with each chunk
         this.streamingContent.update(current => current + chunk);

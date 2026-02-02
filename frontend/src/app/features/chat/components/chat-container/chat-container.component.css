@@ -23,6 +23,11 @@
   overflow: hidden;
 }
 
+/* Document Selector Area */
+.document-selector-area {
+  margin-bottom: 0.75rem;
+}
+
 /* Error Banner */
 .error-banner {
   display: flex;

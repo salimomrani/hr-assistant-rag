@@ -40,21 +40,45 @@ public class VectorStoreService {
     }
 
     /**
-     * Searches for similar documents.
+     * Searches for similar documents across all indexed documents.
      */
     public List<Document> search(String query) {
-        log.debug("Searching for similar documents (maxResults={}, minScore={})",
-                maxResults, minScore);
+        return search(query, null);
+    }
 
-        List<Document> matches = vectorStore.similaritySearch(
-                SearchRequest.builder()
-                        .query(query)
-                        .topK(maxResults)
-                        .similarityThreshold(minScore)
-                        .build()
-        );
+    /**
+     * Searches for similar documents with optional filtering by document IDs.
+     *
+     * @param query The search query
+     * @param documentIds Optional list of document IDs to restrict search. If null or empty, searches all documents.
+     * @return List of matching documents
+     */
+    public List<Document> search(String query, List<String> documentIds) {
+        log.info("Searching for similar documents (maxResults={}, minScore={}, documentIds={})",
+                maxResults, minScore, documentIds);
 
-        log.debug("Found {} matching documents", matches.size());
+        SearchRequest.Builder requestBuilder = SearchRequest.builder()
+                .query(query)
+                .topK(maxResults)
+                .similarityThreshold(minScore);
+
+        // Apply document ID filter if specified
+        if (documentIds != null && !documentIds.isEmpty()) {
+            // Build filter expression using OR for multiple document IDs
+            // Format: documentId == 'id1' || documentId == 'id2' || ...
+            String filterExpression = documentIds.stream()
+                    .map(id -> "documentId == '" + id + "'")
+                    .reduce((a, b) -> a + " || " + b)
+                    .orElse("");
+
+            requestBuilder.filterExpression(filterExpression);
+            log.info("Applied document filter expression: {}", filterExpression);
+        }
+
+        List<Document> matches = vectorStore.similaritySearch(requestBuilder.build());
+
+        log.info("Found {} matching documents from sources: {}", matches.size(),
+                matches.stream().map(d -> d.getMetadata().get("documentId")).distinct().toList());
         return matches;
     }
 

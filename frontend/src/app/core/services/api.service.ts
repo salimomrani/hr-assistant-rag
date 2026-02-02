@@ -21,14 +21,21 @@ export class ApiService {
    * Send a chat question and get streaming response via SSE
    * Uses Fetch API with ReadableStream for proper SSE handling
    * @param question The user's question
+   * @param documentIds Optional list of document IDs to filter the RAG search
    * @returns Observable emitting text chunks as they arrive
    */
-  chatStream(question: string): Observable<string> {
+  chatStream(question: string, documentIds?: string[]): Observable<string> {
     return new Observable(observer => {
       const abortController = new AbortController();
 
       // Use direct backend URL to bypass proxy buffering for SSE
       const streamUrl = 'http://localhost:8080/api/chat/stream';
+
+      // Build request body with optional documentIds
+      const requestBody: { question: string; documentIds?: string[] } = { question };
+      if (documentIds && documentIds.length > 0) {
+        requestBody.documentIds = documentIds;
+      }
 
       fetch(streamUrl, {
         method: 'POST',
@@ -36,7 +43,7 @@ export class ApiService {
           'Content-Type': 'application/json',
           'Accept': 'text/event-stream'
         },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify(requestBody),
         signal: abortController.signal
       })
         .then(async response => {

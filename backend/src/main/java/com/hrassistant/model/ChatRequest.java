@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * DTO for chat requests.
  *
@@ -14,7 +16,8 @@ import lombok.NoArgsConstructor;
  * POST /api/chat
  * {
  *   "question": "Combien de jours de congés ai-je ?",
- *   "conversationId": "abc-123"
+ *   "conversationId": "abc-123",
+ *   "documentIds": ["doc-1", "doc-2"]
  * }
  * </pre>
  */
@@ -30,4 +33,10 @@ public class ChatRequest {
 
     @Size(max = 100, message = "L'identifiant de conversation ne peut pas dépasser 100 caractères")
     private String conversationId;
+
+    /**
+     * Optional list of document IDs to filter the RAG search.
+     * If null or empty, all indexed documents will be searched.
+     */
+    private List<String> documentIds;
 }

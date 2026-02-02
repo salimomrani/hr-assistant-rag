@@ -43,14 +43,15 @@ public class StreamingRagService {
      */
     public Flux<String> chatStream(ChatRequest request) {
         String question = request.getQuestion();
-        log.info("Processing streaming question: {}", question);
+        List<String> documentIds = request.getDocumentIds();
+        log.info("Processing streaming question: '{}' with documentIds filter: {}", question, documentIds);
 
         try {
             // Step 1: Validate question
             guardrailService.validateQuestion(question);
 
-            // Step 2: Search similar chunks
-            List<Document> matches = vectorStoreService.search(question);
+            // Step 2: Search similar chunks (with optional document filter)
+            List<Document> matches = vectorStoreService.search(question, documentIds);
 
             // Check if relevant information was found
             if (matches.isEmpty()) {

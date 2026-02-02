@@ -20,8 +20,16 @@
     </app-message-list>
   </div>
 
-  <!-- Input Area -->
+  <!-- Input Area with Document Selector -->
   <div class="chat-input-area">
+    <!-- Document Selector -->
+    <div class="document-selector-area">
+      <app-document-selector
+        (selectionChanged)="onDocumentSelectionChanged($event)">
+      </app-document-selector>
+    </div>
+
+    <!-- Message Input -->
     <app-message-input
       (questionSubmitted)="onQuestionSubmitted($event)">
     </app-message-input>

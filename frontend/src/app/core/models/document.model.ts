@@ -2,9 +2,9 @@
  * Document Status enum - Indexing status of an uploaded document
  */
 export enum DocumentStatus {
-  PENDING = 'pending',   // Being indexed
-  INDEXED = 'indexed',   // Ready for use
-  FAILED = 'failed'      // Indexing error occurred
+  PENDING = 'PENDING',   // Being indexed
+  INDEXED = 'INDEXED',   // Ready for use
+  FAILED = 'FAILED'      // Indexing error occurred
 }
 
 /**
