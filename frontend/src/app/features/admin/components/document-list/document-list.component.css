@@ -195,6 +195,16 @@
   text-align: center;
 }
 
+.edit-button {
+  color: #5f6368 !important;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.edit-button:hover:not(:disabled) {
+  color: #1967d2 !important;
+  background: rgba(25, 103, 210, 0.08) !important;
+}
+
 .delete-button {
   color: #5f6368 !important;
   transition: color 0.15s ease, background 0.15s ease;

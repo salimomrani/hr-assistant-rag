@@ -47,8 +47,60 @@
         [documents]="documents()"
         [isLoading]="isLoading()"
         (documentDeleted)="onDocumentDeleted($event)"
-        (deleteError)="onDeleteError($event)">
+        (deleteError)="onDeleteError($event)"
+        (editDocument)="onEditDocument($event)">
       </app-document-list>
     </ng-template>
   </p-card>
+
+  <!-- Edit Dialog -->
+  <p-dialog
+    header="Renommer le document"
+    [visible]="editDialogVisible()"
+    (visibleChange)="editDialogVisible.set($event)"
+    [modal]="true"
+    [closable]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '450px' }"
+    styleClass="edit-dialog"
+    (onHide)="closeEditDialog()">
+
+    <div class="edit-form">
+      <label for="newFilename" class="edit-label">Nouveau nom du fichier</label>
+      <input
+        id="newFilename"
+        type="text"
+        pInputText
+        class="edit-input"
+        [ngModel]="newFilename()"
+        (ngModelChange)="newFilename.set($event)"
+        [placeholder]="editingDocument()?.filename || ''"
+        maxlength="255"
+        autofocus />
+      <small class="edit-hint">Maximum 255 caractères</small>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="dialog-footer">
+        <button
+          pButton
+          type="button"
+          label="Annuler"
+          class="p-button-text cancel-button"
+          (click)="closeEditDialog()"
+          [disabled]="isRenaming()">
+        </button>
+        <button
+          pButton
+          type="button"
+          label="Enregistrer"
+          class="save-button"
+          (click)="saveRename()"
+          [loading]="isRenaming()"
+          [disabled]="isSaveDisabled()">
+        </button>
+      </div>
+    </ng-template>
+  </p-dialog>
 </div>

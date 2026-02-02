@@ -182,4 +182,17 @@ export class ApiService {
   deleteDocument(documentId: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/documents/${documentId}`);
   }
+
+  /**
+   * Rename a document
+   * @param documentId The document ID to rename
+   * @param newFilename The new filename
+   * @returns Observable with updated document
+   */
+  renameDocument(documentId: string, newFilename: string): Observable<Document> {
+    return this.http.patch<Document>(
+      `${this.apiUrl}/documents/${documentId}`,
+      { newFilename }
+    );
+  }
 }

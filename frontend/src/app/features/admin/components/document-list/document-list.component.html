@@ -90,6 +90,14 @@
             <button
               type="button"
               pButton
+              icon="pi pi-pencil"
+              class="p-button-rounded p-button-text edit-button"
+              (click)="editDocument.emit(document)"
+              aria-label="Renommer le document">
+            </button>
+            <button
+              type="button"
+              pButton
               icon="pi pi-trash"
               class="p-button-rounded p-button-text p-button-danger delete-button"
               (click)="confirmDelete(document)"

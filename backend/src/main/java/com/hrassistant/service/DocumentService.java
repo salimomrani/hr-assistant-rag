@@ -278,6 +278,36 @@ public class DocumentService {
     }
 
     /**
+     * Renames a document in the database.
+     * Also updates the document name in VectorStore metadata.
+     *
+     * @param id The document ID
+     * @param newFilename The new filename
+     * @return Updated DocumentInfo
+     */
+    @Transactional
+    public DocumentInfo renameDocument(String id, String newFilename) {
+        com.hrassistant.model.Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new HrAssistantException(
+                        HrAssistantException.ErrorCode.DOCUMENT_NOT_FOUND,
+                        "Document not found: " + id
+                ));
+
+        String oldFilename = document.getFilename();
+
+        // Update filename in PostgreSQL
+        document.setFilename(newFilename);
+        documentRepository.save(document);
+
+        // Update document name in VectorStore metadata
+        vectorStoreService.updateDocumentName(id, newFilename);
+
+        log.info("Document renamed: {} -> {}", oldFilename, newFilename);
+
+        return documentMapper.toDocumentInfo(document);
+    }
+
+    /**
      * Deletes a document and removes all associated embeddings from VectorStore.
      */
     @Transactional

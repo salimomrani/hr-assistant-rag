@@ -8,6 +8,7 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.List;
 public class VectorStoreService {
 
     private final VectorStore vectorStore;
+    private final JdbcTemplate jdbcTemplate;
 
     @Value("${hr-assistant.rag.max-results:5}")
     private int maxResults;
@@ -71,5 +73,29 @@ public class VectorStoreService {
         vectorStore.delete(filterExpression);
 
         log.info("Removed documents for source: {}", documentId);
+    }
+
+    /**
+     * Updates the document name in vector store metadata for all chunks of a document.
+     * Uses native SQL to update the JSON metadata column in PostgreSQL.
+     * Note: The vector_store table uses JSON type (not JSONB), so we cast to JSONB, update, and cast back.
+     *
+     * @param documentId The document ID
+     * @param newDocumentName The new document name
+     */
+    public void updateDocumentName(String documentId, String newDocumentName) {
+        log.debug("Updating document name in vector store for documentId: {}", documentId);
+
+        // Update metadata JSON field in vector_store table
+        // Cast json to jsonb, perform update, cast back to json
+        String sql = """
+            UPDATE vector_store
+            SET metadata = jsonb_set(metadata::jsonb, '{documentName}', to_jsonb(?::text))::json
+            WHERE metadata->>'documentId' = ?
+            """;
+
+        int updatedRows = jdbcTemplate.update(sql, newDocumentName, documentId);
+
+        log.info("Updated document name in {} vector store entries for documentId: {}", updatedRows, documentId);
     }
 }

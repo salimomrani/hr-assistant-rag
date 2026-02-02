@@ -113,4 +113,21 @@ export class DocumentService {
   getDocumentById(documentId: string): Document | undefined {
     return this.documents().find(d => d.id === documentId);
   }
+
+  /**
+   * Rename a document
+   * @param documentId The document ID to rename
+   * @param newFilename The new filename
+   * @returns Observable with updated document
+   */
+  renameDocument(documentId: string, newFilename: string): Observable<Document> {
+    return this.api.renameDocument(documentId, newFilename).pipe(
+      tap(updatedDocument => {
+        // Update document in list
+        this.documentsSignal.update(docs =>
+          docs.map(d => d.id === documentId ? { ...d, filename: newFilename } : d)
+        );
+      })
+    );
+  }
 }

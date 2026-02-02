@@ -1,7 +1,9 @@
 package com.hrassistant.controller;
 
 import com.hrassistant.model.DocumentInfo;
+import com.hrassistant.model.RenameRequest;
 import com.hrassistant.service.DocumentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import java.util.List;
  * - POST /api/documents - Upload and index a document
  * - GET /api/documents - List all indexed documents
  * - GET /api/documents/{id} - Get document by ID
+ * - PATCH /api/documents/{id} - Rename a document
  * - DELETE /api/documents/{id} - Delete a document
  */
 @Slf4j
@@ -82,6 +85,28 @@ public class DocumentController {
         log.info("Received request to get document: {}", id);
 
         DocumentInfo documentInfo = documentService.getDocument(id);
+
+        return ResponseEntity.ok(documentInfo);
+    }
+
+    /**
+     * Renames a document.
+     *
+     * Updates the filename in the database and in VectorStore metadata.
+     *
+     * @param id The document ID
+     * @param request The rename request containing the new filename
+     * @return Updated DocumentInfo
+     */
+    @PatchMapping("/{id}")
+    public ResponseEntity<DocumentInfo> renameDocument(
+            @PathVariable String id,
+            @Valid @RequestBody RenameRequest request) {
+        log.info("Received request to rename document: {} -> {}", id, request.getNewFilename());
+
+        DocumentInfo documentInfo = documentService.renameDocument(id, request.getNewFilename());
+
+        log.info("Document renamed successfully: {}", documentInfo.getFilename());
 
         return ResponseEntity.ok(documentInfo);
     }

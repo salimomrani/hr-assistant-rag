@@ -30,6 +30,7 @@ export class DocumentListComponent {
   // Output events
   documentDeleted = output<string>();
   deleteError = output<string>();
+  editDocument = output<Document>();
 
   // Local state
   deletingId = signal<string | null>(null);
