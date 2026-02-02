@@ -151,14 +151,10 @@ export class DocumentSelectorComponent implements OnInit {
     const selected = this.selectedDocumentIds();
     const total = this.indexedDocuments().length;
 
-    console.log('[DocumentSelector] Selected:', selected.length, 'Total:', total, 'IDs:', selected);
-
     // If all selected or none selected, emit empty array (search all)
     if (selected.length === 0 || selected.length === total) {
-      console.log('[DocumentSelector] Emitting empty array (all documents)');
       this.selectionChanged.emit([]);
     } else {
-      console.log('[DocumentSelector] Emitting filtered:', selected);
       this.selectionChanged.emit(selected);
     }
   }

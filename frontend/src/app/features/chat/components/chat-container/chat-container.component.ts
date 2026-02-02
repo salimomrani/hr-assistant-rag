@@ -68,7 +68,6 @@ export class ChatContainerComponent {
 
     // Get selected document IDs (empty array means search all)
     const documentIds = this.selectedDocumentIds();
-    console.log('[Chat] Sending with documentIds:', documentIds);
 
     // Call SSE streaming API with optional document filter
     this.apiService.chatStream(questionText, documentIds.length > 0 ? documentIds : undefined).subscribe({

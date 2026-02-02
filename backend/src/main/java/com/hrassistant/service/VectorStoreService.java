@@ -54,7 +54,7 @@ public class VectorStoreService {
      * @return List of matching documents
      */
     public List<Document> search(String query, List<String> documentIds) {
-        log.info("Searching for similar documents (maxResults={}, minScore={}, documentIds={})",
+        log.debug("Searching for similar documents (maxResults={}, minScore={}, documentIds={})",
                 maxResults, minScore, documentIds);
 
         SearchRequest.Builder requestBuilder = SearchRequest.builder()
@@ -72,13 +72,12 @@ public class VectorStoreService {
                     .orElse("");
 
             requestBuilder.filterExpression(filterExpression);
-            log.info("Applied document filter expression: {}", filterExpression);
+            log.debug("Applied document filter expression: {}", filterExpression);
         }
 
         List<Document> matches = vectorStore.similaritySearch(requestBuilder.build());
 
-        log.info("Found {} matching documents from sources: {}", matches.size(),
-                matches.stream().map(d -> d.getMetadata().get("documentId")).distinct().toList());
+        log.debug("Found {} matching documents", matches.size());
         return matches;
     }
 
