@@ -33,6 +33,7 @@ export class DocumentListComponent {
   deleteError = output<string>();
   editDocument = output<Document>();
   replaceDocument = output<Document>();
+  previewDocument = output<Document>();
 
   // Local state
   deletingId = signal<string | null>(null);

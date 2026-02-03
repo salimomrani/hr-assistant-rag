@@ -40,4 +40,5 @@ public class DocumentInfo {
     private LocalDateTime indexedAt;
     private String errorMessage;
     private String category;
+    private Boolean hasFile;
 }

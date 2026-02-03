@@ -65,6 +65,7 @@ hr-assistant:
   documents:
     allowed-types: pdf,txt
     max-size-mb: 10
+    storage-path: ./uploads
   cache:
     enabled: true
     ttl-seconds: 3600

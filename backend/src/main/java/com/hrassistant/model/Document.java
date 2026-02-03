@@ -45,4 +45,7 @@ public class Document {
 
     @Column(name = "category")
     private String category;
+
+    @Column(name = "file_path")
+    private String filePath;
 }

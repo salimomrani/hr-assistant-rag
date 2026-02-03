@@ -15,8 +15,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.annotation.PostConstruct;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -40,6 +46,28 @@ public class DocumentService {
     @Value("${hr-assistant.rag.chunk-overlap:50}")
     private int chunkOverlap;
 
+    @Value("${hr-assistant.documents.storage-path:./uploads}")
+    private String storagePath;
+
+    /**
+     * Initializes the storage directory on startup.
+     */
+    @PostConstruct
+    public void init() {
+        try {
+            Path uploadDir = Paths.get(storagePath);
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
+                log.info("Created document storage directory: {}", uploadDir.toAbsolutePath());
+            } else {
+                log.info("Document storage directory exists: {}", uploadDir.toAbsolutePath());
+            }
+        } catch (IOException e) {
+            log.error("Failed to create storage directory: {}", e.getMessage());
+            throw new RuntimeException("Could not initialize storage directory", e);
+        }
+    }
+
     /**
      * Uploads and indexes a document.
      *
@@ -59,15 +87,21 @@ public class DocumentService {
 
         // Create document entity
         String documentId = UUID.randomUUID().toString();
+        DocumentType docType = DocumentType.fromExtension(file.getOriginalFilename());
+
         com.hrassistant.model.Document document = com.hrassistant.model.Document.builder()
                 .id(documentId)
                 .filename(file.getOriginalFilename())
-                .type(DocumentType.fromExtension(file.getOriginalFilename()))
+                .type(docType)
                 .status(DocumentStatus.PENDING)
                 .size(file.getSize())
                 .uploadedAt(LocalDateTime.now())
                 .category(category)
                 .build();
+
+        // Save file to disk
+        String filePath = saveFileToDisk(file, documentId, docType);
+        document.setFilePath(filePath);
 
         // Save to PostgreSQL
         documentRepository.save(document);
@@ -211,6 +245,56 @@ public class DocumentService {
     }
 
     /**
+     * Saves the uploaded file to disk.
+     *
+     * @param file The uploaded file
+     * @param documentId The document ID
+     * @param type The document type
+     * @return The relative file path
+     */
+    private String saveFileToDisk(MultipartFile file, String documentId, DocumentType type) {
+        try {
+            String extension = type == DocumentType.PDF ? ".pdf" : ".txt";
+            String filename = documentId + extension;
+            Path targetPath = Paths.get(storagePath, filename);
+
+            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+            log.debug("Saved file to disk: {}", targetPath.toAbsolutePath());
+
+            return filename;
+        } catch (IOException e) {
+            log.error("Failed to save file to disk: {}", e.getMessage());
+            throw new HrAssistantException(
+                    HrAssistantException.ErrorCode.DOCUMENT_PROCESSING_ERROR,
+                    "Failed to save file: " + e.getMessage(),
+                    e
+            );
+        }
+    }
+
+    /**
+     * Deletes a file from disk.
+     *
+     * @param filePath The relative file path
+     */
+    private void deleteFileFromDisk(String filePath) {
+        if (filePath == null || filePath.isBlank()) {
+            return;
+        }
+
+        try {
+            Path targetPath = Paths.get(storagePath, filePath);
+            if (Files.exists(targetPath)) {
+                Files.delete(targetPath);
+                log.debug("Deleted file from disk: {}", targetPath.toAbsolutePath());
+            }
+        } catch (IOException e) {
+            log.warn("Failed to delete file from disk: {}", e.getMessage());
+            // Don't throw - file deletion failure shouldn't block document deletion
+        }
+    }
+
+    /**
      * Chunks text with overlap.
      */
     private List<DocumentChunk> chunkText(String text, String documentId, String documentName) {
@@ -326,6 +410,9 @@ public class DocumentService {
                         "Document not found: " + id
                 ));
 
+        // Delete file from disk
+        deleteFileFromDisk(document.getFilePath());
+
         // Remove from PostgreSQL
         documentRepository.delete(document);
 
@@ -335,6 +422,32 @@ public class DocumentService {
         // Invalidate cache (removed documents may change answers)
         cacheService.invalidateAll();
 
-        log.info("Document deleted: {} (metadata and embeddings removed)", document.getFilename());
+        log.info("Document deleted: {} (file, metadata and embeddings removed)", document.getFilename());
+    }
+
+    /**
+     * Gets the file path for a document.
+     *
+     * @param id The document ID
+     * @return The absolute path to the file, or null if not found
+     */
+    public Path getDocumentFilePath(String id) {
+        com.hrassistant.model.Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new HrAssistantException(
+                        HrAssistantException.ErrorCode.DOCUMENT_NOT_FOUND,
+                        "Document not found: " + id
+                ));
+
+        if (document.getFilePath() == null || document.getFilePath().isBlank()) {
+            return null;
+        }
+
+        Path filePath = Paths.get(storagePath, document.getFilePath());
+        if (!Files.exists(filePath)) {
+            log.warn("File not found on disk: {}", filePath);
+            return null;
+        }
+
+        return filePath;
     }
 }

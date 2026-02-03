@@ -213,7 +213,7 @@
 
 /* Actions Column */
 .actions-column {
-  width: 130px;
+  width: 160px;
   text-align: center;
 }
 
@@ -229,6 +229,21 @@
   width: 2rem !important;
   height: 2rem !important;
   min-width: 2rem !important;
+}
+
+.preview-button {
+  color: #5f6368 !important;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.preview-button:hover:not(:disabled) {
+  color: #1967d2 !important;
+  background: rgba(25, 103, 210, 0.08) !important;
+}
+
+.preview-button:disabled {
+  color: #bdc1c6 !important;
+  cursor: not-allowed;
 }
 
 .edit-button {

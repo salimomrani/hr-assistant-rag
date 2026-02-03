@@ -104,6 +104,17 @@
               <button
                 type="button"
                 pButton
+                icon="pi pi-eye"
+                class="p-button-rounded p-button-text preview-button"
+                (click)="previewDocument.emit(document)"
+                [disabled]="!document.hasFile"
+                [pTooltip]="document.hasFile ? 'Apercu' : 'Fichier non disponible'"
+                tooltipPosition="top"
+                aria-label="Apercu du document">
+              </button>
+              <button
+                type="button"
+                pButton
                 icon="pi pi-pencil"
                 class="p-button-rounded p-button-text edit-button"
                 (click)="editDocument.emit(document)"

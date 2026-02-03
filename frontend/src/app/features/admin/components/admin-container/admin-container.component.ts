@@ -10,6 +10,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { MessageService } from 'primeng/api';
 import { DocumentUploadComponent } from '../document-upload/document-upload.component';
 import { DocumentListComponent } from '../document-list/document-list.component';
+import { PdfPreviewModalComponent } from '../pdf-preview-modal/pdf-preview-modal.component';
 import { DocumentService } from '../../../../core/services/document.service';
 import { Document, UploadStatus } from '../../../../core/models';
 
@@ -29,7 +30,8 @@ import { Document, UploadStatus } from '../../../../core/models';
     FileUploadModule,
     ProgressBarModule,
     DocumentUploadComponent,
-    DocumentListComponent
+    DocumentListComponent,
+    PdfPreviewModalComponent
   ],
   providers: [MessageService],
   templateUrl: './admin-container.component.html',
@@ -56,6 +58,10 @@ export class AdminContainerComponent {
   replaceFile = signal<File | null>(null);
   isReplacing = signal(false);
   replaceProgress = signal(0);
+
+  // Preview modal state
+  previewModalVisible = signal(false);
+  previewDocument = signal<Document | null>(null);
 
   // Validation constants (same as document-upload)
   readonly MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
@@ -329,6 +335,22 @@ export class AdminContainerComponent {
    */
   isReplaceDisabled(): boolean {
     return !this.replaceFile() || this.isReplacing();
+  }
+
+  /**
+   * Open preview modal for a document
+   */
+  onPreviewDocument(document: Document): void {
+    this.previewDocument.set(document);
+    this.previewModalVisible.set(true);
+  }
+
+  /**
+   * Close preview modal
+   */
+  closePreviewModal(): void {
+    this.previewModalVisible.set(false);
+    this.previewDocument.set(null);
   }
 
   /**

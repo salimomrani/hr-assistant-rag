@@ -1,0 +1,69 @@
+<p-dialog
+  [header]="dialogHeader()"
+  [visible]="visible()"
+  (visibleChange)="onVisibleChange($event)"
+  (onShow)="onShow()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+  [closable]="true"
+  [style]="{ width: '90vw', height: '90vh' }"
+  styleClass="pdf-preview-dialog">
+
+  <div class="preview-container">
+    <!-- Loading Spinner -->
+    @if (isLoading()) {
+      <div class="loading-overlay">
+        <p-progressSpinner
+          strokeWidth="3"
+          fill="transparent"
+          animationDuration=".8s">
+        </p-progressSpinner>
+        <span class="loading-text">Chargement du document...</span>
+      </div>
+    }
+
+    <!-- Error Message -->
+    @if (errorMessage()) {
+      <div class="error-container">
+        <i class="pi pi-exclamation-triangle"></i>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <!-- PDF Preview (iframe) -->
+    @if (isPdf() && !errorMessage() && safeFileUrl()) {
+      <iframe
+        [src]="safeFileUrl()"
+        class="pdf-iframe"
+        title="PDF Preview">
+      </iframe>
+    }
+
+    <!-- TXT Preview (pre) -->
+    @if (!isPdf() && !errorMessage() && textContent()) {
+      <div class="text-preview-wrapper">
+        <pre class="text-content">{{ textContent() }}</pre>
+      </div>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <a
+        [href]="fileUrl()"
+        target="_blank"
+        class="download-link"
+        download>
+        <i class="pi pi-download"></i>
+        Telecharger
+      </a>
+      <p-button
+        label="Fermer"
+        severity="secondary"
+        (onClick)="close()">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>

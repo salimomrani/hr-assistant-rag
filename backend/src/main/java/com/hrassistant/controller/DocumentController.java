@@ -6,12 +6,18 @@ import com.hrassistant.service.DocumentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -102,6 +108,45 @@ public class DocumentController {
         DocumentInfo documentInfo = documentService.getDocument(id);
 
         return ResponseEntity.ok(documentInfo);
+    }
+
+    /**
+     * Downloads/views the original document file.
+     *
+     * @param id The document ID
+     * @return The file content with appropriate Content-Type
+     */
+    @GetMapping("/{id}/file")
+    public ResponseEntity<Resource> getDocumentFile(@PathVariable String id) {
+        log.info("Received request to get document file: {}", id);
+
+        Path filePath = documentService.getDocumentFilePath(id);
+        if (filePath == null) {
+            log.warn("Document file not found: {}", id);
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            Resource resource = new UrlResource(filePath.toUri());
+            if (!resource.exists() || !resource.isReadable()) {
+                log.warn("Document file not readable: {}", filePath);
+                return ResponseEntity.notFound().build();
+            }
+
+            // Determine content type based on file extension
+            String contentType = filePath.toString().toLowerCase().endsWith(".pdf")
+                    ? "application/pdf"
+                    : "text/plain; charset=utf-8";
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filePath.getFileName() + "\"")
+                    .body(resource);
+
+        } catch (MalformedURLException e) {
+            log.error("Failed to create resource URL: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     /**

@@ -215,4 +215,13 @@ export class ApiService {
   getCategories(): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/documents/categories`);
   }
+
+  /**
+   * Get the URL to view/download a document file
+   * @param documentId The document ID
+   * @returns The URL to the document file
+   */
+  getDocumentFileUrl(documentId: string): string {
+    return `${this.apiUrl}/documents/${documentId}/file`;
+  }
 }

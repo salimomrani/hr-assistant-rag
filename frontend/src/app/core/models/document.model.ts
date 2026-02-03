@@ -14,9 +14,11 @@ export interface Document {
   id: string;                       // Unique identifier from backend
   filename: string;                 // Display name (editable)
   fileType: 'PDF' | 'TXT';         // File type enum
+  type?: 'PDF' | 'TXT';            // Backend field name
   fileSizeBytes: number;            // File size in bytes
   status: DocumentStatus;           // Indexing status
   uploadTimestamp: Date;            // When document was uploaded
   failureReason?: string;           // Error message if status is FAILED
   category?: string;                // Optional category for organization
+  hasFile?: boolean;                // Whether the original file is available for preview
 }
