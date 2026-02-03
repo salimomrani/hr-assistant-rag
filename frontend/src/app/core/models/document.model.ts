@@ -18,4 +18,5 @@ export interface Document {
   status: DocumentStatus;           // Indexing status
   uploadTimestamp: Date;            // When document was uploaded
   failureReason?: string;           // Error message if status is FAILED
+  category?: string;                // Optional category for organization
 }

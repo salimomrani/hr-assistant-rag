@@ -16,7 +16,9 @@
     <app-message-list
       [messages]="messages()"
       [streamingContent]="streamingContent()"
-      [isLoading]="isLoading()">
+      [isLoading]="isLoading()"
+      [pendingQuestion]="pendingQuestion()"
+      (suggestionClicked)="onQuestionSubmitted($event)">
     </app-message-list>
   </div>
 

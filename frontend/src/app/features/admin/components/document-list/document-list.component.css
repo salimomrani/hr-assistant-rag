@@ -152,6 +152,28 @@
   letter-spacing: 0.03em;
 }
 
+/* Category Badge */
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  background: #e8f0fe;
+  color: #1967d2;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.category-badge i {
+  font-size: 0.75rem;
+}
+
+.no-category {
+  color: #9aa0a6;
+  font-size: 0.875rem;
+}
+
 /* Size Cell */
 .size-cell {
   color: #5f6368;

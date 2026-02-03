@@ -44,6 +44,7 @@
         <tr>
           <th>Nom du fichier</th>
           <th>Type</th>
+          <th>Catégorie</th>
           <th>Taille</th>
           <th>Statut</th>
           <th>Date d'upload</th>
@@ -68,6 +69,18 @@
           <!-- Type -->
           <td>
             <span class="file-type-badge">{{ getFileType(document.filename) }}</span>
+          </td>
+
+          <!-- Category -->
+          <td>
+            @if (document.category) {
+              <span class="category-badge">
+                <i class="pi pi-tag"></i>
+                {{ document.category }}
+              </span>
+            } @else {
+              <span class="no-category">—</span>
+            }
           </td>
 
           <!-- Size -->
@@ -127,7 +140,7 @@
 
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="6" class="empty-message">
+          <td colspan="7" class="empty-message">
             Aucun document trouvé
           </td>
         </tr>

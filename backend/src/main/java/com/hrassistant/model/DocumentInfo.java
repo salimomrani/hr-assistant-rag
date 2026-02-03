@@ -39,4 +39,5 @@ public class DocumentInfo {
     private LocalDateTime uploadedAt;
     private LocalDateTime indexedAt;
     private String errorMessage;
+    private String category;
 }

@@ -44,18 +44,33 @@ public class DocumentController {
      * 6. Return metadata
      *
      * @param file The document to upload (multipart/form-data)
+     * @param category Optional category for organizing documents
      * @return DocumentInfo with upload status and metadata
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<DocumentInfo> uploadDocument(@RequestParam("file") MultipartFile file) {
-        log.info("Received document upload request: {}", file.getOriginalFilename());
+    public ResponseEntity<DocumentInfo> uploadDocument(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "category", required = false) String category) {
+        log.info("Received document upload request: {} (category: {})", file.getOriginalFilename(), category);
 
-        DocumentInfo documentInfo = documentService.uploadDocument(file);
+        DocumentInfo documentInfo = documentService.uploadDocument(file, category);
 
         log.info("Document uploaded successfully: {} (id: {})",
                 documentInfo.getFilename(), documentInfo.getId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(documentInfo);
+    }
+
+    /**
+     * Lists all distinct categories.
+     *
+     * @return List of category names
+     */
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> getAllCategories() {
+        log.info("Received request to list all categories");
+        List<String> categories = documentService.getAllCategories();
+        return ResponseEntity.ok(categories);
     }
 
     /**

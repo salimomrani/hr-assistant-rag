@@ -201,6 +201,86 @@
   background: rgba(197, 34, 31, 0.08) !important;
 }
 
+/* Category Input */
+.category-input {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.category-input label {
+  font-family: 'Google Sans Text', system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #5f6368;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.category-input label i {
+  color: #1967d2;
+  font-size: 0.875rem;
+}
+
+.upload-container ::ng-deep .category-autocomplete {
+  width: 100%;
+}
+
+.upload-container ::ng-deep .category-autocomplete .p-autocomplete-input {
+  width: 100%;
+  font-family: 'Google Sans Text', system-ui, sans-serif;
+  font-size: 0.9375rem;
+  padding: 0.625rem 1rem;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  background: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.upload-container ::ng-deep .category-autocomplete .p-autocomplete-input:focus {
+  border-color: #1967d2;
+  box-shadow: 0 0 0 3px rgba(25, 103, 210, 0.1);
+  outline: none;
+}
+
+.upload-container ::ng-deep .category-autocomplete .p-autocomplete-dropdown {
+  background: #f8f9fa;
+  border: 1px solid #dadce0;
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  color: #5f6368;
+}
+
+.upload-container ::ng-deep .category-autocomplete .p-autocomplete-dropdown:hover {
+  background: #e8eaed;
+  color: #1967d2;
+}
+
+.upload-container ::ng-deep .p-autocomplete-panel {
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  margin-top: 4px;
+}
+
+.upload-container ::ng-deep .p-autocomplete-item {
+  font-family: 'Google Sans Text', system-ui, sans-serif;
+  font-size: 0.9375rem;
+  padding: 0.625rem 1rem;
+  color: #1f1f1f;
+}
+
+.upload-container ::ng-deep .p-autocomplete-item:hover {
+  background: #e8f0fe;
+}
+
+.upload-container ::ng-deep .p-autocomplete-item.p-highlight {
+  background: #e8f0fe;
+  color: #1967d2;
+}
+
 /* Upload Actions */
 .upload-actions {
   margin-top: 1.25rem;

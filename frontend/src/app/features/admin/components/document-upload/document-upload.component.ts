@@ -3,6 +3,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FileUploadModule, FileUploadHandlerEvent, FileSelectEvent } from 'primeng/fileupload';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { ButtonModule } from 'primeng/button';
+import { AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
+import { FormsModule } from '@angular/forms';
 import { DocumentService } from '../../../../core/services/document.service';
 import { Document, UploadStatus } from '../../../../core/models';
 import { ErrorMessageComponent } from '../../../../shared/components/error-message/error-message.component';
@@ -13,7 +15,7 @@ import { ErrorMessageComponent } from '../../../../shared/components/error-messa
  */
 @Component({
   selector: 'app-document-upload',
-  imports: [FileUploadModule, ProgressBarModule, ButtonModule, ErrorMessageComponent],
+  imports: [FileUploadModule, ProgressBarModule, ButtonModule, AutoCompleteModule, FormsModule, ErrorMessageComponent],
   templateUrl: './document-upload.component.html',
   styleUrl: './document-upload.component.css'
 })
@@ -30,6 +32,13 @@ export class DocumentUploadComponent {
   isUploading = signal<boolean>(false);
   errorMessage = signal<string>('');
   selectedFile = signal<File | null>(null);
+  filteredCategories = signal<string[]>([]);
+
+  // Category form field (plain property for ngModel binding)
+  selectedCategory = '';
+
+  // Available categories from existing documents
+  availableCategories = this.documentService.categories;
 
   // Computed properties
   hasError = computed(() => this.errorMessage().length > 0);
@@ -41,6 +50,22 @@ export class DocumentUploadComponent {
   // Output events
   uploadSuccess = output<Document>();
   uploadError = output<{ message: string; details?: string }>();
+
+  /**
+   * Filter categories for autocomplete
+   */
+  filterCategories(event: AutoCompleteCompleteEvent): void {
+    const query = event.query.toLowerCase();
+    const allCategories = this.availableCategories();
+
+    if (!query) {
+      this.filteredCategories.set(allCategories);
+    } else {
+      this.filteredCategories.set(
+        allCategories.filter(cat => cat.toLowerCase().includes(query))
+      );
+    }
+  }
 
   /**
    * Trigger manual upload
@@ -81,6 +106,7 @@ export class DocumentUploadComponent {
     this.selectedFile.set(null);
     this.errorMessage.set('');
     this.uploadProgress.set(0);
+    this.selectedCategory = '';
   }
 
   /**
@@ -108,7 +134,10 @@ export class DocumentUploadComponent {
     this.uploadProgress.set(0);
     this.errorMessage.set('');
 
-    this.documentService.uploadDocument(file).subscribe({
+    // Pass category if provided (trim and check for empty string)
+    const category = this.selectedCategory.trim() || undefined;
+
+    this.documentService.uploadDocument(file, category).subscribe({
       next: (progress) => {
         if (progress.status === UploadStatus.UPLOADING || progress.status === UploadStatus.PROCESSING) {
           this.uploadProgress.set(progress.percentComplete);
@@ -119,6 +148,7 @@ export class DocumentUploadComponent {
             this.uploadSuccess.emit(progressWithDoc.document);
           }
           this.selectedFile.set(null);
+          this.selectedCategory = '';
           this.isUploading.set(false);
 
           // Reset progress after delay

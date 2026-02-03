@@ -123,11 +123,15 @@ export class ApiService {
   /**
    * Upload a document file with progress tracking
    * @param file The file to upload (PDF or TXT)
+   * @param category Optional category for the document
    * @returns Observable emitting upload progress updates
    */
-  uploadDocument(file: File): Observable<UploadProgress> {
+  uploadDocument(file: File, category?: string): Observable<UploadProgress> {
     const formData = new FormData();
     formData.append('file', file);
+    if (category) {
+      formData.append('category', category);
+    }
 
     return this.http.post<Document>(
       `${this.apiUrl}/documents`,
@@ -202,5 +206,13 @@ export class ApiService {
       `${this.apiUrl}/documents/${documentId}`,
       { newFilename }
     );
+  }
+
+  /**
+   * Get all document categories
+   * @returns Observable with array of category names
+   */
+  getCategories(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/documents/categories`);
   }
 }

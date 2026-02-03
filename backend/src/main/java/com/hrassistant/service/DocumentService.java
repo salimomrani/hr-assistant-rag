@@ -51,8 +51,8 @@ public class DocumentService {
      * 5. Save metadata to PostgreSQL
      */
     @Transactional
-    public DocumentInfo uploadDocument(MultipartFile file) {
-        log.info("Starting document upload: {}", file.getOriginalFilename());
+    public DocumentInfo uploadDocument(MultipartFile file, String category) {
+        log.info("Starting document upload: {} (category: {})", file.getOriginalFilename(), category);
 
         // Step 1: Validate file
         validateFile(file);
@@ -66,6 +66,7 @@ public class DocumentService {
                 .status(DocumentStatus.PENDING)
                 .size(file.getSize())
                 .uploadedAt(LocalDateTime.now())
+                .category(category)
                 .build();
 
         // Save to PostgreSQL
@@ -263,6 +264,13 @@ public class DocumentService {
         return documentRepository.findAll().stream()
                 .map(documentMapper::toDocumentInfo)
                 .toList();
+    }
+
+    /**
+     * Retrieves all distinct categories.
+     */
+    public List<String> getAllCategories() {
+        return documentRepository.findDistinctCategories();
     }
 
     /**

@@ -42,4 +42,7 @@ public class Document {
 
     @Column(name = "error_message")
     private String errorMessage;
+
+    @Column(name = "category")
+    private String category;
 }

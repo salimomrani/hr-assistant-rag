@@ -1,7 +1,8 @@
-import { Component, input, effect, viewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, input, output, effect, viewChild, ElementRef, AfterViewInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { MarkdownComponent } from 'ngx-markdown';
+import { TooltipModule } from 'primeng/tooltip';
 import { ConversationMessage } from '../../../../core/models';
 import { SourceListComponent } from '../source-list/source-list.component';
 
@@ -11,7 +12,7 @@ import { SourceListComponent } from '../source-list/source-list.component';
  */
 @Component({
   selector: 'app-message-list',
-  imports: [CommonModule, ScrollPanelModule, SourceListComponent, MarkdownComponent],
+  imports: [CommonModule, ScrollPanelModule, SourceListComponent, MarkdownComponent, TooltipModule],
   templateUrl: './message-list.component.html',
   styleUrl: './message-list.component.css'
 })
@@ -24,6 +25,20 @@ export class MessageListComponent implements AfterViewInit {
 
   // Input: loading state
   isLoading = input<boolean>(false);
+
+  // Input: pending question being processed (shown during loading)
+  pendingQuestion = input<string>('');
+
+  // Output: emit when a suggested question is clicked
+  suggestionClicked = output<string>();
+
+  // Suggested questions for empty state
+  readonly suggestedQuestions = [
+    'Combien de jours de congés ai-je droit ?',
+    'Comment poser une demande de télétravail ?',
+    'Quels sont les avantages sociaux ?',
+    'Comment fonctionne le remboursement des frais ?'
+  ];
 
   // Reference to scroll panel for auto-scroll
   private scrollPanel = viewChild<ElementRef>('scrollContainer');
@@ -95,5 +110,27 @@ export class MessageListComponent implements AfterViewInit {
    */
   trackByMessageId(index: number, message: ConversationMessage): string {
     return message.id;
+  }
+
+  // Track which message was just copied (for feedback)
+  copiedMessageId = signal<string | null>(null);
+
+  /**
+   * Copy message content to clipboard
+   */
+  async copyToClipboard(content: string, messageId: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(content);
+      this.copiedMessageId.set(messageId);
+
+      // Reset after 2 seconds
+      setTimeout(() => {
+        if (this.copiedMessageId() === messageId) {
+          this.copiedMessageId.set(null);
+        }
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy text:', err);
+    }
   }
 }

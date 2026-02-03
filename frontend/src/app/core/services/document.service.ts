@@ -36,6 +36,12 @@ export class DocumentService {
   failedCount = computed(() =>
     this.documents().filter(d => d.status === DocumentStatus.FAILED).length
   );
+  categories = computed(() => {
+    const cats = this.documents()
+      .map(d => d.category)
+      .filter((c): c is string => !!c);
+    return [...new Set(cats)].sort();
+  });
 
   /**
    * Load all documents from the backend
@@ -64,10 +70,11 @@ export class DocumentService {
   /**
    * Upload a new document file with progress tracking
    * @param file The file to upload (PDF or TXT, max 10MB)
+   * @param category Optional category for the document
    * @returns Observable emitting progress updates
    */
-  uploadDocument(file: File): Observable<UploadProgress> {
-    return this.api.uploadDocument(file).pipe(
+  uploadDocument(file: File, category?: string): Observable<UploadProgress> {
+    return this.api.uploadDocument(file, category).pipe(
       tap(progress => {
         // Update state when complete
         if (progress.status === UploadStatus.COMPLETE) {

@@ -84,6 +84,25 @@
             </button>
           </div>
 
+          <!-- Category Input -->
+          <div class="category-input">
+            <label for="category-autocomplete">
+              <i class="pi pi-tag"></i>
+              Catégorie (optionnel)
+            </label>
+            <p-autoComplete
+              id="category-autocomplete"
+              [(ngModel)]="selectedCategory"
+              [suggestions]="filteredCategories()"
+              (completeMethod)="filterCategories($event)"
+              [forceSelection]="false"
+              [dropdown]="true"
+              [dropdownMode]="'current'"
+              placeholder="Ex: Congés, Avantages, Règlement..."
+              styleClass="category-autocomplete">
+            </p-autoComplete>
+          </div>
+
           <div class="upload-actions">
             <button
               type="button"

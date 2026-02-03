@@ -32,6 +32,7 @@ export class ChatContainerComponent {
   isLoading = signal<boolean>(false);
   streamingContent = signal<string>('');
   errorMessage = signal<string>('');
+  pendingQuestion = signal<string>('');
 
   // Selected document IDs for filtering RAG search
   selectedDocumentIds = signal<string[]>([]);
@@ -60,10 +61,11 @@ export class ChatContainerComponent {
       timestamp: new Date()
     };
 
-    // Set loading state
+    // Set loading state and store the pending question
     this.isLoading.set(true);
     this.streamingContent.set('');
     this.errorMessage.set('');
+    this.pendingQuestion.set(questionText);
     this.messageInput()?.setDisabled(true);
 
     // Get selected document IDs (empty array means search all)
@@ -79,6 +81,7 @@ export class ChatContainerComponent {
         // Handle error
         this.isLoading.set(false);
         this.streamingContent.set('');
+        this.pendingQuestion.set('');
         this.messageInput()?.setDisabled(false);
 
         const errorMsg = error.message || 'Une erreur est survenue. Veuillez réessayer.';
@@ -107,6 +110,7 @@ export class ChatContainerComponent {
         // Reset state
         this.isLoading.set(false);
         this.streamingContent.set('');
+        this.pendingQuestion.set('');
         this.messageInput()?.setDisabled(false);
       }
     });
