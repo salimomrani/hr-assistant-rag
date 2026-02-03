@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
+import { provideMarkdown } from 'ngx-markdown';
 import Aura from '@primeuix/themes/aura';
 
 import { routes } from './app.routes';
@@ -17,6 +18,7 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([headersInterceptor, errorInterceptor])
     ),
     provideAnimationsAsync(),
+    provideMarkdown(),
     providePrimeNG({
       theme: {
         preset: Aura,
