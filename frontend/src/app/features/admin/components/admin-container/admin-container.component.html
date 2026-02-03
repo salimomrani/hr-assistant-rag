@@ -48,7 +48,8 @@
         [isLoading]="isLoading()"
         (documentDeleted)="onDocumentDeleted($event)"
         (deleteError)="onDeleteError($event)"
-        (editDocument)="onEditDocument($event)">
+        (editDocument)="onEditDocument($event)"
+        (replaceDocument)="onReplaceDocument($event)">
       </app-document-list>
     </ng-template>
   </p-card>
@@ -99,6 +100,92 @@
           (click)="saveRename()"
           [loading]="isRenaming()"
           [disabled]="isSaveDisabled()">
+        </button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Replace Dialog -->
+  <p-dialog
+    header="Remplacer le fichier"
+    [visible]="replaceDialogVisible()"
+    (visibleChange)="replaceDialogVisible.set($event)"
+    [modal]="true"
+    [closable]="!isReplacing()"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '500px' }"
+    styleClass="replace-dialog"
+    (onHide)="closeReplaceDialog()">
+
+    <div class="replace-form">
+      <div class="replace-info">
+        <div class="replace-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 12H15M9 16H15M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H12.5858C12.851 3 13.1054 3.10536 13.2929 3.29289L18.7071 8.70711C18.8946 8.89464 19 9.149 19 9.41421V19C19 20.1046 18.1046 21 17 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="replace-details">
+          <span class="replace-label">Document actuel</span>
+          <span class="replace-filename">{{ replacingDocument()?.filename }}</span>
+        </div>
+      </div>
+
+      <div class="replace-upload-area">
+        <p-fileUpload
+          mode="basic"
+          [auto]="false"
+          [customUpload]="true"
+          accept=".pdf,.txt"
+          [maxFileSize]="MAX_FILE_SIZE"
+          chooseLabel="Sélectionner un nouveau fichier"
+          chooseIcon="pi pi-upload"
+          (onSelect)="onReplaceFileSelect($event)"
+          (onClear)="onReplaceFileClear()"
+          [disabled]="isReplacing()"
+          styleClass="replace-file-upload">
+        </p-fileUpload>
+
+        @if (replaceFile()) {
+          <div class="selected-file-info">
+            <div class="file-name">{{ replaceFile()?.name }}</div>
+            <div class="file-size">{{ formatBytes(replaceFile()?.size || 0) }}</div>
+          </div>
+        }
+      </div>
+
+      @if (isReplacing()) {
+        <div class="replace-progress">
+          <span class="progress-label">Remplacement en cours...</span>
+          <p-progressBar [value]="replaceProgress()" [showValue]="true" />
+        </div>
+      }
+
+      <div class="replace-warning">
+        <i class="pi pi-info-circle"></i>
+        <span>Le fichier actuel sera supprimé et remplacé par le nouveau. Le nom du document sera conservé.</span>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="dialog-footer">
+        <button
+          pButton
+          type="button"
+          label="Annuler"
+          class="p-button-text cancel-button"
+          (click)="closeReplaceDialog()"
+          [disabled]="isReplacing()">
+        </button>
+        <button
+          pButton
+          type="button"
+          label="Remplacer"
+          icon="pi pi-refresh"
+          class="replace-button"
+          (click)="executeReplace()"
+          [loading]="isReplacing()"
+          [disabled]="isReplaceDisabled()">
         </button>
       </div>
     </ng-template>

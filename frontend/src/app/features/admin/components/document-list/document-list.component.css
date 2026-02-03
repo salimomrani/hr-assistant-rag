@@ -191,7 +191,7 @@
 
 /* Actions Column */
 .actions-column {
-  width: 80px;
+  width: 120px;
   text-align: center;
 }
 
@@ -201,6 +201,16 @@
 }
 
 .edit-button:hover:not(:disabled) {
+  color: #1967d2 !important;
+  background: rgba(25, 103, 210, 0.08) !important;
+}
+
+.replace-button {
+  color: #5f6368 !important;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.replace-button:hover:not(:disabled) {
   color: #1967d2 !important;
   background: rgba(25, 103, 210, 0.08) !important;
 }
@@ -384,6 +394,8 @@
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .document-list-container ::ng-deep .document-table .p-datatable-tbody > tr,
+  .edit-button,
+  .replace-button,
   .delete-button {
     transition: none;
   }

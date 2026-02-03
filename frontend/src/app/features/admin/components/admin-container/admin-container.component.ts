@@ -5,11 +5,13 @@ import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
+import { FileUploadModule, FileSelectEvent } from 'primeng/fileupload';
+import { ProgressBarModule } from 'primeng/progressbar';
 import { MessageService } from 'primeng/api';
 import { DocumentUploadComponent } from '../document-upload/document-upload.component';
 import { DocumentListComponent } from '../document-list/document-list.component';
 import { DocumentService } from '../../../../core/services/document.service';
-import { Document } from '../../../../core/models';
+import { Document, UploadStatus } from '../../../../core/models';
 
 /**
  * Admin Container Component - Main orchestrator for document management
@@ -24,6 +26,8 @@ import { Document } from '../../../../core/models';
     DialogModule,
     InputTextModule,
     ButtonModule,
+    FileUploadModule,
+    ProgressBarModule,
     DocumentUploadComponent,
     DocumentListComponent
   ],
@@ -45,6 +49,17 @@ export class AdminContainerComponent {
   editingDocument = signal<Document | null>(null);
   newFilename = signal('');
   isRenaming = signal(false);
+
+  // Replace dialog state
+  replaceDialogVisible = signal(false);
+  replacingDocument = signal<Document | null>(null);
+  replaceFile = signal<File | null>(null);
+  isReplacing = signal(false);
+  replaceProgress = signal(0);
+
+  // Validation constants (same as document-upload)
+  readonly MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+  readonly ACCEPTED_TYPES = ['application/pdf', 'text/plain'];
 
   constructor() {
     // Load documents on init
@@ -182,6 +197,149 @@ export class AdminContainerComponent {
     const filename = this.newFilename().trim();
     const original = this.editingDocument()?.filename;
     return !filename || filename === original || this.isRenaming();
+  }
+
+  /**
+   * Open replace dialog for a document
+   */
+  onReplaceDocument(document: Document): void {
+    this.replacingDocument.set(document);
+    this.replaceFile.set(null);
+    this.replaceProgress.set(0);
+    this.replaceDialogVisible.set(true);
+  }
+
+  /**
+   * Close replace dialog
+   */
+  closeReplaceDialog(): void {
+    this.replaceDialogVisible.set(false);
+    this.replacingDocument.set(null);
+    this.replaceFile.set(null);
+    this.replaceProgress.set(0);
+  }
+
+  /**
+   * Handle file selection for replacement
+   */
+  onReplaceFileSelect(event: FileSelectEvent): void {
+    if (event.currentFiles && event.currentFiles.length > 0) {
+      const file = event.currentFiles[0];
+
+      // Validate file
+      if (!this.ACCEPTED_TYPES.includes(file.type)) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Type de fichier non accepté. Formats acceptés: PDF, TXT',
+          life: 5000
+        });
+        return;
+      }
+
+      if (file.size > this.MAX_FILE_SIZE) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Fichier trop volumineux. Taille maximale: 10 MB',
+          life: 5000
+        });
+        return;
+      }
+
+      this.replaceFile.set(file);
+    }
+  }
+
+  /**
+   * Clear selected replace file
+   */
+  onReplaceFileClear(): void {
+    this.replaceFile.set(null);
+    this.replaceProgress.set(0);
+  }
+
+  /**
+   * Execute document replacement
+   * Deletes old document, uploads new one with same filename
+   */
+  executeReplace(): void {
+    const document = this.replacingDocument();
+    const file = this.replaceFile();
+
+    if (!document || !file) {
+      return;
+    }
+
+    this.isReplacing.set(true);
+    this.replaceProgress.set(0);
+
+    // Step 1: Delete old document
+    this.documentService.deleteDocument(document.id).subscribe({
+      next: () => {
+        // Step 2: Upload new file with original filename
+        const renamedFile = new File([file], document.filename, { type: file.type });
+
+        this.documentService.uploadDocument(renamedFile).subscribe({
+          next: (progress) => {
+            if (progress.status === UploadStatus.UPLOADING || progress.status === UploadStatus.PROCESSING) {
+              this.replaceProgress.set(progress.percentComplete);
+            } else if (progress.status === UploadStatus.COMPLETE) {
+              this.replaceProgress.set(100);
+              this.isReplacing.set(false);
+              this.closeReplaceDialog();
+
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Document remplacé',
+                detail: `"${document.filename}" a été remplacé avec succès`,
+                life: 5000
+              });
+
+              // Refresh document list
+              this.loadDocuments();
+            }
+          },
+          error: (error) => {
+            this.isReplacing.set(false);
+            this.replaceProgress.set(0);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erreur d\'upload',
+              detail: error.error?.message || 'Impossible d\'uploader le nouveau fichier',
+              life: 7000
+            });
+          }
+        });
+      },
+      error: (error) => {
+        this.isReplacing.set(false);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur de suppression',
+          detail: error.error?.message || 'Impossible de supprimer l\'ancien document',
+          life: 7000
+        });
+      }
+    });
+  }
+
+  /**
+   * Check if replace button should be disabled
+   */
+  isReplaceDisabled(): boolean {
+    return !this.replaceFile() || this.isReplacing();
+  }
+
+  /**
+   * Format bytes to human-readable string
+   */
+  formatBytes(bytes: number): string {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   }
 
   /**

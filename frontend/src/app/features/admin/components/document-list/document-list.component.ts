@@ -5,6 +5,7 @@ import { TagModule } from 'primeng/tag';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { SkeletonModule } from 'primeng/skeleton';
+import { TooltipModule } from 'primeng/tooltip';
 import { Document } from '../../../../core/models';
 import { DocumentService } from '../../../../core/services/document.service';
 
@@ -14,7 +15,7 @@ import { DocumentService } from '../../../../core/services/document.service';
  */
 @Component({
   selector: 'app-document-list',
-  imports: [TableModule, ButtonModule, TagModule, ConfirmDialogModule, SkeletonModule],
+  imports: [TableModule, ButtonModule, TagModule, ConfirmDialogModule, SkeletonModule, TooltipModule],
   providers: [ConfirmationService],
   templateUrl: './document-list.component.html',
   styleUrl: './document-list.component.css'
@@ -31,6 +32,7 @@ export class DocumentListComponent {
   documentDeleted = output<string>();
   deleteError = output<string>();
   editDocument = output<Document>();
+  replaceDocument = output<Document>();
 
   // Local state
   deletingId = signal<string | null>(null);

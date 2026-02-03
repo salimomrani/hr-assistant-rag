@@ -93,7 +93,19 @@
               icon="pi pi-pencil"
               class="p-button-rounded p-button-text edit-button"
               (click)="editDocument.emit(document)"
+              pTooltip="Renommer"
+              tooltipPosition="top"
               aria-label="Renommer le document">
+            </button>
+            <button
+              type="button"
+              pButton
+              icon="pi pi-refresh"
+              class="p-button-rounded p-button-text replace-button"
+              (click)="replaceDocument.emit(document)"
+              pTooltip="Remplacer le fichier"
+              tooltipPosition="top"
+              aria-label="Remplacer le fichier">
             </button>
             <button
               type="button"
@@ -103,6 +115,8 @@
               (click)="confirmDelete(document)"
               [loading]="isDeleting(document.id)"
               [disabled]="isDeleting(document.id)"
+              pTooltip="Supprimer"
+              tooltipPosition="top"
               aria-label="Supprimer le document">
             </button>
           </td>
