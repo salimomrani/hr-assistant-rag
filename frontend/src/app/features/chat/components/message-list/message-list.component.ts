@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { ConversationMessage } from '../../../../core/models';
 import { SourceListComponent } from '../source-list/source-list.component';
+import { MarkdownPipe } from '../../../../shared/pipes/markdown.pipe';
 
 /**
  * Message List Component - Displays conversation history with elegant message bubbles
@@ -10,7 +11,7 @@ import { SourceListComponent } from '../source-list/source-list.component';
  */
 @Component({
   selector: 'app-message-list',
-  imports: [CommonModule, ScrollPanelModule, SourceListComponent],
+  imports: [CommonModule, ScrollPanelModule, SourceListComponent, MarkdownPipe],
   templateUrl: './message-list.component.html',
   styleUrl: './message-list.component.css'
 })

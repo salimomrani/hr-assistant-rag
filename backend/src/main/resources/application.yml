@@ -10,12 +10,11 @@ spring:
       max-request-size: 10MB
 
   # Docker Compose - auto-start PostgreSQL
-  # Path works from project root (IntelliJ) - for Maven use: -Dspring.docker.compose.file=docker-compose.yml
   docker:
     compose:
       enabled: true
       lifecycle-management: start-and-stop
-      file: ${DOCKER_COMPOSE_FILE:backend/docker-compose.yml}
+      file: ${DOCKER_COMPOSE_FILE:docker-compose.yml}
 
   # PostgreSQL DataSource (auto-configured from Docker Compose)
   datasource:

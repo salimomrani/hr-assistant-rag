@@ -42,9 +42,7 @@
               </svg>
             </div>
             <div class="message-wrapper">
-              <div class="message-content">
-                <p>{{ message.answer.content }}</p>
-              </div>
+              <div class="message-content markdown-content" [innerHTML]="message.answer.content | markdown"></div>
               <!-- Source Documents -->
               <app-source-list [sources]="message.answer.sources"></app-source-list>
             </div>
@@ -61,8 +59,8 @@
             </svg>
           </div>
           <div class="message-wrapper">
-            <div class="message-content">
-              <p>{{ streamingContent() }}<span class="streaming-cursor"></span></p>
+            <div class="message-content markdown-content">
+              <span [innerHTML]="streamingContent() | markdown"></span><span class="streaming-cursor"></span>
             </div>
           </div>
         </div>
