@@ -49,12 +49,15 @@ export class MessageListComponent implements AfterViewInit {
   }
 
   constructor() {
-    // Auto-scroll when new messages arrive or streaming content updates
+    // Auto-scroll when new messages arrive, streaming updates, or question is sent
     effect(() => {
       const msgs = this.messages();
       const streaming = this.streamingContent();
+      const pending = this.pendingQuestion();
+      const loading = this.isLoading();
 
-      if (msgs.length > 0 || streaming) {
+      // Scroll when there's content or when a question is being processed
+      if (msgs.length > 0 || streaming || pending || loading) {
         setTimeout(() => this.scrollToBottom(), 100);
       }
     });
