@@ -3,7 +3,7 @@ import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { Document, UploadProgress, UploadStatus } from '../models';
+import { Document, UploadProgress, UploadStatus, SourceDocumentReference } from '../models';
 
 /**
  * API Service - Handles all HTTP communication with the backend
@@ -16,6 +16,7 @@ export class ApiService {
   private http = inject(HttpClient);
   private ngZone = inject(NgZone);
   private readonly apiUrl = environment.apiUrl;
+  private readonly streamUrl = environment.streamUrl;
 
   /**
    * Send a chat question and get streaming response via SSE
@@ -28,16 +29,13 @@ export class ApiService {
     return new Observable(observer => {
       const abortController = new AbortController();
 
-      // Use direct backend URL to bypass proxy buffering for SSE
-      const streamUrl = 'http://localhost:8080/api/chat/stream';
-
       // Build request body with optional documentIds
       const requestBody: { question: string; documentIds?: string[] } = { question };
       if (documentIds && documentIds.length > 0) {
         requestBody.documentIds = documentIds;
       }
 
-      fetch(streamUrl, {
+      fetch(`${this.streamUrl}/chat/stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,12 +56,10 @@ export class ApiService {
             throw new Error('Response body is null');
           }
 
-          console.log('[SSE] Starting to read stream...');
           let buffer = '';
 
           while (true) {
             const { done, value } = await reader.read();
-            console.log('[SSE] Read chunk, done:', done, 'value length:', value?.length);
 
             if (done) {
               this.ngZone.run(() => observer.complete());
@@ -82,7 +78,6 @@ export class ApiService {
             // Process complete events
             for (const event of events) {
               if (event.trim()) {
-                console.log('[SSE] Raw event:', event);
                 // Parse data: lines
                 const lines = event.split('\n');
 
@@ -90,7 +85,6 @@ export class ApiService {
                   if (line.startsWith('data:')) {
                     // Extract data after 'data:' prefix (5 chars)
                     const data = line.substring(5);
-                    console.log('[SSE] Parsed data:', JSON.stringify(data));
 
                     // Empty data line represents a newline in the original text
                     if (data === '') {
@@ -119,8 +113,8 @@ export class ApiService {
    * @param question The user's question
    * @returns Observable with answer and sources
    */
-  chat(question: string): Observable<{ answer: string; sources: any[] }> {
-    return this.http.post<{ answer: string; sources: any[] }>(
+  chat(question: string): Observable<{ answer: string; sources: SourceDocumentReference[] }> {
+    return this.http.post<{ answer: string; sources: SourceDocumentReference[] }>(
       `${this.apiUrl}/chat`,
       { question }
     );
