@@ -191,8 +191,22 @@
 
 /* Actions Column */
 .actions-column {
-  width: 120px;
+  width: 130px;
   text-align: center;
+}
+
+.actions-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.actions-wrapper button {
+  padding: 0.5rem !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  min-width: 2rem !important;
 }
 
 .edit-button {
