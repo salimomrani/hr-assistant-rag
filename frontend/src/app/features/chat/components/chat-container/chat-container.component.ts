@@ -91,10 +91,12 @@ export class ChatContainerComponent {
         // When streaming completes, save the Q&A pair
         const finalContent = this.streamingContent();
 
-        // Backend handles all formatting (spacing, sources, etc.)
+        // Parse sources from content and separate them
+        const { content, sources } = this.parseSourcesFromContent(finalContent);
+
         const answer: Answer = {
-          content: finalContent,
-          sources: [] as SourceDocumentReference[],
+          content: content,
+          sources: sources,
           timestamp: new Date(),
           isStreaming: false
         };
@@ -108,6 +110,36 @@ export class ChatContainerComponent {
         this.messageInput()?.setDisabled(false);
       }
     });
+  }
+
+  /**
+   * Parse sources from response content
+   * Backend appends sources in format: "\n\n\n\n**Sources:**\n- source1\n- source2"
+   */
+  private parseSourcesFromContent(fullContent: string): { content: string; sources: SourceDocumentReference[] } {
+    const sourcesMarker = '**Sources:**';
+    const sourcesIndex = fullContent.indexOf(sourcesMarker);
+
+    if (sourcesIndex === -1) {
+      // No sources found
+      return { content: fullContent.trim(), sources: [] };
+    }
+
+    // Split content and sources
+    const content = fullContent.substring(0, sourcesIndex).trim();
+    const sourcesSection = fullContent.substring(sourcesIndex + sourcesMarker.length);
+
+    // Parse source names from "- source1\n- source2" format
+    const sources: SourceDocumentReference[] = sourcesSection
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.startsWith('- '))
+      .map(line => ({
+        documentName: line.substring(2).trim(),
+        excerpt: ''
+      }));
+
+    return { content, sources };
   }
 
   /**

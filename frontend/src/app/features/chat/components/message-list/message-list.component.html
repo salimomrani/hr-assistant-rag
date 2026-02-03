@@ -45,6 +45,8 @@
               <div class="message-content">
                 <p>{{ message.answer.content }}</p>
               </div>
+              <!-- Source Documents -->
+              <app-source-list [sources]="message.answer.sources"></app-source-list>
             </div>
           </div>
         </div>
