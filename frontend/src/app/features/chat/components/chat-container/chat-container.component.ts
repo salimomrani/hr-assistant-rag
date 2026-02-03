@@ -74,6 +74,10 @@ export class ChatContainerComponent {
     // Call SSE streaming API with optional document filter
     this.apiService.chatStream(questionText, documentIds.length > 0 ? documentIds : undefined).subscribe({
       next: (chunk: string) => {
+        // Hide loading indicator when first chunk arrives
+        if (this.isLoading()) {
+          this.isLoading.set(false);
+        }
         // Update streaming content with each chunk
         this.streamingContent.update(current => current + chunk);
       },
