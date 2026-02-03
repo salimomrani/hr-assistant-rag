@@ -95,28 +95,28 @@ public class CachingStreamingRagService {
      * @return Flux of response tokens
      */
     private Flux<String> executeAndCache(ChatRequest request) {
+        // Use a buffer to collect tokens for caching without blocking the stream
+        List<String> tokensBuffer = new java.util.ArrayList<>();
+
         return streamingRagService.chatStream(request)
-                .collectList()
-                .flatMapMany(tokens -> {
-                    String fullResponse = String.join("", tokens);
-                    List<String> sources = extractSourcesFromResponse(fullResponse);
+                .doOnNext(tokensBuffer::add) // Add each token to the buffer
+                .doOnComplete(() -> {
+                    // When streaming is complete, cache the full response
+                    String fullResponse = String.join("", tokensBuffer);
+                    if (StringUtils.hasText(fullResponse)) {
+                        List<String> sources = extractSourcesFromResponse(fullResponse);
 
-                    // Run caching on a separate thread to avoid blocking reactor threads
-                    // EmbeddingModel.embed() is a blocking call
-                    Schedulers.boundedElastic().schedule(() -> {
-                        try {
-                            cacheService.cacheResponse(request.getQuestion(), fullResponse, sources);
-                        } catch (Exception e) {
-                            log.warn("Failed to cache response asynchronously: {}", e.getMessage());
-                        }
-                    });
-
-                    return Flux.fromIterable(tokens);
+                        // Run caching on a separate thread
+                        Schedulers.boundedElastic().schedule(() -> {
+                            try {
+                                cacheService.cacheResponse(request.getQuestion(), fullResponse, sources);
+                            } catch (Exception e) {
+                                log.warn("Failed to cache response asynchronously: {}", e.getMessage());
+                            }
+                        });
+                    }
                 })
-                .onErrorResume(error -> {
-                    log.debug("RAG pipeline error, not caching: {}", error.getMessage());
-                    return streamingRagService.chatStream(request);
-                });
+                .doOnError(error -> log.debug("RAG pipeline error, not caching: {}", error.getMessage()));
     }
 
     /**

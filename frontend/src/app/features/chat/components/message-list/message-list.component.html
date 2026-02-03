@@ -34,7 +34,7 @@
   } @else {
     <!-- Message List with Scroll -->
     <div class="messages-scroll" #scrollContainer>
-      @for (message of messages(); track trackByMessageId($index, message)) {
+      @for (message of messages(); track message.id) {
         <div class="message-group">
           <!-- User Question -->
           <div class="message message-user">

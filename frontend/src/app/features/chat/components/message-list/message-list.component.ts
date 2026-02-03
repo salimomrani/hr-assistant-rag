@@ -1,5 +1,8 @@
-import { Component, input, output, effect, viewChild, ElementRef, AfterViewInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { 
+  Component, input, output, effect, viewChild, 
+  ElementRef, AfterViewInit, signal, inject, DestroyRef 
+} from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { MarkdownComponent } from 'ngx-markdown';
 import { TooltipModule } from 'primeng/tooltip';
@@ -7,32 +10,36 @@ import { ConversationMessage } from '../../../../core/models';
 import { SourceListComponent } from '../source-list/source-list.component';
 
 /**
- * Message List Component - Displays conversation history with elegant message bubbles
- * Features auto-scroll, source citations, and streaming indicators
+ * Message List Component - Gère l'affichage des messages avec auto-scroll intelligent.
  */
 @Component({
   selector: 'app-message-list',
-  imports: [CommonModule, ScrollPanelModule, SourceListComponent, MarkdownComponent, TooltipModule],
+  standalone: true,
+  imports: [
+    CommonModule, 
+    ScrollPanelModule, 
+    SourceListComponent, 
+    MarkdownComponent, 
+    TooltipModule,
+    DatePipe
+  ],
   templateUrl: './message-list.component.html',
   styleUrl: './message-list.component.css'
 })
 export class MessageListComponent implements AfterViewInit {
-  // Input: array of conversation messages
+  // Inputs via Signal API
   messages = input<ConversationMessage[]>([]);
-
-  // Input: current streaming content (partial response)
   streamingContent = input<string>('');
-
-  // Input: loading state
   isLoading = input<boolean>(false);
-
-  // Input: pending question being processed (shown during loading)
   pendingQuestion = input<string>('');
 
-  // Output: emit when a suggested question is clicked
+  // Outputs
   suggestionClicked = output<string>();
 
-  // Suggested questions for empty state
+  // State
+  copiedMessageId = signal<string | null>(null);
+  private destroyRef = inject(DestroyRef);
+
   readonly suggestedQuestions = [
     'Combien de jours de congés ai-je droit ?',
     'Comment poser une demande de télétravail ?',
@@ -40,100 +47,58 @@ export class MessageListComponent implements AfterViewInit {
     'Comment fonctionne le remboursement des frais ?'
   ];
 
-  // Reference to scroll panel for auto-scroll
-  private scrollPanel = viewChild<ElementRef>('scrollContainer');
+  // Accès au container de scroll
+  private scrollContainer = viewChild<ElementRef>('scrollContainer');
+
+  constructor() {
+    // Effet réactif pour déclencher le scroll
+    effect(() => {
+      // On surveille les dépendances
+      this.messages();
+      this.streamingContent();
+      this.isLoading();
+      
+      // Utilisation de requestAnimationFrame pour s'assurer que le DOM est prêt
+      requestAnimationFrame(() => this.scrollToBottom());
+    });
+  }
 
   ngAfterViewInit() {
-    // Scroll to bottom when component initializes
     this.scrollToBottom();
   }
 
-  constructor() {
-    // Auto-scroll when new messages arrive, streaming updates, or question is sent
-    effect(() => {
-      const msgs = this.messages();
-      const streaming = this.streamingContent();
-      const pending = this.pendingQuestion();
-      const loading = this.isLoading();
-
-      // Scroll when there's content or when a question is being processed
-      if (msgs.length > 0 || streaming || pending || loading) {
-        setTimeout(() => this.scrollToBottom(), 100);
-      }
-    });
-  }
-
   /**
-   * Scroll to the bottom of the message list
+   * Scroll fluide vers le bas du conteneur
    */
   private scrollToBottom(): void {
-    const container = this.scrollPanel()?.nativeElement;
-    if (container) {
-      container.scrollTop = container.scrollHeight;
+    const element = this.scrollContainer()?.nativeElement;
+    if (element) {
+      // On cible souvent l'élément interne pour les composants de librairie
+      const scrollEl = element.querySelector('.p-scrollpanel-content') || element;
+      scrollEl.scrollTo({
+        top: scrollEl.scrollHeight,
+        behavior: 'smooth'
+      });
     }
   }
 
   /**
-   * Format timestamp for display
-   */
-  formatTime(date: Date): string {
-    return new Date(date).toLocaleTimeString('fr-FR', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  /**
-   * Format date for display
-   */
-  formatDate(date: Date): string {
-    const d = new Date(date);
-    const today = new Date();
-
-    if (d.toDateString() === today.toDateString()) {
-      return "Aujourd'hui";
-    }
-
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    if (d.toDateString() === yesterday.toDateString()) {
-      return 'Hier';
-    }
-
-    return d.toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: d.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
-    });
-  }
-
-  /**
-   * Track message by ID for ngFor performance
-   */
-  trackByMessageId(index: number, message: ConversationMessage): string {
-    return message.id;
-  }
-
-  // Track which message was just copied (for feedback)
-  copiedMessageId = signal<string | null>(null);
-
-  /**
-   * Copy message content to clipboard
+   * Copie le contenu dans le presse-papier avec feedback visuel
    */
   async copyToClipboard(content: string, messageId: string): Promise<void> {
     try {
       await navigator.clipboard.writeText(content);
       this.copiedMessageId.set(messageId);
 
-      // Reset after 2 seconds
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         if (this.copiedMessageId() === messageId) {
           this.copiedMessageId.set(null);
         }
       }, 2000);
+
+      this.destroyRef.onDestroy(() => clearTimeout(timeout));
     } catch (err) {
-      console.error('Failed to copy text:', err);
+      console.error('Erreur lors de la copie :', err);
     }
   }
 }
