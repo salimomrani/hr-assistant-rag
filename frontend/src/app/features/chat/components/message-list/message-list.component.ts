@@ -2,7 +2,7 @@ import {
   Component, input, output, effect, viewChild, 
   ElementRef, AfterViewInit, signal, inject, DestroyRef 
 } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { MarkdownComponent } from 'ngx-markdown';
 import { TooltipModule } from 'primeng/tooltip';
@@ -16,12 +16,11 @@ import { SourceListComponent } from '../source-list/source-list.component';
   selector: 'app-message-list',
   standalone: true,
   imports: [
-    CommonModule, 
-    ScrollPanelModule, 
-    SourceListComponent, 
-    MarkdownComponent, 
-    TooltipModule,
-    DatePipe
+    CommonModule,
+    ScrollPanelModule,
+    SourceListComponent,
+    MarkdownComponent,
+    TooltipModule
   ],
   templateUrl: './message-list.component.html',
   styleUrl: './message-list.component.css'
