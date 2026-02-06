@@ -10,7 +10,7 @@ HR Assistant RAG - An intelligent HR assistant that answers employee questions u
 ```
 hr-assistant-rag/
 ├── backend/          # Spring Boot API
-├── frontend/         # Frontend application (to be implemented)
+├── frontend/         # Angular 21 frontend (PrimeNG)
 ├── specs/            # Specifications and documentation
 ├── CLAUDE.md         # This file
 └── README.md         # Project documentation
@@ -18,12 +18,14 @@ hr-assistant-rag/
 
 ## Tech Stack
 
-- **Backend**: Spring Boot 4.0.1, Java 17
-- **AI**: LangChain4j 1.10.0
-- **LLM**: Ollama (llama3.2) running locally on port 11434
+- **Backend**: Spring Boot 4.0.1, Java 21
+- **AI**: Spring AI 2.0.0-M1
+- **LLM**: Ollama (llama3.2 + nomic-embed-text) running locally on port 11434
 - **Streaming**: WebFlux / SSE
-- **Vector Store**: In-Memory (planned: pgvector)
-- **Frontend**: Angular 21, TypeScript 5.6+, PrimeNG v20, RxJS 7.8+
+- **Vector Store**: PostgreSQL 16 + pgvector (HNSW index, cosine distance)
+- **Cache**: Redis 7.4 (semantic caching)
+- **Infrastructure**: Docker Compose (pgvector + Redis), Spring Boot Docker Compose Support
+- **Frontend**: Angular 21, TypeScript 5.9, PrimeNG v21, RxJS 7.8+, ngx-markdown
 
 ## Build & Run Commands
 
@@ -52,13 +54,10 @@ cd frontend
 npm install
 
 # Start development server (with backend proxy)
-ng serve --proxy-config proxy.conf.json
+npm start
 
-# Run unit tests
+# Run unit tests (Vitest)
 ng test
-
-# Run E2E tests
-npx cypress run
 
 # Build for production
 ng build --configuration=production
@@ -66,9 +65,16 @@ ng build --configuration=production
 
 ## Prerequisites
 
-Ollama must be running locally:
+- Java 21+
+- Maven 3.8+
+- Node.js 22+
+- Docker (for PostgreSQL pgvector + Redis)
+- Ollama running locally:
+
 ```bash
-ollama run llama3.2
+ollama serve
+ollama pull llama3.2
+ollama pull nomic-embed-text
 ```
 
 ## Architecture
@@ -79,13 +85,16 @@ The backend application (`backend/`) follows a layered architecture:
 2. **Services** (`backend/src/main/java/com/hrassistant/service/`) - Business logic
    - `RagService` - Orchestrates the RAG pipeline (blocking)
    - `StreamingRagService` - Orchestrates the RAG pipeline (streaming)
-   - `EmbeddingService` - Converts text to vectors
-   - `VectorStoreService` - Stores and searches embeddings
+   - `CachingStreamingRagService` - RAG pipeline with semantic caching
+   - `EmbeddingService` - Converts text to vectors via Spring AI
+   - `VectorStoreService` - Stores and searches embeddings (pgvector)
    - `DocumentService` - Handles document upload and chunking
+   - `CacheService` - Semantic response caching (Redis)
    - `GuardrailService` - Input/output filtering
-3. **Config** (`backend/src/main/java/com/hrassistant/config/`) - Spring configuration beans for LangChain4j
-4. **Model** (`backend/src/main/java/com/hrassistant/model/`) - DTOs (ChatRequest, ChatResponse, DocumentInfo)
+3. **Config** (`backend/src/main/java/com/hrassistant/config/`) - Spring configuration (Redis, Web, Logging)
+4. **Model** (`backend/src/main/java/com/hrassistant/model/`) - DTOs and JPA entities
 5. **Mapper** (`backend/src/main/java/com/hrassistant/mapper/`) - MapStruct mappers
+6. **Repository** (`backend/src/main/java/com/hrassistant/repository/`) - Spring Data JPA repositories
 
 ## API Endpoints
 
@@ -128,20 +137,17 @@ Example workflow:
 - Create Service → Show → Wait for validation
 - Create Controller → Show → Wait for validation
 
-## LangChain4j Patterns
+## Spring AI Patterns
 
-- Use `${langchain4j.version}` property for version consistency
-- Embedding models and chat models are configured as Spring beans in `OllamaConfig`
-- Vector store uses `InMemoryEmbeddingStore` for development
+- Spring AI BOM version managed via `${spring-ai.version}` property
+- Ollama chat and embedding models are auto-configured via `spring.ai.ollama.*` properties
+- Vector store uses pgvector via `spring-ai-starter-vector-store-pgvector`
+- Semantic caching uses Redis via `CacheService` and `CachingStreamingRagService`
 
 ## Active Technologies
-- Java 17 + Spring Boot 4.0.1, LangChain4j 1.10.0, Spring WebFlux (001-hr-rag-assistant)
-- In-Memory (InMemoryEmbeddingStore) - MVP, pgvector prévu ultérieuremen (001-hr-rag-assistant)
-- Angular 21 + TypeScript 5.6+, PrimeNG v20, RxJS 7.8+ (002-hr-rag-frontend)
-
-## Recent Changes
-- 001-hr-rag-assistant: Added Java 17 + Spring Boot 4.0.1, LangChain4j 1.10.0, Spring WebFlux
-- 002-hr-rag-frontend: Added Angular 21 + TypeScript 5.6+, PrimeNG v20, RxJS 7.8+
+- Java 21 + Spring Boot 4.0.1, Spring AI 2.0.0-M1, Spring WebFlux (backend)
+- PostgreSQL 16 + pgvector, Redis 7.4, Docker Compose (infrastructure)
+- Angular 21 + TypeScript 5.9, PrimeNG v21, RxJS 7.8+ (frontend)
 
 ## Frontend Architecture (002-hr-rag-frontend)
 
@@ -253,9 +259,9 @@ The frontend (`frontend/`) follows Angular 21 best practices with standalone com
 
 - **Error Handling**: Use functional HTTP interceptors (Angular 14+)
 
-- **Don't Reinvent the Wheel**: Use PrimeNG v20 components exclusively (80+ components available)
+- **Don't Reinvent the Wheel**: Use PrimeNG v21 components exclusively (80+ components available)
 
-### PrimeNG v20 Best Practices
+### PrimeNG v21 Best Practices
 
 - **Installation**: Install with `npm install primeng @primeuix/themes`
 - **Theme Configuration**: Use Aura preset theme via `providePrimeNG` in app.config.ts
