@@ -1,44 +1,85 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global Styles - Midnight Studio Theme */
 @import 'primeicons/primeicons.css';
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
-/* Force light mode and custom color palette */
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 
-  /* Custom purple palette */
-  --primary-50: #f5f3ff;
-  --primary-100: #ede9fe;
-  --primary-200: #ddd6fe;
-  --primary-300: #c4b5fd;
-  --primary-400: #a78bfa;
-  --primary-500: #667eea;
-  --primary-600: #764ba2;
-  --primary-700: #6d28d9;
-  --primary-800: #5b21b6;
-  --primary-900: #4c1d95;
+  /* Midnight palette */
+  --midnight-950: #0a0e1a;
+  --midnight-900: #0f1629;
+  --midnight-800: #151d35;
+  --midnight-700: #1c2642;
+  --midnight-600: #253252;
+  --midnight-500: #334163;
+  --midnight-400: #4a5578;
+  --midnight-300: #6b7494;
+  --midnight-200: #9199b0;
+  --midnight-100: #c4c9d8;
+  --midnight-50: #e8eaf0;
 
-  /* Surface colors (light mode) */
-  --surface-0: #ffffff;
-  --surface-50: #fafafa;
-  --surface-100: #f5f5f5;
-  --surface-200: #e5e5e5;
-  --surface-300: #d4d4d4;
-  --surface-400: #a3a3a3;
-  --surface-500: #737373;
-  --surface-600: #525252;
-  --surface-700: #404040;
-  --surface-800: #262626;
-  --surface-900: #171717;
+  /* Accent - Electric cyan/teal */
+  --accent-400: #22d3ee;
+  --accent-500: #06b6d4;
+  --accent-600: #0891b2;
 
-  /* Text colors */
-  --text-color: #1a202c;
-  --text-color-secondary: #64748b;
+  /* Secondary accent - Warm amber */
+  --accent2-400: #fbbf24;
+  --accent2-500: #f59e0b;
+
+  /* Surfaces */
+  --surface-0: var(--midnight-950);
+  --surface-50: var(--midnight-900);
+  --surface-100: var(--midnight-800);
+  --surface-200: var(--midnight-700);
+
+  /* Text */
+  --text-color: #e8eaf0;
+  --text-color-secondary: #9199b0;
+
+  /* PrimeNG overrides */
+  --primary-color: var(--accent-500);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
   padding: 0;
-  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #fafafa;
+  font-family:
+    'Plus Jakarta Sans',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  background: var(--midnight-950);
   color: var(--text-color);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Global scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Selection color */
+::selection {
+  background: rgba(6, 182, 212, 0.3);
+  color: #fff;
 }

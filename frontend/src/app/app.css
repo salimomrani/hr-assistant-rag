@@ -1,9 +1,6 @@
 /**
- * Root application styles - Gemini-inspired design
- * Clean, minimal, airy aesthetic with soft blue-gray background
+ * Root application styles - Midnight Studio Theme
  */
-
-@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&family=Google+Sans+Text:wght@400;500&display=swap');
 
 :host {
   display: block;
@@ -15,20 +12,12 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #f0f4f9;
-  font-family: 'Google Sans Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--midnight-950, #0a0e1a);
   overflow: hidden;
 }
 
-.app-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-}
-
-/* Ensure routed components fill available space */
+/* Shared flex column layout for main area and routed components */
+.app-main,
 .app-main > *:not(router-outlet) {
   flex: 1;
   display: flex;

@@ -1,6 +1,5 @@
 /**
- * Document Upload - Gemini-inspired design
- * Clean drop zone with subtle interactions
+ * Document Upload - Midnight Studio
  */
 
 .upload-container {
@@ -20,47 +19,52 @@
 }
 
 .upload-container ::ng-deep .p-fileupload-content {
-  border: 2px dashed #dadce0;
+  border: 2px dashed rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  background: #fafbfc;
+  background: var(--midnight-800, #151d35);
   padding: 0;
-  transition: border-color 0.2s ease, background 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
 }
 
 .upload-container ::ng-deep .p-fileupload-content:hover {
-  border-color: #1967d2;
-  background: #f8f9fa;
+  border-color: rgba(6, 182, 212, 0.4);
+  background: rgba(6, 182, 212, 0.05);
 }
 
 .upload-container ::ng-deep .p-fileupload-content.p-focus {
-  border-color: #1967d2;
-  box-shadow: 0 0 0 3px rgba(25, 103, 210, 0.1);
+  border-color: var(--accent-500, #06b6d4);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
 }
 
 /* Upload Header */
 .upload-header {
   padding: 1.25rem;
-  border-bottom: 1px solid #e8eaed;
-  background: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: transparent;
 }
 
 .choose-button {
-  font-family: 'Google Sans Text', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-weight: 500;
-  background: #1967d2;
+  background: linear-gradient(135deg, #0891b2, #06b6d4);
+  color: #0a0e1a;
   border: none;
   padding: 0.625rem 1.25rem;
   border-radius: 8px;
-  transition: background 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .choose-button:hover:not(:disabled) {
-  background: #1557b0;
-  box-shadow: 0 2px 8px rgba(25, 103, 210, 0.25);
+  background: linear-gradient(135deg, #06b6d4, #22d3ee);
+  box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
 }
 
 .choose-button:active:not(:disabled) {
-  background: #174ea6;
+  background: #0891b2;
 }
 
 /* Upload Content */
@@ -87,9 +91,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #e8f0fe;
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.2);
   border-radius: 16px;
-  color: #1967d2;
+  color: var(--accent-400, #22d3ee);
   margin-bottom: 1.25rem;
 }
 
@@ -100,16 +105,16 @@
 
 .drop-zone h3 {
   margin: 0 0 0.375rem 0;
-  font-family: 'Google Sans', system-ui, sans-serif;
+  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 1.125rem;
-  font-weight: 500;
-  color: #1f1f1f;
+  font-weight: 600;
+  color: var(--midnight-50, #e8eaf0);
 }
 
 .drop-zone p {
   margin: 0 0 1.25rem 0;
   font-size: 0.875rem;
-  color: #5f6368;
+  color: var(--midnight-300, #6b7494);
   line-height: 1.5;
 }
 
@@ -126,8 +131,8 @@
   font-size: 0.75rem;
   font-weight: 500;
   padding: 0.25rem 0.625rem;
-  background: #e8f0fe;
-  color: #1967d2;
+  background: rgba(6, 182, 212, 0.12);
+  color: var(--accent-400, #22d3ee);
   border-radius: 6px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -135,9 +140,9 @@
 
 .size-limit {
   font-size: 0.75rem;
-  color: #5f6368;
+  color: var(--midnight-300, #6b7494);
   padding: 0.25rem 0.625rem;
-  background: #f1f3f4;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 6px;
 }
 
@@ -147,8 +152,8 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  background: #fff;
-  border: 1px solid #e8eaed;
+  background: var(--midnight-800, #151d35);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 10px;
 }
 
@@ -159,9 +164,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #e8f0fe;
+  background: rgba(6, 182, 212, 0.12);
   border-radius: 10px;
-  color: #1967d2;
+  color: var(--accent-400, #22d3ee);
 }
 
 .file-icon svg {
@@ -176,10 +181,10 @@
 
 .file-details h4 {
   margin: 0 0 0.125rem 0;
-  font-family: 'Google Sans Text', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 0.9375rem;
   font-weight: 500;
-  color: #1f1f1f;
+  color: var(--midnight-50, #e8eaf0);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -188,17 +193,17 @@
 .file-details p {
   margin: 0;
   font-size: 0.8125rem;
-  color: #5f6368;
+  color: var(--midnight-300, #6b7494);
 }
 
 .remove-button {
   flex-shrink: 0;
-  color: #5f6368 !important;
+  color: var(--midnight-300, #6b7494) !important;
 }
 
 .remove-button:hover {
-  color: #c5221f !important;
-  background: rgba(197, 34, 31, 0.08) !important;
+  color: #f87171 !important;
+  background: rgba(239, 68, 68, 0.1) !important;
 }
 
 /* Category Input */
@@ -210,17 +215,17 @@
 }
 
 .category-input label {
-  font-family: 'Google Sans Text', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #5f6368;
+  color: var(--midnight-200, #9199b0);
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
 .category-input label i {
-  color: #1967d2;
+  color: var(--accent-400, #22d3ee);
   font-size: 0.875rem;
 }
 
@@ -230,55 +235,63 @@
 
 .upload-container ::ng-deep .category-autocomplete .p-autocomplete-input {
   width: 100%;
-  font-family: 'Google Sans Text', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 0.9375rem;
   padding: 0.625rem 1rem;
-  border: 1px solid #dadce0;
+  color: var(--midnight-50, #e8eaf0);
+  background: var(--midnight-800, #151d35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  background: #fff;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .upload-container ::ng-deep .category-autocomplete .p-autocomplete-input:focus {
-  border-color: #1967d2;
-  box-shadow: 0 0 0 3px rgba(25, 103, 210, 0.1);
+  border-color: var(--accent-500, #06b6d4);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
   outline: none;
 }
 
+.upload-container ::ng-deep .category-autocomplete .p-autocomplete-input::placeholder {
+  color: var(--midnight-400, #4a5578);
+}
+
 .upload-container ::ng-deep .category-autocomplete .p-autocomplete-dropdown {
-  background: #f8f9fa;
-  border: 1px solid #dadce0;
+  background: var(--midnight-800, #151d35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-left: none;
   border-radius: 0 8px 8px 0;
-  color: #5f6368;
+  color: var(--midnight-300, #6b7494);
 }
 
 .upload-container ::ng-deep .category-autocomplete .p-autocomplete-dropdown:hover {
-  background: #e8eaed;
-  color: #1967d2;
+  background: rgba(6, 182, 212, 0.1);
+  color: var(--accent-400, #22d3ee);
 }
 
 .upload-container ::ng-deep .p-autocomplete-panel {
-  border: 1px solid #dadce0;
+  background: var(--midnight-800, #151d35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   margin-top: 4px;
 }
 
 .upload-container ::ng-deep .p-autocomplete-item {
-  font-family: 'Google Sans Text', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 0.9375rem;
   padding: 0.625rem 1rem;
-  color: #1f1f1f;
+  color: var(--midnight-50, #e8eaf0);
 }
 
 .upload-container ::ng-deep .p-autocomplete-item:hover {
-  background: #e8f0fe;
+  background: rgba(6, 182, 212, 0.1);
 }
 
 .upload-container ::ng-deep .p-autocomplete-item.p-highlight {
-  background: #e8f0fe;
-  color: #1967d2;
+  background: rgba(6, 182, 212, 0.15);
+  color: var(--accent-400, #22d3ee);
 }
 
 /* Upload Actions */
@@ -289,23 +302,26 @@
 }
 
 .upload-action-button {
-  font-family: 'Google Sans Text', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-weight: 500;
-  background: #1967d2;
+  background: linear-gradient(135deg, #0891b2, #06b6d4);
+  color: #0a0e1a;
   border: none;
   padding: 0.75rem 1.75rem;
   border-radius: 8px;
   font-size: 0.9375rem;
-  transition: background 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .upload-action-button:hover {
-  background: #1557b0;
-  box-shadow: 0 4px 12px rgba(25, 103, 210, 0.3);
+  background: linear-gradient(135deg, #06b6d4, #22d3ee);
+  box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);
 }
 
 .upload-action-button:active {
-  background: #174ea6;
+  background: #0891b2;
 }
 
 /* Upload Progress */
@@ -314,8 +330,8 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  background: #fff;
-  border: 1px solid #e8eaed;
+  background: var(--midnight-800, #151d35);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 10px;
   margin-bottom: 1rem;
 }
@@ -327,24 +343,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #e8f0fe;
+  background: rgba(6, 182, 212, 0.12);
   border-radius: 10px;
-  color: #1967d2;
+  color: var(--accent-400, #22d3ee);
   font-size: 1.5rem;
 }
 
 .progress-details h4 {
   margin: 0 0 0.125rem 0;
-  font-family: 'Google Sans Text', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 0.9375rem;
   font-weight: 500;
-  color: #1f1f1f;
+  color: var(--midnight-50, #e8eaf0);
 }
 
 .progress-details p {
   margin: 0;
   font-size: 0.8125rem;
-  color: #5f6368;
+  color: var(--midnight-300, #6b7494);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -354,19 +370,19 @@
 .upload-container ::ng-deep .upload-progress-bar {
   height: 8px;
   border-radius: 4px;
-  background: #e8eaed;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .upload-container ::ng-deep .upload-progress-bar .p-progressbar-value {
-  background: #1967d2;
+  background: linear-gradient(90deg, #0891b2, #22d3ee);
   border-radius: 4px;
 }
 
 .upload-container ::ng-deep .upload-progress-bar .p-progressbar-label {
-  font-family: 'Google Sans Text', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 0.6875rem;
   font-weight: 500;
-  color: white;
+  color: #0a0e1a;
 }
 
 /* Responsive */

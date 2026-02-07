@@ -7,7 +7,7 @@ describe('MessageListComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MessageListComponent]
+      imports: [MessageListComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MessageListComponent);
@@ -30,15 +30,7 @@ describe('MessageListComponent', () => {
     expect(emptyState).toBeTruthy();
   });
 
-  it('should format time correctly', () => {
-    const date = new Date('2024-01-21T14:30:00');
-    const formatted = component.formatTime(date);
-    expect(formatted).toMatch(/\d{2}:\d{2}/);
-  });
-
-  it('should format date as "Aujourd\'hui" for today', () => {
-    const today = new Date();
-    const formatted = component.formatDate(today);
-    expect(formatted).toBe("Aujourd'hui");
+  it('should have suggested questions', () => {
+    expect(component.suggestedQuestions.length).toBeGreaterThan(0);
   });
 });

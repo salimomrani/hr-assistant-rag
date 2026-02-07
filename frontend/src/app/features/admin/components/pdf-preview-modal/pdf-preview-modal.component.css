@@ -1,4 +1,6 @@
-/* PDF Preview Modal Styles */
+/**
+ * PDF Preview Modal - Midnight Studio
+ */
 
 :host {
   display: contents;
@@ -13,16 +15,20 @@
   padding: 0;
   height: calc(90vh - 120px);
   overflow: hidden;
+  background: var(--midnight-950, #0a0e1a);
 }
 
 :host ::ng-deep .pdf-preview-dialog .p-dialog-header {
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--surface-border, #e5e7eb);
+  background: var(--midnight-900, #0f1629);
+  color: var(--midnight-50, #e8eaf0);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 :host ::ng-deep .pdf-preview-dialog .p-dialog-footer {
   padding: 1rem 1.5rem;
-  border-top: 1px solid var(--surface-border, #e5e7eb);
+  background: var(--midnight-900, #0f1629);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 /* Preview Container */
@@ -30,7 +36,7 @@
   width: 100%;
   height: 100%;
   position: relative;
-  background: var(--surface-ground, #f9fafb);
+  background: var(--midnight-950, #0a0e1a);
 }
 
 /* Loading Overlay */
@@ -42,12 +48,12 @@
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  background: var(--surface-ground, #f9fafb);
+  background: var(--midnight-950, #0a0e1a);
   z-index: 10;
 }
 
 .loading-text {
-  color: var(--text-color-secondary, #6b7280);
+  color: var(--midnight-300, #6b7494);
   font-size: 0.875rem;
 }
 
@@ -60,16 +66,16 @@
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  background: var(--surface-ground, #f9fafb);
+  background: var(--midnight-950, #0a0e1a);
 }
 
 .error-container i {
   font-size: 3rem;
-  color: var(--red-500, #ef4444);
+  color: #f87171;
 }
 
 .error-container span {
-  color: var(--text-color-secondary, #6b7280);
+  color: var(--midnight-300, #6b7494);
   font-size: 1rem;
 }
 
@@ -78,7 +84,7 @@
   width: 100%;
   height: 100%;
   border: none;
-  background: white;
+  background: var(--midnight-950, #0a0e1a);
 }
 
 /* Text Preview */
@@ -87,7 +93,25 @@
   height: 100%;
   overflow: auto;
   padding: 1.5rem;
-  background: white;
+  background: var(--midnight-900, #0f1629);
+}
+
+/* Scrollbar for text preview */
+.text-preview-wrapper::-webkit-scrollbar {
+  width: 5px;
+}
+
+.text-preview-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.text-preview-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+}
+
+.text-preview-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .text-content {
@@ -95,7 +119,7 @@
   font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
   font-size: 0.875rem;
   line-height: 1.6;
-  color: var(--text-color, #1f2937);
+  color: var(--midnight-100, #c4c9d8);
   white-space: pre-wrap;
   word-wrap: break-word;
 }
@@ -113,7 +137,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  color: var(--primary-color, #3b82f6);
+  color: var(--accent-400, #22d3ee);
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
@@ -122,7 +146,7 @@
 }
 
 .download-link:hover {
-  background: var(--primary-50, #eff6ff);
+  background: rgba(6, 182, 212, 0.12);
 }
 
 .download-link i {

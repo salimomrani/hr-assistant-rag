@@ -2,33 +2,40 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AdminContainerComponent } from './admin-container.component';
 import { DocumentService } from '../../../../core/services/document.service';
 import { MessageService } from 'primeng/api';
-import { of } from 'rxjs';
+import { vi } from 'vitest';
+import { EMPTY } from 'rxjs';
+import { signal } from '@angular/core';
+import { Document, DocumentStatus } from '../../../../core/models';
 
 describe('AdminContainerComponent', () => {
   let component: AdminContainerComponent;
   let fixture: ComponentFixture<AdminContainerComponent>;
-  let documentService: jasmine.SpyObj<DocumentService>;
-  let messageService: jasmine.SpyObj<MessageService>;
+  let documentServiceMock: {
+    loadDocuments: ReturnType<typeof vi.fn>;
+    documents: ReturnType<typeof signal>;
+    isLoading: ReturnType<typeof signal>;
+  };
+  let messageService: MessageService;
 
   beforeEach(async () => {
-    const documentServiceSpy = jasmine.createSpyObj('DocumentService', ['loadDocuments'], {
-      documents: jasmine.createSpy().and.returnValue([]),
-      isLoading: jasmine.createSpy().and.returnValue(false)
-    });
-    const messageServiceSpy = jasmine.createSpyObj('MessageService', ['add']);
+    documentServiceMock = {
+      loadDocuments: vi.fn().mockReturnValue(EMPTY),
+      documents: signal([]),
+      isLoading: signal(false),
+    };
 
     await TestBed.configureTestingModule({
       imports: [AdminContainerComponent],
-      providers: [
-        { provide: DocumentService, useValue: documentServiceSpy },
-        { provide: MessageService, useValue: messageServiceSpy }
-      ]
+      providers: [{ provide: DocumentService, useValue: documentServiceMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AdminContainerComponent);
     component = fixture.componentInstance;
-    documentService = TestBed.inject(DocumentService) as jasmine.SpyObj<DocumentService>;
-    messageService = TestBed.inject(MessageService) as jasmine.SpyObj<MessageService>;
+
+    // Get the real MessageService from the component's own injector (component-level provider)
+    messageService = fixture.debugElement.injector.get(MessageService);
+    vi.spyOn(messageService, 'add');
+
     fixture.detectChanges();
   });
 
@@ -37,26 +44,26 @@ describe('AdminContainerComponent', () => {
   });
 
   it('should load documents on init', () => {
-    expect(documentService.loadDocuments).toHaveBeenCalled();
+    expect(documentServiceMock.loadDocuments).toHaveBeenCalled();
   });
 
   it('should show success toast on upload success', () => {
-    const mockDocument = {
+    const mockDocument: Document = {
       id: '1',
       filename: 'test.pdf',
-      size: 1024,
-      type: 'application/pdf',
-      status: 'pending',
-      uploadedAt: new Date()
+      fileType: 'PDF',
+      fileSizeBytes: 1024,
+      status: DocumentStatus.PENDING,
+      uploadTimestamp: new Date(),
     };
 
     component.onUploadSuccess(mockDocument);
 
     expect(messageService.add).toHaveBeenCalledWith(
-      jasmine.objectContaining({
+      expect.objectContaining({
         severity: 'success',
-        summary: 'Upload réussi'
-      })
+        summary: 'Upload réussi',
+      }),
     );
   });
 
@@ -66,10 +73,10 @@ describe('AdminContainerComponent', () => {
     component.onUploadError(error);
 
     expect(messageService.add).toHaveBeenCalledWith(
-      jasmine.objectContaining({
+      expect.objectContaining({
         severity: 'error',
-        summary: 'Erreur d\'upload'
-      })
+        summary: "Erreur d'upload",
+      }),
     );
   });
 
@@ -77,10 +84,10 @@ describe('AdminContainerComponent', () => {
     component.onDocumentDeleted('doc-123');
 
     expect(messageService.add).toHaveBeenCalledWith(
-      jasmine.objectContaining({
+      expect.objectContaining({
         severity: 'info',
-        summary: 'Document supprimé'
-      })
+        summary: 'Document supprimé',
+      }),
     );
   });
 });
