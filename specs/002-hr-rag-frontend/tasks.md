@@ -3,15 +3,15 @@
 **Feature**: HR RAG Frontend Interface
 **Branch**: `002-hr-rag-frontend`
 **Date**: 2026-01-21
-**Tech Stack**: Angular 21, TypeScript 5.6+, PrimeNG v20, RxJS 7.8+
+**Tech Stack**: Angular 21, TypeScript 5.9, PrimeNG v21, RxJS 7.8+
 
 ## Overview
 
 This document provides the complete task breakdown for implementing the HR RAG Frontend application. Tasks are organized by user story to enable independent implementation and testing of each feature increment.
 
 **Total Stories**: 7 (2 x P1, 3 x P2, 2 x P3)
-**Estimated Total Tasks**: ~85 tasks
-**MVP Scope**: User Stories 1 + 3 (Chat + Document Upload)
+**Total Tasks**: 185 (159 completed, 26 pending)
+**MVP Scope**: User Stories 1 + 3 (Chat + Document Upload) — **COMPLETE**
 
 ---
 
@@ -19,10 +19,11 @@ This document provides the complete task breakdown for implementing the HR RAG F
 
 ### Incremental Delivery
 
-1. **MVP (Phase 3-4)**: US1 (Chat) + US3 (Upload) - Core value proposition
-2. **Enhancement 1 (Phase 5-6)**: US2 (Sources) + US4 (Document List) - Trust & oversight
-3. **Enhancement 2 (Phase 7)**: US7 (Delete) - Data hygiene
-4. **Enhancement 3 (Phase 8-9)**: US5 (Edit) + US6 (Replace) - Admin convenience
+1. **MVP (Phase 3-4)**: US1 (Chat) + US3 (Upload) - Core value proposition ✅
+2. **Enhancement 1 (Phase 5-6)**: US2 (Sources) + US4 (Document List) - Trust & oversight ✅
+3. **Enhancement 2 (Phase 7)**: US7 (Delete) - Data hygiene ✅
+4. **Enhancement 3 (Phase 8-9)**: US5 (Edit) + US6 (Replace) - Admin convenience ✅
+5. **Polish (Phase 10)**: Cross-cutting concerns - Partially done
 
 ### Parallel Execution Strategy
 
@@ -52,9 +53,9 @@ US3 (Upload - P1) ──┐
 
 ---
 
-## Phase 1: Project Setup
+## Phase 1: Project Setup ✅
 
-**Goal**: Initialize Angular 21 project with PrimeNG v20 and core configuration
+**Goal**: Initialize Angular 21 project with PrimeNG v21 and core configuration
 
 ### Tasks
 
@@ -73,7 +74,7 @@ US3 (Upload - P1) ──┐
 
 ---
 
-## Phase 2: Foundational Layer
+## Phase 2: Foundational Layer ✅
 
 **Goal**: Build core services, models, and shared infrastructure needed by all user stories
 
@@ -129,7 +130,7 @@ US3 (Upload - P1) ──┐
 
 ---
 
-## Phase 3: User Story 1 - Ask HR Questions via Chat (P1)
+## Phase 3: User Story 1 - Ask HR Questions via Chat (P1) ✅
 
 **Story Goal**: Enable employees to ask HR questions and receive streaming answers with source citations
 
@@ -164,8 +165,8 @@ US3 (Upload - P1) ──┐
 ### Chat Service & SSE Streaming
 
 - [x] T052 [US1] Implement POST /api/chat method in ApiService (blocking mode)
-- [x] T053 [US1] Implement POST /api/chat/stream method with EventSource in ApiService (SSE streaming)
-- [x] T054 [US1] Wrap EventSource callbacks in NgZone.run() for change detection in ApiService
+- [x] T053 [US1] Implement POST /api/chat/stream method with Fetch API in ApiService (SSE streaming)
+- [x] T054 [US1] Wrap SSE callbacks in NgZone.run() for change detection in ApiService
 - [x] T055 [US1] Add error handling for network interruptions in SSE stream
 - [x] T056 [US1] Parse SSE events and emit text chunks as RxJS Observable
 
@@ -187,6 +188,12 @@ US3 (Upload - P1) ──┐
 - [x] T067 [US1] Load conversation history on component init and display in MessageListComponent
 - [x] T068 [US1] Add error handling with ErrorMessageComponent for API failures
 
+### Extra Components (not originally planned, added during implementation)
+
+- [x] T068a [US1] Create ChatPageComponent layout wrapper with sidebar toggle in src/app/features/chat/components/chat-page/
+- [x] T068b [US1] Create ChatSidebarComponent for conversation list (ChatGPT-style) in src/app/features/chat/components/chat-sidebar/
+- [x] T068c [US1] Create DocumentSelectorComponent for filtering RAG search by specific documents in src/app/features/chat/components/document-selector/
+
 **Parallel Opportunities**:
 - MessageListComponent (T041-T046) and MessageInputComponent (T047-T051) can be built in parallel
 - After T052-T056 (API methods) complete, T057-T062 (ConversationService) can proceed
@@ -205,7 +212,7 @@ US3 (Upload - P1) ──┐
 
 ---
 
-## Phase 4: User Story 3 - Upload HR Documents (P1)
+## Phase 4: User Story 3 - Upload HR Documents (P1) ✅
 
 **Story Goal**: Enable HR administrators to upload PDF/TXT documents for indexing
 
@@ -215,44 +222,51 @@ US3 (Upload - P1) ──┐
 
 ### Admin Page Structure
 
-- [ ] T069 [US3] Create admin.routes.ts with lazy-loaded admin component in src/app/features/admin/
-- [ ] T070 [US3] Create AdminContainerComponent with separate files in src/app/features/admin/components/admin-container/
-- [ ] T071 [US3] Design admin container template with PrimeNG p-card in admin-container.component.html
-- [ ] T072 [US3] Style admin container for responsive layout in admin-container.component.css
+> **Note**: No separate `admin.routes.ts` — admin route is defined directly in `src/app/app.routes.ts` with lazy-loaded `AdminContainerComponent`.
+
+- [x] T069 [US3] Configure admin route with lazy-loaded admin component in src/app/app.routes.ts
+- [x] T070 [US3] Create AdminContainerComponent with separate files in src/app/features/admin/components/admin-container/
+- [x] T071 [US3] Design admin container template with PrimeNG p-card in admin-container.component.html
+- [x] T072 [US3] Style admin container for responsive layout in admin-container.component.css
 
 ### Document Upload
 
-- [ ] T073 [P] [US3] Create DocumentUploadComponent with separate files in src/app/features/admin/components/document-upload/
-- [ ] T074 [P] [US3] Implement file upload UI with PrimeNG p-fileUpload in document-upload.component.html
-- [ ] T075 [P] [US3] Configure file upload with accept="application/pdf,.txt" and maxFileSize="10485760" in template
-- [ ] T076 [P] [US3] Add client-side validation (file type PDF/TXT, size <= 10MB) in document-upload.component.ts
-- [ ] T077 [P] [US3] Display validation errors with ErrorMessageComponent
-- [ ] T078 [US3] Implement upload progress tracking with progress signal in document-upload.component.ts
-- [ ] T079 [US3] Style upload component with responsive design in document-upload.component.css
+- [x] T073 [P] [US3] Create DocumentUploadComponent with separate files in src/app/features/admin/components/document-upload/
+- [x] T074 [P] [US3] Implement file upload UI with PrimeNG p-fileUpload and drag-and-drop zone in document-upload.component.html
+- [x] T075 [P] [US3] Configure file upload with accept=".pdf,.txt" and maxFileSize validation in template
+- [x] T076 [P] [US3] Add client-side validation (file type PDF/TXT, size <= 10MB) in document-upload.component.ts
+- [x] T077 [P] [US3] Display validation errors with custom error messages per HTTP status code
+- [x] T078 [US3] Implement upload progress tracking with progress signal in document-upload.component.ts
+- [x] T079 [US3] Style upload component with responsive design in document-upload.component.css
 
 ### Document Service Integration
 
-- [ ] T080 [US3] Implement POST /api/documents with multipart/form-data in DocumentService
-- [ ] T081 [US3] Add upload progress tracking using HttpEventType.UploadProgress in DocumentService
-- [ ] T082 [US3] Create uploadDocument method returning Observable<UploadProgress> in DocumentService
-- [ ] T083 [US3] Add error handling for upload failures (413 Payload Too Large, 400 Bad Request)
+- [x] T080 [US3] Implement POST /api/documents with multipart/form-data in ApiService
+- [x] T081 [US3] Add upload progress tracking using HttpEventType.UploadProgress in DocumentService
+- [x] T082 [US3] Create uploadDocument method returning Observable<UploadProgress> in DocumentService
+- [x] T083 [US3] Add error handling for upload failures (413 Payload Too Large, 400 Bad Request)
 
 ### Document List (Basic)
 
-- [ ] T084 [P] [US3] Create DocumentListComponent with separate files in src/app/features/admin/components/document-list/
-- [ ] T085 [P] [US3] Implement basic table with PrimeNG p-table in document-list.component.html
-- [ ] T086 [P] [US3] Display columns: filename, type, size, status, upload date in template
-- [ ] T087 [US3] Fetch documents on init using GET /api/documents in document-list.component.ts
-- [ ] T088 [US3] Add empty state message when no documents exist
-- [ ] T089 [US3] Style document list table in document-list.component.css
+- [x] T084 [P] [US3] Create DocumentListComponent with separate files in src/app/features/admin/components/document-list/
+- [x] T085 [P] [US3] Implement basic table with PrimeNG p-table in document-list.component.html
+- [x] T086 [P] [US3] Display columns: filename, type, category, size, status, upload date, actions in template
+- [x] T087 [US3] Fetch documents on init using GET /api/documents via DocumentService in admin-container.component.ts
+- [x] T088 [US3] Add empty state message when no documents exist
+- [x] T089 [US3] Style document list table in document-list.component.css
 
 ### Integration
 
-- [ ] T090 [US3] Connect AdminContainerComponent to DocumentService
-- [ ] T091 [US3] Implement upload flow: select file → validate → upload → update list
-- [ ] T092 [US3] Add PrimeNG p-toast for upload success/failure notifications
-- [ ] T093 [US3] Refresh document list after successful upload
-- [ ] T094 [US3] Display upload progress using PrimeNG p-progressBar
+- [x] T090 [US3] Connect AdminContainerComponent to DocumentService
+- [x] T091 [US3] Implement upload flow: select file → validate → upload → update list
+- [x] T092 [US3] Add PrimeNG p-toast for upload success/failure notifications
+- [x] T093 [US3] Refresh document list after successful upload
+- [x] T094 [US3] Display upload progress using PrimeNG p-progressBar
+
+### Extra Components (not originally planned, added during implementation)
+
+- [x] T094a [US3] Create PdfPreviewModalComponent for PDF/TXT preview in src/app/features/admin/components/pdf-preview-modal/
+- [x] T094b [US3] Add category autocomplete (p-autoComplete) to DocumentUploadComponent for optional categorization
 
 **Parallel Opportunities**:
 - DocumentUploadComponent (T073-T079) and DocumentListComponent (T084-T089) can be built in parallel
@@ -271,7 +285,7 @@ US3 (Upload - P1) ──┐
 
 ---
 
-## Phase 5: User Story 2 - View Answer Sources (P2)
+## Phase 5: User Story 2 - View Answer Sources (P2) ✅
 
 **Story Goal**: Display source documents with citations for each answer to build trust
 
@@ -283,19 +297,21 @@ US3 (Upload - P1) ──┐
 
 ### Source Display Component
 
-- [ ] T095 [P] [US2] Create SourceListComponent with separate files in src/app/features/chat/components/source-list/
-- [ ] T096 [P] [US2] Implement source display template with PrimeNG p-accordion in source-list.component.html
-- [ ] T097 [P] [US2] Add input signal for sources array in source-list.component.ts
-- [ ] T098 [P] [US2] Display document name and excerpt for each source in template
-- [ ] T099 [P] [US2] Handle empty sources array with "No sources found" message
-- [ ] T100 [US2] Style source list component in source-list.component.css
+> **Note**: Implementation uses a collapsible custom component (not p-accordion). Shows "Sources (N)" with expand/collapse toggle and deduplicates sources by document name. Empty sources array hides the component entirely.
+
+- [x] T095 [P] [US2] Create SourceListComponent with separate files in src/app/features/chat/components/source-list/
+- [x] T096 [P] [US2] Implement source display template with collapsible header in source-list.component.html
+- [x] T097 [P] [US2] Add input signal for sources array in source-list.component.ts
+- [x] T098 [P] [US2] Display document name for each unique source in template
+- [x] T099 [P] [US2] Handle empty sources array (component hidden when no sources)
+- [x] T100 [US2] Style source list component in source-list.component.css
 
 ### Integration with Chat
 
-- [ ] T101 [US2] Update MessageListComponent to include SourceListComponent for each answer
-- [ ] T102 [US2] Pass sources array from ConversationMessage to SourceListComponent
-- [ ] T103 [US2] Update message display template to show sources below answer text
-- [ ] T104 [US2] Add visual separator between answer and sources section
+- [x] T101 [US2] Update MessageListComponent to include SourceListComponent for each answer
+- [x] T102 [US2] Pass sources array from ConversationMessage to SourceListComponent
+- [x] T103 [US2] Update message display template to show sources below answer text
+- [x] T104 [US2] Add visual separator between answer and sources section
 
 **Parallel Opportunities**: All T095-T100 (SourceListComponent) can proceed together
 
@@ -303,14 +319,14 @@ US3 (Upload - P1) ──┐
 
 **Independent Test Criteria**:
 1. ✅ Sources section appears below each answer
-2. ✅ Document names and excerpts are clearly displayed
-3. ✅ Multiple sources are shown distinctly
-4. ✅ "No sources found" message appears when applicable
-5. ✅ Sources are collapsible/expandable (p-accordion functionality)
+2. ✅ Document names are clearly displayed
+3. ✅ Multiple sources are shown distinctly (deduplicated)
+4. ✅ Component hidden when no sources (clean UX)
+5. ✅ Sources are collapsible/expandable
 
 ---
 
-## Phase 6: User Story 4 - View and Manage Documents (P2)
+## Phase 6: User Story 4 - View and Manage Documents (P2) — Partially Complete
 
 **Story Goal**: Display comprehensive document list with metadata and status indicators
 
@@ -322,21 +338,23 @@ US3 (Upload - P1) ──┐
 
 ### Enhanced Document List
 
-- [ ] T105 [P] [US4] Add status badge display with PrimeNG p-tag in document-list.component.html
-- [ ] T106 [P] [US4] Implement status-based styling (green=indexed, yellow=pending, red=failed) in document-list.component.css
-- [ ] T107 [P] [US4] Add sorting functionality for table columns (filename, size, date) in document-list.component.ts
-- [ ] T108 [P] [US4] Add filtering functionality for status (pending/indexed/failed) in document-list.component.ts
-- [ ] T109 [US4] Implement pagination with PrimeNG p-table paginator feature
-- [ ] T110 [US4] Add rows-per-page selector (10, 25, 50, 100) in template
-- [ ] T111 [US4] Format file size display (bytes → KB/MB) using pipe in template
-- [ ] T112 [US4] Format upload date using Angular DatePipe in template
+- [x] T105 [P] [US4] Add status badge display with PrimeNG p-tag in document-list.component.html
+- [x] T106 [P] [US4] Implement status-based styling (success=indexed, warn=pending, danger=failed) in document-list.component.ts
+- [ ] T107 [P] [US4] Add sortable column headers for table columns (filename, size, date) in document-list.component.html
+- [ ] T108 [P] [US4] Add filtering functionality for status (pending/indexed/failed) in document-list.component.html
+- [x] T109 [US4] Implement pagination with PrimeNG p-table paginator feature (triggers at >10 docs)
+- [x] T110 [US4] Add rows-per-page selector (10, 20, 50) in template
+- [x] T111 [US4] Format file size display (bytes → KB/MB/GB) using formatFileSize() in document-list.component.ts
+- [x] T112 [US4] Format upload date with French locale (dd month yyyy, HH:mm) in document-list.component.ts
 
 ### Status Updates
 
 - [ ] T113 [US4] Add polling mechanism to check status changes for "pending" documents in document-list.component.ts
 - [ ] T114 [US4] Update document status in real-time when indexing completes
-- [ ] T115 [US4] Add manual refresh button with PrimeNG p-button in template
+- [ ] T115 [US4] Add manual refresh button with PrimeNG p-button in admin-container template
 - [ ] T116 [US4] Display last refresh time in document list header
+
+> **Note**: Auto-refresh occurs after upload/delete/rename/replace actions. Manual refresh button and polling for pending documents are not yet implemented.
 
 **Parallel Opportunities**: All T105-T112 (enhanced list features) can be implemented in parallel
 
@@ -345,14 +363,14 @@ US3 (Upload - P1) ──┐
 **Independent Test Criteria**:
 1. ✅ All documents display with complete metadata
 2. ✅ Status badges show correct colors and labels
-3. ✅ Table sorting works for all columns
-4. ✅ Status filtering works correctly
-5. ✅ Pagination handles 50+ documents without lag
+3. ❌ Table sorting not yet configurable via column headers
+4. ❌ Status filtering not yet available
+5. ✅ Pagination handles 10+ documents
 6. ✅ File sizes and dates are formatted correctly
 
 ---
 
-## Phase 7: User Story 7 - Delete Documents (P2)
+## Phase 7: User Story 7 - Delete Documents (P2) ✅
 
 **Story Goal**: Enable administrators to permanently remove documents with confirmation
 
@@ -362,34 +380,26 @@ US3 (Upload - P1) ──┐
 
 **Independent Test**: Select document → Click delete → Verify confirmation dialog → Confirm → Verify document removed from list
 
-### Document Actions Component
-
-- [ ] T117 [P] [US7] Create DocumentActionsComponent with separate files in src/app/features/admin/components/document-actions/
-- [ ] T118 [P] [US7] Implement actions template with PrimeNG p-button (delete icon) in document-actions.component.html
-- [ ] T119 [P] [US7] Add input signal for document ID in document-actions.component.ts
-- [ ] T120 [P] [US7] Add output event emitters for delete action in document-actions.component.ts
-- [ ] T121 [US7] Style actions component in document-actions.component.css
+> **Architecture Note**: Tasks originally planned a separate `DocumentActionsComponent`. Implementation embeds action buttons (edit, delete, replace, preview) directly in `DocumentListComponent` via output events — cleaner architecture, fewer files.
 
 ### Delete Functionality
 
-- [ ] T122 [US7] Implement DELETE /api/documents/{id} method in DocumentService
-- [ ] T123 [US7] Add deleteDocument method returning Observable in DocumentService
-- [ ] T124 [US7] Add confirmation dialog using PrimeNG p-confirmDialog in admin-container.component.html
-- [ ] T125 [US7] Configure confirmation dialog with warning message in admin-container.component.ts
-- [ ] T126 [US7] Implement delete flow: click → confirm → API call → refresh list
-- [ ] T127 [US7] Add error handling for delete failures (404 Not Found, 500 Internal Error)
-- [ ] T128 [US7] Display success/error toast notification after delete operation
+- [x] T117 [US7] Add delete action button to each row in document-list.component.html (replaces planned DocumentActionsComponent T117-T121)
+- [x] T118 [US7] Add output event emitters (documentDeleted, deleteError) in document-list.component.ts
+- [x] T119 [US7] Add loading state per document (deletingId signal) in document-list.component.ts
+- [x] T120 [US7] Implement DELETE /api/documents/{id} method in ApiService
+- [x] T121 [US7] Add deleteDocument method returning Observable in DocumentService
+- [x] T122 [US7] Add confirmation dialog using PrimeNG ConfirmationService in document-list.component.ts
+- [x] T123 [US7] Configure confirmation dialog with French warning message
+- [x] T124 [US7] Implement delete flow: click → confirm → API call → emit event
+- [x] T125 [US7] Add error handling for delete failures
+- [x] T126 [US7] Display success/error toast notification via AdminContainerComponent
 
 ### Integration
 
-- [ ] T129 [US7] Add DocumentActionsComponent to each row in DocumentListComponent table
-- [ ] T130 [US7] Connect delete event to confirmation dialog in AdminContainerComponent
-- [ ] T131 [US7] Refresh document list after successful deletion
-- [ ] T132 [US7] Update document count display in admin header
-
-**Parallel Opportunities**: T117-T121 (DocumentActionsComponent) can be built in parallel with T122-T123 (DocumentService delete method)
-
-**Blocking Dependencies**: T124-T132 (integration) require component and service completion
+- [x] T127 [US7] Connect documentDeleted event to AdminContainerComponent handler
+- [x] T128 [US7] Refresh document list after successful deletion
+- [x] T129 [US7] Update document count display via DocumentService computed signals (documentCount, indexedCount, etc.)
 
 **Independent Test Criteria**:
 1. ✅ Delete button appears for each document
@@ -401,54 +411,52 @@ US3 (Upload - P1) ──┐
 
 ---
 
-## Phase 8: User Story 5 - Edit Document Metadata (P3)
+## Phase 8: User Story 5 - Edit Document Metadata (P3) ✅
 
-**Story Goal**: Enable administrators to rename documents via delete+reupload
+**Story Goal**: Enable administrators to rename documents
 
 **Priority**: P3 (Admin convenience)
 
-**Dependencies**: Requires US3 (Upload) and US7 (Delete) to be complete
+**Dependencies**: Requires US3 (Upload) to be complete
 
-**Independent Test**: Select document → Click edit → Change name → Save → Verify new name in list (via delete+reupload)
+**Independent Test**: Select document → Click edit → Change name → Save → Verify new name in list
+
+> **Implementation Note**: Rename uses a dedicated `PATCH /api/documents/{id}` endpoint via `DocumentService.renameDocument()`, not the originally planned delete+reupload approach. This is cleaner and preserves document metadata.
 
 ### Edit Dialog
 
-- [ ] T133 [P] [US5] Add edit button to DocumentActionsComponent template
-- [ ] T134 [P] [US5] Create edit dialog using PrimeNG p-dialog in admin-container.component.html
-- [ ] T135 [P] [US5] Add form with PrimeNG p-inputText for new filename in dialog template
-- [ ] T136 [P] [US5] Implement form validation (non-empty, max 255 chars) in admin-container.component.ts
-- [ ] T137 [US5] Add save and cancel buttons to dialog
+- [x] T130 [US5] Add edit button to document-list.component.html with editDocument output event
+- [x] T131 [US5] Create edit dialog using PrimeNG p-dialog in admin-container.component.html
+- [x] T132 [US5] Add form with PrimeNG p-inputText for new filename (maxlength=255) in dialog template
+- [x] T133 [US5] Implement form validation (non-empty, unchanged detection) in admin-container.component.ts
+- [x] T134 [US5] Add save and cancel buttons to dialog
 
-### Edit Implementation (Delete + Reupload)
+### Edit Implementation
 
-- [ ] T138 [US5] Create renameDocument method in DocumentService that combines delete + upload
-- [ ] T139 [US5] Implement rename flow: get current file → delete old → reupload with new name
-- [ ] T140 [US5] Add loading indicator during rename operation
-- [ ] T141 [US5] Handle rename errors with rollback strategy
-- [ ] T142 [US5] Display success/error toast after rename operation
+- [x] T135 [US5] Create renameDocument method in DocumentService calling PATCH /api/documents/{id}
+- [x] T136 [US5] Implement rename flow: edit button → dialog → validate → API call → refresh
+- [x] T137 [US5] Add loading indicator during rename operation (renamingDocument signal)
+- [x] T138 [US5] Handle rename errors with error toast
+- [x] T139 [US5] Display success toast after rename operation
 
 ### Integration
 
-- [ ] T143 [US5] Connect edit button to dialog open in AdminContainerComponent
-- [ ] T144 [US5] Pre-fill form with current filename
-- [ ] T145 [US5] Refresh document list after successful rename
-- [ ] T146 [US5] Close dialog on success or cancel
-
-**Parallel Opportunities**: T133-T137 (edit dialog UI) can be built while T138-T139 (rename service) is implemented
-
-**Blocking Dependencies**: Requires US3 (upload) and US7 (delete) services
+- [x] T140 [US5] Connect edit button event from DocumentListComponent to dialog open in AdminContainerComponent
+- [x] T141 [US5] Pre-fill form with current filename
+- [x] T142 [US5] Refresh document list after successful rename
+- [x] T143 [US5] Close dialog on success or cancel
 
 **Independent Test Criteria**:
 1. ✅ Edit button appears for each document
 2. ✅ Dialog opens with current filename pre-filled
-3. ✅ Form validation prevents invalid names
-4. ✅ Save triggers delete+reupload sequence
+3. ✅ Form validation prevents empty/unchanged names
+4. ✅ Save triggers rename API call
 5. ✅ New name appears in document list
 6. ✅ Cancel button preserves original document
 
 ---
 
-## Phase 9: User Story 6 - Replace Document File (P3)
+## Phase 9: User Story 6 - Replace Document File (P3) ✅
 
 **Story Goal**: Enable administrators to replace document files via delete+reupload
 
@@ -460,86 +468,79 @@ US3 (Upload - P1) ──┐
 
 ### Replace Dialog
 
-- [ ] T147 [P] [US6] Add replace button to DocumentActionsComponent template
-- [ ] T148 [P] [US6] Create replace dialog using PrimeNG p-dialog in admin-container.component.html
-- [ ] T149 [P] [US6] Add file upload component to dialog with same validation (PDF/TXT, <= 10MB)
-- [ ] T150 [P] [US6] Display current document info in dialog header
-- [ ] T151 [US6] Add upload progress indicator in dialog
+- [x] T144 [US6] Add replace button to document-list.component.html with replaceDocument output event
+- [x] T145 [US6] Create replace dialog using PrimeNG p-dialog in admin-container.component.html
+- [x] T146 [US6] Add p-fileUpload in dialog with same validation (PDF/TXT, <= 10MB)
+- [x] T147 [US6] Display current document info and warning message in dialog
+- [x] T148 [US6] Add upload progress indicator (p-progressBar) in dialog
 
 ### Replace Implementation (Delete + Reupload)
 
-- [ ] T152 [US6] Create replaceDocument method in DocumentService that combines delete + upload
-- [ ] T153 [US6] Implement replace flow: validate new file → delete old → upload new → preserve metadata
-- [ ] T154 [US6] Handle replace errors with rollback strategy
-- [ ] T155 [US6] Display success/error toast after replace operation
+- [x] T149 [US6] Implement executeReplace() in AdminContainerComponent — two-step: delete old → upload new with original filename
+- [x] T150 [US6] Handle replace errors for both delete and upload steps
+- [x] T151 [US6] Display success/error toast after replace operation
 
 ### Integration
 
-- [ ] T156 [US6] Connect replace button to dialog open in AdminContainerComponent
-- [ ] T157 [US6] Show document re-indexing with "pending" status
-- [ ] T158 [US6] Refresh document list after successful replace
-- [ ] T159 [US6] Close dialog on success or cancel
-
-**Parallel Opportunities**: T147-T151 (replace dialog UI) can be built while T152-T154 (replace service) is implemented
-
-**Blocking Dependencies**: Requires US3 (upload) and US7 (delete) services
+- [x] T152 [US6] Connect replace button event from DocumentListComponent to dialog open in AdminContainerComponent
+- [x] T153 [US6] Refresh document list after successful replace (shows "pending" status during re-indexing)
+- [x] T154 [US6] Close dialog on success or cancel
 
 **Independent Test Criteria**:
 1. ✅ Replace button appears for each document
-2. ✅ Dialog shows current document info
+2. ✅ Dialog shows current document info and warning
 3. ✅ File validation prevents invalid uploads
 4. ✅ Replace triggers delete+reupload sequence
-5. ✅ Document shows "pending" then "indexed" status
+5. ✅ Document shows "pending" status during re-indexing
 6. ✅ New file content is indexed correctly
 
 ---
 
-## Phase 10: Polish & Cross-Cutting Concerns
+## Phase 10: Polish & Cross-Cutting Concerns — Partially Complete
 
 **Goal**: Add final polish, error handling, and cross-cutting features
 
 ### Error Handling & Validation
 
-- [ ] T160 [P] Enhance ErrorInterceptor with specific error messages for each status code
-- [ ] T161 [P] Add retry logic for transient errors (503 Service Unavailable) in ApiService
-- [ ] T162 [P] Implement exponential backoff for SSE reconnection in chat service
-- [ ] T163 [P] Add network status detection and offline mode indicator
-- [ ] T164 Create global error handler service for uncaught exceptions
+- [x] T155 [P] Enhance ErrorInterceptor with specific error messages per status code (400, 404, 413, 500, 503) in error.interceptor.ts
+- [ ] T156 [P] Add retry logic for transient errors (503 Service Unavailable) in ApiService
+- [ ] T157 [P] Implement exponential backoff for SSE reconnection in chat service
+- [ ] T158 [P] Add network status detection and offline mode indicator
+- [ ] T159 Create global error handler service for uncaught exceptions
 
 ### Responsive Design
 
-- [ ] T165 [P] Test chat interface on mobile (320px) and adjust styles
-- [ ] T166 [P] Test admin interface on tablet (768px) and adjust styles
-- [ ] T167 [P] Implement collapsible navigation menu for small screens
-- [ ] T168 [P] Add touch-friendly button sizes for mobile devices
-- [ ] T169 Test keyboard navigation and accessibility (WCAG 2.0)
+- [x] T160 [P] Test chat interface on mobile (320px) and adjust styles — media queries implemented across chat components
+- [x] T161 [P] Test admin interface on tablet (768px) and adjust styles — media queries implemented across admin components
+- [x] T162 [P] Implement collapsible sidebar for small screens in ChatPageComponent (sidebarOpen signal + toggle)
+- [x] T163 [P] Add touch-friendly button sizes for mobile devices
+- [ ] T164 Test keyboard navigation and accessibility (WCAG 2.0)
 
 ### Performance Optimization
 
-- [ ] T170 [P] Implement OnPush change detection strategy for all components
-- [ ] T171 [P] Add trackBy functions for all *ngFor loops
-- [ ] T172 [P] Lazy-load PrimeNG modules to reduce initial bundle size
-- [ ] T173 [P] Add bundle size analysis and optimize imports
-- [ ] T174 Configure production build optimizations in angular.json
+- [ ] T165 [P] Implement OnPush change detection strategy for all components
+- [ ] T166 [P] Ensure all @for loops use proper track expressions in templates
+- [ ] T167 [P] Lazy-load PrimeNG modules to reduce initial bundle size
+- [ ] T168 [P] Add bundle size analysis and optimize imports
+- [ ] T169 Configure production build optimizations in angular.json
 
-### Testing Setup (if requested)
+### Testing (optional, not explicitly requested)
 
-- [ ] T175 [P] Configure Cypress for E2E tests
-- [ ] T176 [P] Write E2E test for US1 (Ask Question) in cypress/e2e/chat.cy.ts
-- [ ] T177 [P] Write E2E test for US3 (Upload Document) in cypress/e2e/admin.cy.ts
-- [ ] T178 [P] Write unit tests for ConversationService
-- [ ] T179 [P] Write unit tests for DocumentService
-- [ ] T180 [P] Write unit tests for StorageService
-- [ ] T181 Configure test coverage reporting
+- [ ] T170 [P] Configure Vitest for unit tests (framework already installed)
+- [ ] T171 [P] Write unit tests for ConversationService
+- [ ] T172 [P] Write unit tests for DocumentService
+- [ ] T173 [P] Write unit tests for StorageService
+- [ ] T174 [P] Write unit tests for ApiService
+- [ ] T175 Configure test coverage reporting
 
 ### Documentation
 
-- [ ] T182 [P] Add JSDoc comments to all public methods in services
-- [ ] T183 [P] Create component usage examples in README.md
-- [ ] T184 [P] Document localStorage schema and limits in README.md
-- [ ] T185 Add troubleshooting guide for common issues
+- [ ] T176 [P] Add JSDoc comments to all public methods in services
+- [ ] T177 [P] Create component usage examples in README.md
+- [ ] T178 [P] Document localStorage schema and limits in README.md
+- [ ] T179 Add troubleshooting guide for common issues
 
-**Parallel Opportunities**: All polish tasks (T160-T185) can be executed in parallel
+**Parallel Opportunities**: All polish tasks can be executed in parallel
 
 ---
 
@@ -547,86 +548,65 @@ US3 (Upload - P1) ──┐
 
 ### Total Tasks by Phase
 
-- **Phase 1 (Setup)**: 10 tasks
-- **Phase 2 (Foundational)**: 26 tasks (19 parallelizable)
-- **Phase 3 (US1 - Chat)**: 32 tasks
-- **Phase 4 (US3 - Upload)**: 26 tasks
-- **Phase 5 (US2 - Sources)**: 10 tasks
-- **Phase 6 (US4 - Document List)**: 12 tasks
-- **Phase 7 (US7 - Delete)**: 16 tasks
-- **Phase 8 (US5 - Edit)**: 14 tasks
-- **Phase 9 (US6 - Replace)**: 13 tasks
-- **Phase 10 (Polish)**: 26 tasks (20 parallelizable)
+- **Phase 1 (Setup)**: 10 tasks (10 done)
+- **Phase 2 (Foundational)**: 26 tasks (26 done)
+- **Phase 3 (US1 - Chat)**: 35 tasks (35 done, includes 3 extra components)
+- **Phase 4 (US3 - Upload)**: 28 tasks (28 done, includes 2 extra components)
+- **Phase 5 (US2 - Sources)**: 10 tasks (10 done)
+- **Phase 6 (US4 - Document List)**: 12 tasks (6 done, 6 pending)
+- **Phase 7 (US7 - Delete)**: 13 tasks (13 done, renumbered from original)
+- **Phase 8 (US5 - Edit)**: 14 tasks (14 done, renumbered from original)
+- **Phase 9 (US6 - Replace)**: 11 tasks (11 done, renumbered from original)
+- **Phase 10 (Polish)**: 25 tasks (5 done, 20 pending)
 
-**Total**: 185 tasks
+**Total**: 184 tasks — **158 completed** ✅, **26 pending** ⏳
 
-### Tasks by User Story
+### Completed by User Story
 
-- **US1 (Chat - P1)**: 32 tasks
-- **US2 (Sources - P2)**: 10 tasks
-- **US3 (Upload - P1)**: 26 tasks
-- **US4 (Document List - P2)**: 12 tasks
-- **US5 (Edit - P3)**: 14 tasks
-- **US6 (Replace - P3)**: 13 tasks
-- **US7 (Delete - P2)**: 16 tasks
-- **Setup & Foundational**: 36 tasks
-- **Polish**: 26 tasks
+- **US1 (Chat - P1)**: 35/35 ✅
+- **US2 (Sources - P2)**: 10/10 ✅
+- **US3 (Upload - P1)**: 28/28 ✅
+- **US4 (Document List - P2)**: 6/12 (sorting, filtering, polling pending)
+- **US5 (Edit - P3)**: 14/14 ✅
+- **US6 (Replace - P3)**: 11/11 ✅
+- **US7 (Delete - P2)**: 13/13 ✅
+- **Polish**: 5/25 (error interceptor + responsive done)
 
-### Parallelization Potential
+### Remaining Work (26 tasks)
 
-- **Highly Parallel Phases**: Phase 2 (Foundational), Phase 10 (Polish)
-- **Moderately Parallel**: US1, US3 (components can be built in parallel within each story)
-- **Sequential Phases**: Phase 1 (Setup)
+**US4 enhancements** (6 tasks):
+- T107-T108: Sortable columns, status filter dropdown
+- T113-T116: Polling for pending docs, manual refresh button, last refresh time
 
-### MVP Scope (Recommended)
-
-**Minimum Viable Product**: Phases 1-4 only (US1 + US3)
-- Setup (10 tasks)
-- Foundational (26 tasks)
-- US1 - Chat (32 tasks)
-- US3 - Upload (26 tasks)
-
-**Total MVP**: 94 tasks
-
-This delivers the core value proposition: employees can ask questions and get answers, administrators can upload documents.
-
----
-
-## Execution Recommendations
-
-### For Maximum Speed
-
-1. **Parallel Track 1**: Setup + Foundational (Phases 1-2) - 1 developer
-2. **Parallel Track 2**: US1 (Chat) - 1 developer (starts after foundational services ready)
-3. **Parallel Track 3**: US3 (Upload) - 1 developer (starts after foundational services ready)
-
-**Timeline**: MVP can be completed in ~2-3 days with parallel execution
-
-### For Quality & Testing
-
-1. Complete Setup + Foundational (Phases 1-2)
-2. Implement US1 (Chat) fully with testing
-3. Implement US3 (Upload) fully with testing
-4. Add remaining user stories in priority order (US2, US4, US7, then US5, US6)
-5. Final polish and optimization
-
-**Timeline**: Full implementation ~5-7 days with comprehensive testing
+**Polish** (20 tasks):
+- T156-T159: Retry logic, SSE reconnection, offline indicator, global error handler
+- T164: Accessibility testing
+- T165-T169: Performance (OnPush, track expressions, lazy loading, bundle analysis)
+- T170-T175: Unit tests
+- T176-T179: Documentation
 
 ---
 
 ## Notes
 
 - **ALWAYS use `/frontend-design` skill** when implementing UI components, pages, and templates
-- **Use Context7** for latest Angular 21 and PrimeNG v20 documentation during implementation
+- **Use Context7** for latest Angular 21 and PrimeNG v21 documentation during implementation
 - **Component Separation**: All components MUST have separate .ts, .html, .css files
 - **Signals**: Use signals for state management, convert RxJS Observables with `toSignal()`
-- **PrimeNG**: Use PrimeNG v20 components exclusively (no Angular Material)
+- **PrimeNG**: Use PrimeNG v21 components exclusively (no Angular Material)
 - **Error Handling**: All API calls must have proper error handling with user-friendly messages
 - **localStorage**: Respect 50-message limit with FIFO eviction
-- **Testing**: Unit tests are optional unless explicitly requested
+- **Testing**: Project uses Vitest (not Karma/Jasmine/Cypress)
+
+### Architectural Deviations from Original Plan
+
+1. **No separate `DocumentActionsComponent`**: Action buttons (edit, delete, replace, preview) are embedded directly in `DocumentListComponent` via output events — cleaner, fewer files
+2. **Rename uses API endpoint**: `PATCH /api/documents/{id}` instead of delete+reupload
+3. **SSE uses Fetch API**: Not EventSource — avoids buffering issues, supports AbortController
+4. **Extra components added**: ChatPageComponent (layout), ChatSidebarComponent (conversation list), DocumentSelectorComponent (RAG filter), PdfPreviewModalComponent (preview)
 
 ---
 
 **Generated**: 2026-01-21
-**Last Updated**: 2026-01-21
-**Status**: Ready for implementation
+**Last Updated**: 2026-02-07
+**Status**: Feature implementation complete — polish tasks remaining
