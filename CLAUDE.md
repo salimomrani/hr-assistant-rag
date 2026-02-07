@@ -148,6 +148,8 @@ Example workflow:
 - Java 21 + Spring Boot 4.0.1, Spring AI 2.0.0-M1, Spring WebFlux (backend)
 - PostgreSQL 16 + pgvector, Redis 7.4, Docker Compose (infrastructure)
 - Angular 21 + TypeScript 5.9, PrimeNG v21, RxJS 7.8+ (frontend)
+- Java 21 (Amazon Corretto) + Spring Boot 4.0.1, Spring AI 2.0.0-M1 (Ollama starter), Lombok, MapStruc (003-llm-guardrails)
+- PostgreSQL 16 + pgvector (existing, unchanged), Redis 7.4 (existing, unchanged) (003-llm-guardrails)
 
 ## Frontend Architecture (002-hr-rag-frontend)
 
@@ -281,3 +283,6 @@ The frontend (`frontend/`) follows Angular 21 best practices with standalone com
 - **Accessibility**: PrimeNG is WCAG 2.0 compliant
 - **Theming**: Design-agnostic API with Material, Bootstrap, custom themes
 - **TypeScript**: First-class TypeScript support with types
+
+## Recent Changes
+- 003-llm-guardrails: Added Java 21 (Amazon Corretto) + Spring Boot 4.0.1, Spring AI 2.0.0-M1 (Ollama starter), Lombok, MapStruc
