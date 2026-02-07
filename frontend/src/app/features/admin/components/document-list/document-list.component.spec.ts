@@ -2,30 +2,30 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DocumentListComponent } from './document-list.component';
 import { DocumentService } from '../../../../core/services/document.service';
 import { ConfirmationService } from 'primeng/api';
-import { of, throwError } from 'rxjs';
+import { vi } from 'vitest';
+import { Document, DocumentStatus } from '../../../../core/models';
 
 describe('DocumentListComponent', () => {
   let component: DocumentListComponent;
   let fixture: ComponentFixture<DocumentListComponent>;
-  let documentService: jasmine.SpyObj<DocumentService>;
-  let confirmationService: jasmine.SpyObj<ConfirmationService>;
+  let documentServiceMock: { deleteDocument: ReturnType<typeof vi.fn> };
+  let confirmationService: ConfirmationService;
 
   beforeEach(async () => {
-    const docServiceSpy = jasmine.createSpyObj('DocumentService', ['deleteDocument']);
-    const confirmServiceSpy = jasmine.createSpyObj('ConfirmationService', ['confirm']);
+    documentServiceMock = { deleteDocument: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [DocumentListComponent],
-      providers: [
-        { provide: DocumentService, useValue: docServiceSpy },
-        { provide: ConfirmationService, useValue: confirmServiceSpy }
-      ]
+      providers: [{ provide: DocumentService, useValue: documentServiceMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DocumentListComponent);
     component = fixture.componentInstance;
-    documentService = TestBed.inject(DocumentService) as jasmine.SpyObj<DocumentService>;
-    confirmationService = TestBed.inject(ConfirmationService) as jasmine.SpyObj<ConfirmationService>;
+
+    // Get the real ConfirmationService from the component's own injector (component-level provider)
+    confirmationService = fixture.debugElement.injector.get(ConfirmationService);
+    vi.spyOn(confirmationService, 'confirm');
+
     fixture.detectChanges();
   });
 
@@ -65,13 +65,13 @@ describe('DocumentListComponent', () => {
   });
 
   it('should confirm before deleting', () => {
-    const mockDoc = {
+    const mockDoc: Document = {
       id: '1',
       filename: 'test.pdf',
-      size: 1024,
-      type: 'application/pdf',
-      status: 'indexed',
-      uploadedAt: new Date()
+      fileType: 'PDF',
+      fileSizeBytes: 1024,
+      status: DocumentStatus.INDEXED,
+      uploadTimestamp: new Date(),
     };
 
     component.confirmDelete(mockDoc);

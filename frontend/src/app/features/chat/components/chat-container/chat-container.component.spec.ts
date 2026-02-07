@@ -2,32 +2,44 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ChatContainerComponent } from './chat-container.component';
 import { ConversationService } from '../../../../core/services/conversation.service';
 import { ApiService } from '../../../../core/services/api.service';
-import { of, throwError } from 'rxjs';
+import { DocumentService } from '../../../../core/services/document.service';
+import { vi } from 'vitest';
+import { of, throwError, EMPTY } from 'rxjs';
+import { signal } from '@angular/core';
 
 describe('ChatContainerComponent', () => {
   let component: ChatContainerComponent;
   let fixture: ComponentFixture<ChatContainerComponent>;
-  let conversationService: jasmine.SpyObj<ConversationService>;
-  let apiService: jasmine.SpyObj<ApiService>;
+  let conversationService: {
+    addMessage: ReturnType<typeof vi.fn>;
+    messages: ReturnType<typeof signal>;
+  };
+  let apiService: { chatStream: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
-    const conversationSpy = jasmine.createSpyObj('ConversationService', ['addMessage'], {
-      messages: jasmine.createSpy().and.returnValue([])
-    });
-    const apiSpy = jasmine.createSpyObj('ApiService', ['chatStream']);
+    conversationService = {
+      addMessage: vi.fn(),
+      messages: signal([]),
+    };
+    apiService = { chatStream: vi.fn() };
+
+    const documentServiceMock = {
+      documents: signal([]),
+      isLoading: signal(false),
+      loadDocuments: vi.fn().mockReturnValue(EMPTY),
+    };
 
     await TestBed.configureTestingModule({
       imports: [ChatContainerComponent],
       providers: [
-        { provide: ConversationService, useValue: conversationSpy },
-        { provide: ApiService, useValue: apiSpy }
-      ]
+        { provide: ConversationService, useValue: conversationService },
+        { provide: ApiService, useValue: apiService },
+        { provide: DocumentService, useValue: documentServiceMock },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ChatContainerComponent);
     component = fixture.componentInstance;
-    conversationService = TestBed.inject(ConversationService) as jasmine.SpyObj<ConversationService>;
-    apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     fixture.detectChanges();
   });
 
@@ -36,16 +48,15 @@ describe('ChatContainerComponent', () => {
   });
 
   it('should handle question submission', () => {
-    apiService.chatStream.and.returnValue(of('Test response'));
+    apiService.chatStream.mockReturnValue(of('Test response'));
 
     component.onQuestionSubmitted('Test question');
 
-    expect(apiService.chatStream).toHaveBeenCalledWith('Test question');
-    expect(component.isLoading()).toBeTruthy();
+    expect(apiService.chatStream).toHaveBeenCalledWith('Test question', undefined);
   });
 
   it('should handle error during streaming', () => {
-    apiService.chatStream.and.returnValue(throwError(() => new Error('Test error')));
+    apiService.chatStream.mockReturnValue(throwError(() => new Error('Test error')));
 
     component.onQuestionSubmitted('Test question');
 

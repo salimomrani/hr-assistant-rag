@@ -7,7 +7,7 @@ describe('MessageInputComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MessageInputComponent]
+      imports: [MessageInputComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MessageInputComponent);
@@ -35,13 +35,15 @@ describe('MessageInputComponent', () => {
     expect(component.isOverLimit()).toBeTruthy();
   });
 
-  it('should emit questionSubmitted on submit', (done) => {
-    component.questionText.set('Test question');
-    component.questionSubmitted.subscribe((question: string) => {
-      expect(question).toBe('Test question');
-      done();
+  it('should emit questionSubmitted on submit', () => {
+    return new Promise<void>((resolve) => {
+      component.questionText.set('Test question');
+      component.questionSubmitted.subscribe((question: string) => {
+        expect(question).toBe('Test question');
+        resolve();
+      });
+      component.onSubmit();
     });
-    component.onSubmit();
   });
 
   it('should clear input after submit', () => {

@@ -1,26 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DocumentUploadComponent } from './document-upload.component';
 import { DocumentService } from '../../../../core/services/document.service';
-import { of, throwError } from 'rxjs';
+import { vi } from 'vitest';
 
 describe('DocumentUploadComponent', () => {
   let component: DocumentUploadComponent;
   let fixture: ComponentFixture<DocumentUploadComponent>;
-  let documentService: jasmine.SpyObj<DocumentService>;
+  let documentService: { uploadDocument: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
-    const serviceSpy = jasmine.createSpyObj('DocumentService', ['uploadDocument']);
+    documentService = { uploadDocument: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [DocumentUploadComponent],
-      providers: [
-        { provide: DocumentService, useValue: serviceSpy }
-      ]
+      providers: [{ provide: DocumentService, useValue: documentService }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DocumentUploadComponent);
     component = fixture.componentInstance;
-    documentService = TestBed.inject(DocumentService) as jasmine.SpyObj<DocumentService>;
     fixture.detectChanges();
   });
 
@@ -30,7 +27,11 @@ describe('DocumentUploadComponent', () => {
 
   it('should accept PDF files', () => {
     const file = new File(['test'], 'test.pdf', { type: 'application/pdf' });
-    const event = { currentFiles: [file] };
+    const event = {
+      currentFiles: [file],
+      originalEvent: new Event('change'),
+      files: [file],
+    } as any;
 
     component.onSelect(event);
 
@@ -40,7 +41,11 @@ describe('DocumentUploadComponent', () => {
 
   it('should accept TXT files', () => {
     const file = new File(['test'], 'test.txt', { type: 'text/plain' });
-    const event = { currentFiles: [file] };
+    const event = {
+      currentFiles: [file],
+      originalEvent: new Event('change'),
+      files: [file],
+    } as any;
 
     component.onSelect(event);
 
@@ -49,8 +54,14 @@ describe('DocumentUploadComponent', () => {
   });
 
   it('should reject files larger than 10MB', () => {
-    const largeFile = new File(['x'.repeat(11 * 1024 * 1024)], 'large.pdf', { type: 'application/pdf' });
-    const event = { currentFiles: [largeFile] };
+    const largeFile = new File(['x'.repeat(11 * 1024 * 1024)], 'large.pdf', {
+      type: 'application/pdf',
+    });
+    const event = {
+      currentFiles: [largeFile],
+      originalEvent: new Event('change'),
+      files: [largeFile],
+    } as any;
 
     component.onSelect(event);
 
@@ -60,7 +71,11 @@ describe('DocumentUploadComponent', () => {
 
   it('should reject invalid file types', () => {
     const invalidFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
-    const event = { currentFiles: [invalidFile] };
+    const event = {
+      currentFiles: [invalidFile],
+      originalEvent: new Event('change'),
+      files: [invalidFile],
+    } as any;
 
     component.onSelect(event);
 
