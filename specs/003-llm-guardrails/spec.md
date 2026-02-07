@@ -5,6 +5,16 @@
 **Status**: Draft
 **Input**: Replace keyword-based off-topic detection in GuardrailService with LLM-based intelligent classification, add output guardrails, and categorize HR questions.
 
+## Clarifications
+
+### Session 2026-02-07
+
+- Q: How should the system handle ambiguous questions — ask for clarification or err on permissiveness? → A: Always err on the side of permissiveness. If uncertain, classify as HR-related and let the RAG pipeline handle it. Never ask for clarification (the system is not conversational at the classification stage).
+- Q: Should classification (HR/off-topic) and categorization (which HR category) happen in a single request or two separate requests? → A: Single request returning both classification and category simultaneously, to minimize latency.
+- Q: What specific PII patterns should the output guardrails detect? → A: French HR-relevant PII: phone numbers (French format), email addresses, French social security numbers (15 digits), IBAN, postal addresses, and salary amounts with currency indicators.
+- Q: What type should the confidence indicator in GuardrailResult be? → A: A three-level indicator (HIGH, MEDIUM, LOW) rather than a numeric score — simpler to reason about and test.
+- Q: Should all classification decisions be logged, or only blocked outputs? → A: All classification decisions logged at informational level for analytics and accuracy monitoring; blocked outputs logged at warning level with the detected issue details.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Intelligent Off-Topic Detection (Priority: P1)
@@ -19,7 +29,7 @@ As an employee, I want the HR assistant to accurately determine whether my quest
 
 1. **Given** an employee asks "Combien de jours de congés me reste-t-il ?", **When** the system classifies the question, **Then** it is identified as HR-related and the RAG pipeline processes it normally.
 2. **Given** an employee asks "Quel est le meilleur restaurant italien près du bureau ?", **When** the system classifies the question, **Then** it is identified as off-topic and the employee receives a clear message explaining the assistant only handles HR questions.
-3. **Given** an employee asks an ambiguous question like "J'ai besoin d'aide avec mon déménagement", **When** the system classifies the question, **Then** the system either classifies it as HR-related (relocation policy) or asks for clarification, erring on the side of permissiveness.
+3. **Given** an employee asks an ambiguous question like "J'ai besoin d'aide avec mon déménagement", **When** the system classifies the question, **Then** the system classifies it as HR-related (erring on the side of permissiveness) and lets the RAG pipeline determine relevance.
 4. **Given** the LLM classification service is temporarily unavailable, **When** an employee asks a question, **Then** the system falls back to keyword-based detection and still provides a response (degraded but functional).
 5. **Given** an employee asks a borderline question in a language other than French (e.g., English), **When** the system classifies the question, **Then** the classification still works correctly regardless of the input language.
 
@@ -87,20 +97,20 @@ As a developer, I want comprehensive unit tests for the guardrail service so tha
 
 ### Functional Requirements
 
-- **FR-001**: System MUST classify each incoming question as either "HR-related" or "off-topic" before processing it through the RAG pipeline.
-- **FR-002**: System MUST use an LLM-based classification approach as the primary detection method, replacing the current keyword-based approach.
+- **FR-001**: System MUST classify each incoming question as either "HR-related" or "off-topic" before processing it through the RAG pipeline. When uncertain, the system MUST err on the side of permissiveness (classify as HR-related).
+- **FR-002**: System MUST use an LLM-based classification approach as the primary detection method, replacing the current keyword-based approach. Classification and categorization MUST be performed in a single request to minimize latency.
 - **FR-003**: System MUST fall back to keyword-based detection when the LLM is unavailable or times out, ensuring the service remains functional in degraded mode.
 - **FR-004**: System MUST classify questions within a reasonable time to avoid adding noticeable latency to the user experience (classification adds no more than 2 seconds to response time).
 - **FR-005**: System MUST categorize HR-related questions into predefined categories: Congés / Absences, Rémunération / Paie, Formation / Développement, Avantages sociaux, Contrat / Conditions de travail, Recrutement / Intégration, Règlement intérieur / Discipline, Général RH.
-- **FR-006**: System MUST filter LLM output responses for potentially harmful content including: personal identifiable information (PII), discriminatory language, unauthorized legal or medical advice, and content that contradicts documented company policies.
-- **FR-007**: System MUST replace blocked output with a safe fallback message and log the incident for review.
+- **FR-006**: System MUST filter LLM output responses for potentially harmful content including: personal identifiable information (PII — specifically French phone numbers, email addresses, French social security numbers, IBAN, postal addresses, and salary amounts with currency indicators), discriminatory language, unauthorized legal or medical advice, and content that contradicts documented company policies.
+- **FR-007**: System MUST replace blocked output with a safe fallback message and log the incident at warning level for review. All classification decisions (not just blocked outputs) MUST be logged at informational level for analytics and accuracy monitoring.
 - **FR-008**: System MUST handle prompt injection attempts gracefully, treating them as off-topic questions.
 - **FR-009**: System MUST work regardless of the input language (French, English, or mixed).
 - **FR-010**: System MUST maintain the existing error handling behavior for off-topic questions, returning a clear error response consistent with the current application patterns.
 
 ### Key Entities
 
-- **GuardrailResult**: The outcome of input classification — includes whether the question is HR-related, the detected category, and a confidence indicator.
+- **GuardrailResult**: The outcome of input classification — includes whether the question is HR-related, the detected category, and a confidence level (HIGH, MEDIUM, or LOW).
 - **OutputGuardrailResult**: The outcome of output validation — includes whether the response is safe, any detected issues, and the sanitized content if applicable.
 - **HR Category**: A predefined label representing an HR domain area (leave, payroll, training, etc.).
 
