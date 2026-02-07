@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.document.Document;
@@ -25,8 +27,11 @@ public class StreamingRagService {
   private final VectorStoreService vectorStoreService;
   private final ChatModel chatModel;
 
+  @Value("classpath:prompts/rag-system-prompt.txt")
+  private Resource systemPromptResource;
+
   @Value("classpath:prompts/rag-prompt.txt")
-  private Resource promptTemplate;
+  private Resource userPromptTemplate;
 
   /**
    * Processes a chat request using RAG pipeline with streaming response.
@@ -59,14 +64,14 @@ public class StreamingRagService {
       // Step 3: Build context from retrieved chunks
       String context = buildContext(matches);
 
-      // Step 4: Build prompt
-      String promptText = buildPrompt(context, question);
+      // Step 4: Build prompt with system/user message separation
+      Prompt prompt = buildPrompt(context, question);
 
       // Step 5: Extract sources for later
       List<String> sources = extractSources(matches);
 
       // Step 6: Stream response using Spring AI ChatModel
-      return streamResponse(promptText, sources);
+      return streamResponse(prompt, sources);
 
     } catch (HrAssistantException e) {
       log.error("RAG pipeline error: {}", e.getMessage());
@@ -84,9 +89,7 @@ public class StreamingRagService {
           + "Veuillez contacter le service RH directement.";
 
   /** Streams the LLM response token by token, validates the full output, then emits. */
-  private Flux<String> streamResponse(String promptText, List<String> sources) {
-    Prompt prompt = new Prompt(promptText);
-
+  private Flux<String> streamResponse(Prompt prompt, List<String> sources) {
     return chatModel.stream(prompt)
         .map(
             response -> {
@@ -126,23 +129,20 @@ public class StreamingRagService {
 
   /** Builds context from retrieved documents. */
   private String buildContext(List<Document> matches) {
-    return String.join(
-        "\n\n",
-        matches.stream()
-            .map(
-                doc -> {
-                  String docName = (String) doc.getMetadata().get("documentName");
-                  String text = doc.getText();
-                  return String.format("[Source: %s]\n%s", docName, text);
-                })
-            .toList());
+    return String.join("\n\n---\n\n", matches.stream().map(Document::getText).toList());
   }
 
-  /** Builds the final prompt by replacing template variables. */
-  private String buildPrompt(String context, String question) {
+  /**
+   * Builds the prompt with system message (instructions) and user message (documents + question).
+   */
+  private Prompt buildPrompt(String context, String question) {
     try {
-      String template = promptTemplate.getContentAsString(StandardCharsets.UTF_8);
-      return template.replace("{{documents}}", context).replace("{{question}}", question);
+      String systemText = systemPromptResource.getContentAsString(StandardCharsets.UTF_8);
+      String userTemplate = userPromptTemplate.getContentAsString(StandardCharsets.UTF_8);
+      String userText =
+          userTemplate.replace("{{documents}}", context).replace("{{question}}", question);
+
+      return new Prompt(List.of(new SystemMessage(systemText), new UserMessage(userText)));
     } catch (IOException e) {
       log.error("Failed to load prompt template", e);
       throw new HrAssistantException(
