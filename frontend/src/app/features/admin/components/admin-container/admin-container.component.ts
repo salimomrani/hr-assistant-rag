@@ -172,7 +172,7 @@ export class AdminContainerComponent {
 
     this.isRenaming.set(true);
 
-    this.documentService.renameDocument(document.id, filename).subscribe({
+    this.documentService.renameDocument$(document.id, filename).subscribe({
       next: () => {
         this.isRenaming.set(false);
         this.closeEditDialog();
@@ -282,12 +282,12 @@ export class AdminContainerComponent {
     this.replaceProgress.set(0);
 
     // Step 1: Delete old document
-    this.documentService.deleteDocument(document.id).subscribe({
+    this.documentService.deleteDocument$(document.id).subscribe({
       next: () => {
         // Step 2: Upload new file with original filename
         const renamedFile = new File([file], document.filename, { type: file.type });
 
-        this.documentService.uploadDocument(renamedFile).subscribe({
+        this.documentService.uploadDocument$(renamedFile).subscribe({
           next: (progress) => {
             if (
               progress.status === UploadStatus.UPLOADING ||
@@ -372,7 +372,7 @@ export class AdminContainerComponent {
    * Load documents from service
    */
   private loadDocuments(): void {
-    this.documentService.loadDocuments().subscribe({
+    this.documentService.loadDocuments$().subscribe({
       error: (error) => {
         this.messageService.add({
           severity: 'error',

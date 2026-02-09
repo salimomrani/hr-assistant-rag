@@ -83,7 +83,7 @@ export class DocumentSelectorComponent {
 
     // Load documents if not already loaded
     if (this.documentService.documents().length === 0) {
-      this.documentService.loadDocuments().subscribe();
+      this.documentService.loadDocuments$().subscribe();
     }
   }
 

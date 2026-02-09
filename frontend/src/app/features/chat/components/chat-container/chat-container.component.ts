@@ -79,7 +79,7 @@ export class ChatContainerComponent {
 
     // Call SSE streaming API with optional document filter
     this.apiService
-      .chatStream(questionText, documentIds.length > 0 ? documentIds : undefined)
+      .chatStream$(questionText, documentIds.length > 0 ? documentIds : undefined)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (chunk: string) => {

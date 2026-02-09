@@ -58,7 +58,7 @@ export class DocumentListComponent {
       rejectLabel: 'Annuler',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
-        this.deleteDocument(document.id);
+        this.deleteDocument$(document.id);
       },
     });
   }
@@ -69,7 +69,7 @@ export class DocumentListComponent {
   private deleteDocument(documentId: string): void {
     this.deletingId.set(documentId);
 
-    this.documentService.deleteDocument(documentId).subscribe({
+    this.documentService.deleteDocument$(documentId).subscribe({
       next: () => {
         this.deletingId.set(null);
         this.documentDeleted.emit(documentId);

@@ -10,7 +10,7 @@ import { Document, UploadProgress, UploadStatus, SourceDocumentReference } from 
  * Provides methods for chat and document management endpoints
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ApiService {
   private http = inject(HttpClient);
@@ -25,8 +25,8 @@ export class ApiService {
    * @param documentIds Optional list of document IDs to filter the RAG search
    * @returns Observable emitting text chunks as they arrive
    */
-  chatStream(question: string, documentIds?: string[]): Observable<string> {
-    return new Observable(observer => {
+  chatStream$(question: string, documentIds?: string[]): Observable<string> {
+    return new Observable((observer) => {
       const abortController = new AbortController();
 
       // Build request body with optional documentIds
@@ -39,12 +39,12 @@ export class ApiService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'text/event-stream'
+          Accept: 'text/event-stream',
         },
         body: JSON.stringify(requestBody),
-        signal: abortController.signal
+        signal: abortController.signal,
       })
-        .then(async response => {
+        .then(async (response) => {
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
@@ -99,7 +99,7 @@ export class ApiService {
             }
           }
         })
-        .catch(error => {
+        .catch((error) => {
           this.ngZone.run(() => observer.error(error));
         });
 
@@ -113,10 +113,10 @@ export class ApiService {
    * @param question The user's question
    * @returns Observable with answer and sources
    */
-  chat(question: string): Observable<{ answer: string; sources: SourceDocumentReference[] }> {
+  chat$(question: string): Observable<{ answer: string; sources: SourceDocumentReference[] }> {
     return this.http.post<{ answer: string; sources: SourceDocumentReference[] }>(
       `${this.apiUrl}/chat`,
-      { question }
+      { question },
     );
   }
 
@@ -126,63 +126,61 @@ export class ApiService {
    * @param category Optional category for the document
    * @returns Observable emitting upload progress updates
    */
-  uploadDocument(file: File, category?: string): Observable<UploadProgress> {
+  uploadDocument$(file: File, category?: string): Observable<UploadProgress> {
     const formData = new FormData();
     formData.append('file', file);
     if (category) {
       formData.append('category', category);
     }
 
-    return this.http.post<Document>(
-      `${this.apiUrl}/documents`,
-      formData,
-      {
+    return this.http
+      .post<Document>(`${this.apiUrl}/documents`, formData, {
         reportProgress: true,
-        observe: 'events'
-      }
-    ).pipe(
-      map((event: HttpEvent<Document>) => {
-        switch (event.type) {
-          case HttpEventType.UploadProgress:
-            const percentComplete = event.total
-              ? Math.round((100 * event.loaded) / event.total)
-              : 0;
-            return {
-              filename: file.name,
-              percentComplete,
-              status: UploadStatus.UPLOADING,
-              bytesTransferred: event.loaded,
-              totalBytes: event.total || 0
-            };
-
-          case HttpEventType.Response:
-            return {
-              filename: file.name,
-              percentComplete: 100,
-              status: UploadStatus.COMPLETE,
-              bytesTransferred: file.size,
-              totalBytes: file.size,
-              document: event.body!
-            } as UploadProgress & { document: Document };
-
-          default:
-            return {
-              filename: file.name,
-              percentComplete: 0,
-              status: UploadStatus.UPLOADING,
-              bytesTransferred: 0,
-              totalBytes: file.size
-            };
-        }
+        observe: 'events',
       })
-    );
+      .pipe(
+        map((event: HttpEvent<Document>) => {
+          switch (event.type) {
+            case HttpEventType.UploadProgress:
+              const percentComplete = event.total
+                ? Math.round((100 * event.loaded) / event.total)
+                : 0;
+              return {
+                filename: file.name,
+                percentComplete,
+                status: UploadStatus.UPLOADING,
+                bytesTransferred: event.loaded,
+                totalBytes: event.total || 0,
+              };
+
+            case HttpEventType.Response:
+              return {
+                filename: file.name,
+                percentComplete: 100,
+                status: UploadStatus.COMPLETE,
+                bytesTransferred: file.size,
+                totalBytes: file.size,
+                document: event.body!,
+              } as UploadProgress & { document: Document };
+
+            default:
+              return {
+                filename: file.name,
+                percentComplete: 0,
+                status: UploadStatus.UPLOADING,
+                bytesTransferred: 0,
+                totalBytes: file.size,
+              };
+          }
+        }),
+      );
   }
 
   /**
    * Get list of all documents
    * @returns Observable with array of documents
    */
-  getDocuments(): Observable<Document[]> {
+  getDocuments$(): Observable<Document[]> {
     return this.http.get<Document[]>(`${this.apiUrl}/documents`);
   }
 
@@ -191,7 +189,7 @@ export class ApiService {
    * @param documentId The document ID to delete
    * @returns Observable that completes when delete is successful
    */
-  deleteDocument(documentId: string): Observable<void> {
+  deleteDocument$(documentId: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/documents/${documentId}`);
   }
 
@@ -201,18 +199,15 @@ export class ApiService {
    * @param newFilename The new filename
    * @returns Observable with updated document
    */
-  renameDocument(documentId: string, newFilename: string): Observable<Document> {
-    return this.http.patch<Document>(
-      `${this.apiUrl}/documents/${documentId}`,
-      { newFilename }
-    );
+  renameDocument$(documentId: string, newFilename: string): Observable<Document> {
+    return this.http.patch<Document>(`${this.apiUrl}/documents/${documentId}`, { newFilename });
   }
 
   /**
    * Get all document categories
    * @returns Observable with array of category names
    */
-  getCategories(): Observable<string[]> {
+  getCategories$(): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/documents/categories`);
   }
 

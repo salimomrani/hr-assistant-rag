@@ -150,7 +150,7 @@ export class DocumentUploadComponent {
     // Pass category if provided (trim and check for empty string)
     const category = this.selectedCategory.trim() || undefined;
 
-    this.documentService.uploadDocument(file, category).subscribe({
+    this.documentService.uploadDocument$(file, category).subscribe({
       next: (progress) => {
         if (
           progress.status === UploadStatus.UPLOADING ||
