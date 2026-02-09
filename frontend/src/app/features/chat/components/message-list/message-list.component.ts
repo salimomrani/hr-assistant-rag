@@ -19,11 +19,10 @@ import { ConversationMessage } from '../../../../core/models';
 import { SourceListComponent } from '../source-list/source-list.component';
 
 /**
- * Message List Component - Gère l'affichage des messages avec auto-scroll intelligent.
+ * Message List Component - Handles message display with intelligent auto-scroll.
  */
 @Component({
   selector: 'app-message-list',
-  standalone: true,
   imports: [CommonModule, ScrollPanelModule, SourceListComponent, MarkdownComponent, TooltipModule],
   templateUrl: './message-list.component.html',
   styleUrl: './message-list.component.css',
@@ -50,18 +49,18 @@ export class MessageListComponent implements AfterViewInit {
     'Comment fonctionne le remboursement des frais ?',
   ];
 
-  // Accès au container de scroll
+  // Scroll container reference
   private scrollContainer = viewChild<ElementRef>('scrollContainer');
 
   constructor() {
-    // Effet réactif pour déclencher le scroll
+    // Reactive effect to trigger scroll on content changes
     effect(() => {
-      // On surveille les dépendances
+      // Track dependencies
       this.messages();
       this.streamingContent();
       this.isLoading();
 
-      // Utilisation de requestAnimationFrame pour s'assurer que le DOM est prêt
+      // Use requestAnimationFrame to ensure the DOM is ready
       requestAnimationFrame(() => this.scrollToBottom());
     });
   }
@@ -71,12 +70,12 @@ export class MessageListComponent implements AfterViewInit {
   }
 
   /**
-   * Scroll fluide vers le bas du conteneur
+   * Smooth scroll to the bottom of the container
    */
   private scrollToBottom(): void {
     const element = this.scrollContainer()?.nativeElement;
     if (element) {
-      // On cible souvent l'élément interne pour les composants de librairie
+      // Target the inner element for library components
       const scrollEl = element.querySelector('.p-scrollpanel-content') || element;
       scrollEl.scrollTo({
         top: scrollEl.scrollHeight,
@@ -86,7 +85,7 @@ export class MessageListComponent implements AfterViewInit {
   }
 
   /**
-   * Copie le contenu dans le presse-papier avec feedback visuel
+   * Copy content to clipboard with visual feedback
    */
   async copyToClipboard(content: string, messageId: string): Promise<void> {
     try {
@@ -101,7 +100,7 @@ export class MessageListComponent implements AfterViewInit {
 
       this.destroyRef.onDestroy(() => clearTimeout(timeout));
     } catch (err) {
-      console.error('Erreur lors de la copie :', err);
+      console.error('Failed to copy to clipboard:', err);
     }
   }
 }
