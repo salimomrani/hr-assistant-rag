@@ -80,6 +80,7 @@ Layered architecture in `backend/src/main/java/com/hrassistant/`:
 - Native control flow (`@if`, `@for`), signals for state
 - PrimeNG v21 components exclusively (use Context7 for docs)
 - Lazy-loaded feature routes with `loadComponent`
+- **RxJS**: Do NOT use `takeUntilDestroyed()` on HTTP observables (they auto-complete). Only use it on infinite observables (SSE streams, WebSockets, `interval`, `Subject`, etc.)
 
 ## Spring AI Patterns
 
