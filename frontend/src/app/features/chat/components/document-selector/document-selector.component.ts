@@ -6,6 +6,7 @@ import {
   computed,
   output,
   effect,
+  OnInit,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DocumentService } from '../../../../core/services/document.service';
@@ -25,7 +26,7 @@ import { TooltipModule } from 'primeng/tooltip';
   styleUrl: './document-selector.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DocumentSelectorComponent {
+export class DocumentSelectorComponent implements OnInit {
   private documentService = inject(DocumentService);
 
   // Output event when selection changes
@@ -69,19 +70,19 @@ export class DocumentSelectorComponent {
   });
 
   constructor() {
-    // Effect to auto-select all documents when they load
+    // Effect must stay in constructor (requires injection context)
     effect(() => {
       const indexed = this.indexedDocuments();
       if (indexed.length > 0 && !this.initialSelectionDone()) {
-        // Auto-select all documents on first load
         const allIds = indexed.map((d) => d.id);
         this.selectedIds.set(new Set(allIds));
         this.initialSelectionDone.set(true);
         this.emitSelection();
       }
     });
+  }
 
-    // Load documents if not already loaded
+  ngOnInit(): void {
     if (this.documentService.documents().length === 0) {
       this.documentService.loadDocuments$().subscribe();
     }

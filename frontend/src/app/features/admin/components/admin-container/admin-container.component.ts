@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
@@ -39,7 +39,7 @@ import { Document, UploadStatus } from '../../../../core/models';
   styleUrl: './admin-container.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AdminContainerComponent {
+export class AdminContainerComponent implements OnInit {
   private documentService = inject(DocumentService);
   private messageService = inject(MessageService);
 
@@ -69,8 +69,7 @@ export class AdminContainerComponent {
   readonly MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
   readonly ACCEPTED_TYPES = ['application/pdf', 'text/plain'];
 
-  constructor() {
-    // Load documents on init
+  ngOnInit(): void {
     this.loadDocuments$().subscribe();
   }
 

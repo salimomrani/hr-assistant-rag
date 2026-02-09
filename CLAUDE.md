@@ -83,6 +83,7 @@ Layered architecture in `backend/src/main/java/com/hrassistant/`:
 - **RxJS**: Do NOT use `takeUntilDestroyed()` on HTTP observables (they auto-complete). Only use it on infinite observables (SSE streams, WebSockets, `interval`, `Subject`, etc.)
 - **Observable naming**: Methods returning `Observable` must be suffixed with `$` (e.g., `getDocuments$()`, `deleteDocument$()`)
 - **No subscribe in services**: Services return Observables, only components subscribe. No nested subscribes — use `switchMap`, `concatMap`, `tap`, `filter` to chain operations
+- **No logic in constructors**: Use `ngOnInit()` for initialization logic (HTTP calls, subscriptions). Only `effect()` stays in constructor (requires injection context)
 
 ## Spring AI Patterns
 

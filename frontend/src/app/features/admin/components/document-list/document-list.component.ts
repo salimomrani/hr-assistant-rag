@@ -58,7 +58,7 @@ export class DocumentListComponent {
       rejectLabel: 'Annuler',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
-        this.deleteDocument$(document.id);
+        this.deleteDocument(document.id);
       },
     });
   }
