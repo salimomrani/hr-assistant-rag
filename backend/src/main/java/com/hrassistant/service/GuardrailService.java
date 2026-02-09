@@ -111,7 +111,7 @@ public class GuardrailService {
     if (!StringUtils.hasText(question)) {
       log.warn("Empty question received");
       throw new HrAssistantException(
-          HrAssistantException.ErrorCode.INVALID_INPUT, "La question ne peut pas être vide");
+          HrAssistantException.ErrorCode.INVALID_INPUT, "Question cannot be empty");
     }
 
     GuardrailResult result = classifyQuestion(question);
@@ -120,8 +120,8 @@ public class GuardrailService {
       log.info("Off-topic question detected: {}", question);
       throw new HrAssistantException(
           HrAssistantException.ErrorCode.INVALID_INPUT,
-          "Cette question ne concerne pas les ressources humaines. Veuillez contacter directement"
-              + " le service RH pour des questions non liées aux politiques RH.");
+          "This question is not related to human resources. Please contact HR directly"
+              + " for questions unrelated to HR policies.");
     }
 
     log.debug("Question validated: {}", question);

@@ -2,12 +2,11 @@ package com.hrassistant.model;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 /**
  * DTO for chat requests.
@@ -27,16 +26,16 @@ import java.util.List;
 @AllArgsConstructor
 public class ChatRequest {
 
-    @NotBlank(message = "La question ne peut pas être vide")
-    @Size(max = 1000, message = "La question ne peut pas dépasser 1000 caractères")
-    private String question;
+  @NotBlank(message = "Question cannot be empty")
+  @Size(max = 1000, message = "Question cannot exceed 1000 characters")
+  private String question;
 
-    @Size(max = 100, message = "L'identifiant de conversation ne peut pas dépasser 100 caractères")
-    private String conversationId;
+  @Size(max = 100, message = "Conversation ID cannot exceed 100 characters")
+  private String conversationId;
 
-    /**
-     * Optional list of document IDs to filter the RAG search.
-     * If null or empty, all indexed documents will be searched.
-     */
-    private List<String> documentIds;
+  /**
+   * Optional list of document IDs to filter the RAG search. If null or empty, all indexed documents
+   * will be searched.
+   */
+  private List<String> documentIds;
 }
