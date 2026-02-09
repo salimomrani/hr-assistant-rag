@@ -316,6 +316,7 @@ public class DocumentService {
     List<DocumentChunk> chunks = new ArrayList<>();
     int index = 0;
     StringBuilder currentChunk = new StringBuilder();
+    List<String> currentParagraphs = new ArrayList<>();
 
     for (String paragraph : paragraphs) {
       String trimmed = paragraph.trim();
@@ -333,13 +334,34 @@ public class DocumentService {
                 .index(index++)
                 .content(currentChunk.toString().trim())
                 .build());
+
+        // Carry over trailing paragraphs within chunkOverlap for context continuity
         currentChunk = new StringBuilder();
+        List<String> overlapParagraphs = new ArrayList<>();
+        int overlapLength = 0;
+        for (int i = currentParagraphs.size() - 1; i >= 0; i--) {
+          int paraLen = currentParagraphs.get(i).length() + (overlapParagraphs.isEmpty() ? 0 : 2);
+          if (overlapLength + paraLen > chunkOverlap) {
+            break;
+          }
+          overlapParagraphs.addFirst(currentParagraphs.get(i));
+          overlapLength += paraLen;
+        }
+        currentParagraphs.clear();
+        for (String overlapPara : overlapParagraphs) {
+          if (currentChunk.length() > 0) {
+            currentChunk.append("\n\n");
+          }
+          currentChunk.append(overlapPara);
+          currentParagraphs.add(overlapPara);
+        }
       }
 
       if (currentChunk.length() > 0) {
         currentChunk.append("\n\n");
       }
       currentChunk.append(trimmed);
+      currentParagraphs.add(trimmed);
     }
 
     // Add remaining content
