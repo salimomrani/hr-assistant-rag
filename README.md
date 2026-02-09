@@ -103,13 +103,17 @@ Le système utilise une architecture RAG (Retrieval-Augmented Generation) :
 | `/api/chat/stream` | POST | Question/réponse (streaming SSE) |
 | `/api/documents` | POST | Upload document |
 | `/api/documents` | GET | Liste documents |
+| `/api/documents/categories` | GET | Liste des catégories |
+| `/api/documents/{id}` | GET | Détails d'un document |
+| `/api/documents/{id}/file` | GET | Télécharger le fichier |
+| `/api/documents/{id}` | PATCH | Renommer un document |
 | `/api/documents/{id}` | DELETE | Supprimer document |
 
 ## Documentation
 
-- **Spécifications**: [specs/001-hr-rag-assistant/](specs/001-hr-rag-assistant/)
-- **Guide de démarrage**: [specs/001-hr-rag-assistant/quickstart.md](specs/001-hr-rag-assistant/quickstart.md)
-- **Tâches**: [specs/001-hr-rag-assistant/tasks.md](specs/001-hr-rag-assistant/tasks.md)
+- **001 - Backend RAG**: [specs/001-hr-rag-assistant/](specs/001-hr-rag-assistant/)
+- **002 - Frontend**: [specs/002-hr-rag-frontend/](specs/002-hr-rag-frontend/)
+- **003 - LLM Guardrails**: [specs/003-llm-guardrails/](specs/003-llm-guardrails/)
 
 ## Contribuer
 
