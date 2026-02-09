@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
@@ -12,6 +12,7 @@ import { DocumentUploadComponent } from '../document-upload/document-upload.comp
 import { DocumentListComponent } from '../document-list/document-list.component';
 import { PdfPreviewModalComponent } from '../pdf-preview-modal/pdf-preview-modal.component';
 import { DocumentService } from '../../../../core/services/document.service';
+import { EMPTY, catchError, filter, switchMap, tap } from 'rxjs';
 import { Document, UploadStatus } from '../../../../core/models';
 
 /**
@@ -38,7 +39,7 @@ import { Document, UploadStatus } from '../../../../core/models';
   styleUrl: './admin-container.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AdminContainerComponent {
+export class AdminContainerComponent implements OnInit {
   private documentService = inject(DocumentService);
   private messageService = inject(MessageService);
 
@@ -68,9 +69,8 @@ export class AdminContainerComponent {
   readonly MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
   readonly ACCEPTED_TYPES = ['application/pdf', 'text/plain'];
 
-  constructor() {
-    // Load documents on init
-    this.loadDocuments();
+  ngOnInit(): void {
+    this.loadDocuments$().subscribe();
   }
 
   /**
@@ -86,7 +86,7 @@ export class AdminContainerComponent {
     });
 
     // Refresh document list
-    this.loadDocuments();
+    this.loadDocuments$().subscribe();
   }
 
   /**
@@ -115,7 +115,7 @@ export class AdminContainerComponent {
     });
 
     // Refresh document list
-    this.loadDocuments();
+    this.loadDocuments$().subscribe();
   }
 
   /**
@@ -172,29 +172,32 @@ export class AdminContainerComponent {
 
     this.isRenaming.set(true);
 
-    this.documentService.renameDocument$(document.id, filename).subscribe({
-      next: () => {
-        this.isRenaming.set(false);
-        this.closeEditDialog();
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Document renommé',
-          detail: `Le document a été renommé en "${filename}"`,
-          life: 5000,
-        });
-        // Refresh document list
-        this.loadDocuments();
-      },
-      error: (error) => {
-        this.isRenaming.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur de renommage',
-          detail: error.error?.message || 'Impossible de renommer le document',
-          life: 7000,
-        });
-      },
-    });
+    this.documentService
+      .renameDocument$(document.id, filename)
+      .pipe(
+        tap(() => {
+          this.isRenaming.set(false);
+          this.closeEditDialog();
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Document renommé',
+            detail: `Le document a été renommé en "${filename}"`,
+            life: 5000,
+          });
+        }),
+        switchMap(() => this.loadDocuments$()),
+      )
+      .subscribe({
+        error: (error) => {
+          this.isRenaming.set(false);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur de renommage',
+            detail: error.error?.message || 'Impossible de renommer le document',
+            life: 7000,
+          });
+        },
+      });
   }
 
   /**
@@ -281,57 +284,46 @@ export class AdminContainerComponent {
     this.isReplacing.set(true);
     this.replaceProgress.set(0);
 
-    // Step 1: Delete old document
-    this.documentService.deleteDocument$(document.id).subscribe({
-      next: () => {
-        // Step 2: Upload new file with original filename
-        const renamedFile = new File([file], document.filename, { type: file.type });
+    const renamedFile = new File([file], document.filename, { type: file.type });
 
-        this.documentService.uploadDocument$(renamedFile).subscribe({
-          next: (progress) => {
-            if (
-              progress.status === UploadStatus.UPLOADING ||
-              progress.status === UploadStatus.PROCESSING
-            ) {
-              this.replaceProgress.set(progress.percentComplete);
-            } else if (progress.status === UploadStatus.COMPLETE) {
-              this.replaceProgress.set(100);
-              this.isReplacing.set(false);
-              this.closeReplaceDialog();
-
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Document remplacé',
-                detail: `"${document.filename}" a été remplacé avec succès`,
-                life: 5000,
-              });
-
-              // Refresh document list
-              this.loadDocuments();
-            }
-          },
-          error: (error) => {
-            this.isReplacing.set(false);
-            this.replaceProgress.set(0);
-            this.messageService.add({
-              severity: 'error',
-              summary: "Erreur d'upload",
-              detail: error.error?.message || "Impossible d'uploader le nouveau fichier",
-              life: 7000,
-            });
-          },
-        });
-      },
-      error: (error) => {
-        this.isReplacing.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur de suppression',
-          detail: error.error?.message || "Impossible de supprimer l'ancien document",
-          life: 7000,
-        });
-      },
-    });
+    this.documentService
+      .deleteDocument$(document.id)
+      .pipe(
+        switchMap(() => this.documentService.uploadDocument$(renamedFile)),
+        tap((progress) => {
+          if (
+            progress.status === UploadStatus.UPLOADING ||
+            progress.status === UploadStatus.PROCESSING
+          ) {
+            this.replaceProgress.set(progress.percentComplete);
+          }
+        }),
+        filter((progress) => progress.status === UploadStatus.COMPLETE),
+        tap(() => {
+          this.replaceProgress.set(100);
+          this.isReplacing.set(false);
+          this.closeReplaceDialog();
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Document remplacé',
+            detail: `"${document.filename}" a été remplacé avec succès`,
+            life: 5000,
+          });
+        }),
+        switchMap(() => this.loadDocuments$()),
+      )
+      .subscribe({
+        error: (error) => {
+          this.isReplacing.set(false);
+          this.replaceProgress.set(0);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: error.error?.message || 'Impossible de remplacer le document',
+            life: 7000,
+          });
+        },
+      });
   }
 
   /**
@@ -371,9 +363,9 @@ export class AdminContainerComponent {
   /**
    * Load documents from service
    */
-  private loadDocuments(): void {
-    this.documentService.loadDocuments$().subscribe({
-      error: (error) => {
+  private loadDocuments$() {
+    return this.documentService.loadDocuments$().pipe(
+      catchError((error) => {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur de chargement',
@@ -381,7 +373,8 @@ export class AdminContainerComponent {
           life: 5000,
         });
         console.error('Error loading documents:', error);
-      },
-    });
+        return EMPTY;
+      }),
+    );
   }
 }
