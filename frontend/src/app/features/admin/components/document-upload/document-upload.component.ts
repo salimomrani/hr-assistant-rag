@@ -1,4 +1,11 @@
-import { Component, inject, output, signal, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  output,
+  signal,
+  computed,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FileUploadModule, FileUploadHandlerEvent, FileSelectEvent } from 'primeng/fileupload';
 import { ProgressBarModule } from 'primeng/progressbar';
@@ -15,9 +22,17 @@ import { ErrorMessageComponent } from '../../../../shared/components/error-messa
  */
 @Component({
   selector: 'app-document-upload',
-  imports: [FileUploadModule, ProgressBarModule, ButtonModule, AutoCompleteModule, FormsModule, ErrorMessageComponent],
+  imports: [
+    FileUploadModule,
+    ProgressBarModule,
+    ButtonModule,
+    AutoCompleteModule,
+    FormsModule,
+    ErrorMessageComponent,
+  ],
   templateUrl: './document-upload.component.html',
-  styleUrl: './document-upload.component.css'
+  styleUrl: './document-upload.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocumentUploadComponent {
   private documentService = inject(DocumentService);
@@ -61,9 +76,7 @@ export class DocumentUploadComponent {
     if (!query) {
       this.filteredCategories.set(allCategories);
     } else {
-      this.filteredCategories.set(
-        allCategories.filter(cat => cat.toLowerCase().includes(query))
-      );
+      this.filteredCategories.set(allCategories.filter((cat) => cat.toLowerCase().includes(query)));
     }
   }
 
@@ -125,7 +138,7 @@ export class DocumentUploadComponent {
       this.errorMessage.set(validationError);
       this.uploadError.emit({
         message: 'Validation échouée',
-        details: validationError
+        details: validationError,
       });
       return;
     }
@@ -137,9 +150,12 @@ export class DocumentUploadComponent {
     // Pass category if provided (trim and check for empty string)
     const category = this.selectedCategory.trim() || undefined;
 
-    this.documentService.uploadDocument(file, category).subscribe({
+    this.documentService.uploadDocument$(file, category).subscribe({
       next: (progress) => {
-        if (progress.status === UploadStatus.UPLOADING || progress.status === UploadStatus.PROCESSING) {
+        if (
+          progress.status === UploadStatus.UPLOADING ||
+          progress.status === UploadStatus.PROCESSING
+        ) {
           this.uploadProgress.set(progress.percentComplete);
         } else if (progress.status === UploadStatus.COMPLETE) {
           this.uploadProgress.set(100);
@@ -163,9 +179,9 @@ export class DocumentUploadComponent {
         this.errorMessage.set(errorMsg);
         this.uploadError.emit({
           message: 'Upload échoué',
-          details: errorMsg
+          details: errorMsg,
         });
-      }
+      },
     });
   }
 
@@ -211,7 +227,7 @@ export class DocumentUploadComponent {
       case 415:
         return 'Type de fichier non supporté par le serveur';
       default:
-        return error.error?.message || 'Erreur serveur lors de l\'upload';
+        return error.error?.message || "Erreur serveur lors de l'upload";
     }
   }
 

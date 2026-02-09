@@ -1,4 +1,4 @@
-import { Component, input, output, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, inject, signal } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -15,10 +15,18 @@ import { DocumentService } from '../../../../core/services/document.service';
  */
 @Component({
   selector: 'app-document-list',
-  imports: [TableModule, ButtonModule, TagModule, ConfirmDialogModule, SkeletonModule, TooltipModule],
+  imports: [
+    TableModule,
+    ButtonModule,
+    TagModule,
+    ConfirmDialogModule,
+    SkeletonModule,
+    TooltipModule,
+  ],
   providers: [ConfirmationService],
   templateUrl: './document-list.component.html',
-  styleUrl: './document-list.component.css'
+  styleUrl: './document-list.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocumentListComponent {
   private documentService = inject(DocumentService);
@@ -50,8 +58,8 @@ export class DocumentListComponent {
       rejectLabel: 'Annuler',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
-        this.deleteDocument(document.id);
-      }
+        this.deleteDocument$(document.id);
+      },
     });
   }
 
@@ -61,17 +69,15 @@ export class DocumentListComponent {
   private deleteDocument(documentId: string): void {
     this.deletingId.set(documentId);
 
-    this.documentService.deleteDocument(documentId).subscribe({
+    this.documentService.deleteDocument$(documentId).subscribe({
       next: () => {
         this.deletingId.set(null);
         this.documentDeleted.emit(documentId);
       },
       error: (error) => {
         this.deletingId.set(null);
-        this.deleteError.emit(
-          error.error?.message || 'Erreur lors de la suppression du document'
-        );
-      }
+        this.deleteError.emit(error.error?.message || 'Erreur lors de la suppression du document');
+      },
     });
   }
 
@@ -138,7 +144,7 @@ export class DocumentListComponent {
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     }).format(dateObj);
   }
 

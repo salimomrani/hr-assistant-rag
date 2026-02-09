@@ -1,4 +1,4 @@
-import { Component, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
 import { SourceDocumentReference } from '../../../../core/models';
 
 /**
@@ -8,7 +8,8 @@ import { SourceDocumentReference } from '../../../../core/models';
 @Component({
   selector: 'app-source-list',
   templateUrl: './source-list.component.html',
-  styleUrl: './source-list.component.css'
+  styleUrl: './source-list.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SourceListComponent {
   // Input: array of source document references
@@ -21,7 +22,7 @@ export class SourceListComponent {
    * Toggle expanded state
    */
   toggleExpanded(): void {
-    this.isExpanded.update(v => !v);
+    this.isExpanded.update((v) => !v);
   }
 
   /**
@@ -29,7 +30,7 @@ export class SourceListComponent {
    */
   uniqueSources(): SourceDocumentReference[] {
     const seen = new Set<string>();
-    return this.sources().filter(source => {
+    return this.sources().filter((source) => {
       if (seen.has(source.documentName)) {
         return false;
       }

@@ -1,6 +1,15 @@
-import { 
-  Component, input, output, effect, viewChild, 
-  ElementRef, AfterViewInit, signal, inject, DestroyRef 
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+  effect,
+  viewChild,
+  ElementRef,
+  AfterViewInit,
+  signal,
+  inject,
+  DestroyRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
@@ -15,15 +24,10 @@ import { SourceListComponent } from '../source-list/source-list.component';
 @Component({
   selector: 'app-message-list',
   standalone: true,
-  imports: [
-    CommonModule,
-    ScrollPanelModule,
-    SourceListComponent,
-    MarkdownComponent,
-    TooltipModule
-  ],
+  imports: [CommonModule, ScrollPanelModule, SourceListComponent, MarkdownComponent, TooltipModule],
   templateUrl: './message-list.component.html',
-  styleUrl: './message-list.component.css'
+  styleUrl: './message-list.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MessageListComponent implements AfterViewInit {
   // Inputs via Signal API
@@ -43,7 +47,7 @@ export class MessageListComponent implements AfterViewInit {
     'Combien de jours de congés ai-je droit ?',
     'Comment poser une demande de télétravail ?',
     'Quels sont les avantages sociaux ?',
-    'Comment fonctionne le remboursement des frais ?'
+    'Comment fonctionne le remboursement des frais ?',
   ];
 
   // Accès au container de scroll
@@ -56,7 +60,7 @@ export class MessageListComponent implements AfterViewInit {
       this.messages();
       this.streamingContent();
       this.isLoading();
-      
+
       // Utilisation de requestAnimationFrame pour s'assurer que le DOM est prêt
       requestAnimationFrame(() => this.scrollToBottom());
     });
@@ -76,7 +80,7 @@ export class MessageListComponent implements AfterViewInit {
       const scrollEl = element.querySelector('.p-scrollpanel-content') || element;
       scrollEl.scrollTo({
         top: scrollEl.scrollHeight,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   }

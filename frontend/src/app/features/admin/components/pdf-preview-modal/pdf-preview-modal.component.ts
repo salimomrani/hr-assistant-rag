@@ -1,4 +1,12 @@
-import { Component, input, output, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -15,7 +23,8 @@ import { ApiService } from '../../../../core/services/api.service';
   selector: 'app-pdf-preview-modal',
   imports: [DialogModule, ButtonModule, ProgressSpinnerModule],
   templateUrl: './pdf-preview-modal.component.html',
-  styleUrl: './pdf-preview-modal.component.css'
+  styleUrl: './pdf-preview-modal.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PdfPreviewModalComponent {
   private api = inject(ApiService);
@@ -99,13 +108,13 @@ export class PdfPreviewModalComponent {
     if (!url) return;
 
     fetch(url)
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
           throw new Error('Failed to load file');
         }
         return response.text();
       })
-      .then(text => {
+      .then((text) => {
         this.textContent.set(text);
         this.isLoading.set(false);
       })

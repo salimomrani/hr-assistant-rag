@@ -9,7 +9,7 @@ import { tap, catchError, map } from 'rxjs/operators';
  * Provides CRUD operations for documents with reactive state management
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DocumentService {
   private api = inject(ApiService);
@@ -27,18 +27,18 @@ export class DocumentService {
 
   // Computed signals
   documentCount = computed(() => this.documents().length);
-  indexedCount = computed(() =>
-    this.documents().filter(d => d.status === DocumentStatus.INDEXED).length
+  indexedCount = computed(
+    () => this.documents().filter((d) => d.status === DocumentStatus.INDEXED).length,
   );
-  pendingCount = computed(() =>
-    this.documents().filter(d => d.status === DocumentStatus.PENDING).length
+  pendingCount = computed(
+    () => this.documents().filter((d) => d.status === DocumentStatus.PENDING).length,
   );
-  failedCount = computed(() =>
-    this.documents().filter(d => d.status === DocumentStatus.FAILED).length
+  failedCount = computed(
+    () => this.documents().filter((d) => d.status === DocumentStatus.FAILED).length,
   );
   categories = computed(() => {
     const cats = this.documents()
-      .map(d => d.category)
+      .map((d) => d.category)
       .filter((c): c is string => !!c);
     return [...new Set(cats)].sort();
   });
@@ -47,23 +47,23 @@ export class DocumentService {
    * Load all documents from the backend
    * @returns Observable that completes when documents are loaded
    */
-  loadDocuments(): Observable<Document[]> {
+  loadDocuments$(): Observable<Document[]> {
     this.loadingSignal.set(true);
 
-    return this.api.getDocuments().pipe(
-      tap(documents => {
+    return this.api.getDocuments$().pipe(
+      tap((documents) => {
         // Convert ISO string timestamps to Date objects
-        const parsedDocuments = documents.map(doc => ({
+        const parsedDocuments = documents.map((doc) => ({
           ...doc,
-          uploadTimestamp: new Date(doc.uploadTimestamp)
+          uploadTimestamp: new Date(doc.uploadTimestamp),
         }));
         this.documentsSignal.set(parsedDocuments);
         this.loadingSignal.set(false);
       }),
-      catchError(error => {
+      catchError((error) => {
         this.loadingSignal.set(false);
         throw error;
-      })
+      }),
     );
   }
 
@@ -73,9 +73,9 @@ export class DocumentService {
    * @param category Optional category for the document
    * @returns Observable emitting progress updates
    */
-  uploadDocument(file: File, category?: string): Observable<UploadProgress> {
-    return this.api.uploadDocument(file, category).pipe(
-      tap(progress => {
+  uploadDocument$(file: File, category?: string): Observable<UploadProgress> {
+    return this.api.uploadDocument$(file, category).pipe(
+      tap((progress) => {
         // Update state when complete
         if (progress.status === UploadStatus.COMPLETE) {
           const progressWithDoc = progress as UploadProgress & { document: Document };
@@ -84,15 +84,15 @@ export class DocumentService {
               ...progressWithDoc.document,
               uploadTimestamp: progressWithDoc.document.uploadTimestamp
                 ? new Date(progressWithDoc.document.uploadTimestamp)
-                : new Date()
+                : new Date(),
             };
-            this.documentsSignal.update(docs => [...docs, parsedDocument]);
+            this.documentsSignal.update((docs) => [...docs, parsedDocument]);
           }
         }
       }),
-      catchError(error => {
+      catchError((error) => {
         throw error;
-      })
+      }),
     );
   }
 
@@ -101,14 +101,12 @@ export class DocumentService {
    * @param documentId The document ID to delete
    * @returns Observable that completes when delete is successful
    */
-  deleteDocument(documentId: string): Observable<void> {
-    return this.api.deleteDocument(documentId).pipe(
+  deleteDocument$(documentId: string): Observable<void> {
+    return this.api.deleteDocument$(documentId).pipe(
       tap(() => {
         // Remove document from list
-        this.documentsSignal.update(docs =>
-          docs.filter(d => d.id !== documentId)
-        );
-      })
+        this.documentsSignal.update((docs) => docs.filter((d) => d.id !== documentId));
+      }),
     );
   }
 
@@ -118,7 +116,7 @@ export class DocumentService {
    * @returns The document or undefined if not found
    */
   getDocumentById(documentId: string): Document | undefined {
-    return this.documents().find(d => d.id === documentId);
+    return this.documents().find((d) => d.id === documentId);
   }
 
   /**
@@ -127,14 +125,14 @@ export class DocumentService {
    * @param newFilename The new filename
    * @returns Observable with updated document
    */
-  renameDocument(documentId: string, newFilename: string): Observable<Document> {
-    return this.api.renameDocument(documentId, newFilename).pipe(
-      tap(updatedDocument => {
+  renameDocument$(documentId: string, newFilename: string): Observable<Document> {
+    return this.api.renameDocument$(documentId, newFilename).pipe(
+      tap((updatedDocument) => {
         // Update document in list
-        this.documentsSignal.update(docs =>
-          docs.map(d => d.id === documentId ? { ...d, filename: newFilename } : d)
+        this.documentsSignal.update((docs) =>
+          docs.map((d) => (d.id === documentId ? { ...d, filename: newFilename } : d)),
         );
-      })
+      }),
     );
   }
 }

@@ -43,9 +43,9 @@ spring:
     ollama:
       base-url: http://localhost:11434
       chat:
-        model: llama3.2
+        model: llama3.1:8b
         options:
-          temperature: 0.7
+          temperature: 0.1
       embedding:
         model: nomic-embed-text
     vectorstore:
@@ -58,9 +58,9 @@ spring:
 # Configuration HR Assistant
 hr-assistant:
   rag:
-    chunk-size: 500
-    chunk-overlap: 50
-    max-results: 5
+    chunk-size: 800
+    chunk-overlap: 100
+    max-results: 15
     similarity-threshold: 0.3
   documents:
     allowed-types: pdf,txt

@@ -1,4 +1,12 @@
-import { Component, inject, signal, computed, OnInit, output, effect } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+  computed,
+  output,
+  effect,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DocumentService } from '../../../../core/services/document.service';
 import { Document, DocumentStatus } from '../../../../core/models';
@@ -12,16 +20,12 @@ import { TooltipModule } from 'primeng/tooltip';
  */
 @Component({
   selector: 'app-document-selector',
-  imports: [
-    FormsModule,
-    CheckboxModule,
-    ButtonModule,
-    TooltipModule
-  ],
+  imports: [FormsModule, CheckboxModule, ButtonModule, TooltipModule],
   templateUrl: './document-selector.component.html',
-  styleUrl: './document-selector.component.css'
+  styleUrl: './document-selector.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DocumentSelectorComponent implements OnInit {
+export class DocumentSelectorComponent {
   private documentService = inject(DocumentService);
 
   // Output event when selection changes
@@ -38,7 +42,7 @@ export class DocumentSelectorComponent implements OnInit {
 
   // Computed: indexed documents only
   indexedDocuments = computed(() =>
-    this.documentService.documents().filter(d => d.status === DocumentStatus.INDEXED)
+    this.documentService.documents().filter((d) => d.status === DocumentStatus.INDEXED),
   );
 
   // Computed: selected document IDs as array
@@ -70,18 +74,16 @@ export class DocumentSelectorComponent implements OnInit {
       const indexed = this.indexedDocuments();
       if (indexed.length > 0 && !this.initialSelectionDone()) {
         // Auto-select all documents on first load
-        const allIds = indexed.map(d => d.id);
+        const allIds = indexed.map((d) => d.id);
         this.selectedIds.set(new Set(allIds));
         this.initialSelectionDone.set(true);
         this.emitSelection();
       }
     });
-  }
 
-  ngOnInit(): void {
     // Load documents if not already loaded
     if (this.documentService.documents().length === 0) {
-      this.documentService.loadDocuments().subscribe();
+      this.documentService.loadDocuments$().subscribe();
     }
   }
 
@@ -89,7 +91,7 @@ export class DocumentSelectorComponent implements OnInit {
    * Toggle the expanded/collapsed state
    */
   toggleExpanded(): void {
-    this.isExpanded.update(v => !v);
+    this.isExpanded.update((v) => !v);
   }
 
   /**
@@ -103,7 +105,7 @@ export class DocumentSelectorComponent implements OnInit {
    * Toggle selection for a single document
    */
   toggleDocument(documentId: string): void {
-    this.selectedIds.update(ids => {
+    this.selectedIds.update((ids) => {
       const newIds = new Set(ids);
       if (newIds.has(documentId)) {
         newIds.delete(documentId);
@@ -119,7 +121,7 @@ export class DocumentSelectorComponent implements OnInit {
    * Select all indexed documents
    */
   selectAll(): void {
-    const allIds = this.indexedDocuments().map(d => d.id);
+    const allIds = this.indexedDocuments().map((d) => d.id);
     this.selectedIds.set(new Set(allIds));
     this.emitSelection();
   }

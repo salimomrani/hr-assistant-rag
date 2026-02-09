@@ -1,4 +1,12 @@
-import { Component, inject, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MessageListComponent } from '../message-list/message-list.component';
 import { MessageInputComponent } from '../message-input/message-input.component';
 import { DocumentSelectorComponent } from '../document-selector/document-selector.component';
@@ -13,17 +21,15 @@ import { Question, Answer, SourceDocumentReference } from '../../../../core/mode
  */
 @Component({
   selector: 'app-chat-container',
-  imports: [
-    MessageListComponent,
-    MessageInputComponent,
-    DocumentSelectorComponent
-  ],
+  imports: [MessageListComponent, MessageInputComponent, DocumentSelectorComponent],
   templateUrl: './chat-container.component.html',
-  styleUrl: './chat-container.component.css'
+  styleUrl: './chat-container.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatContainerComponent {
   private conversationService = inject(ConversationService);
   private apiService = inject(ApiService);
+  private destroyRef = inject(DestroyRef);
 
   // Reference to message input for controlling disabled state
   private messageInput = viewChild(MessageInputComponent);
@@ -58,7 +64,7 @@ export class ChatContainerComponent {
     // Create question object
     const question: Question = {
       text: questionText,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     // Set loading state and store the pending question
@@ -72,55 +78,61 @@ export class ChatContainerComponent {
     const documentIds = this.selectedDocumentIds();
 
     // Call SSE streaming API with optional document filter
-    this.apiService.chatStream(questionText, documentIds.length > 0 ? documentIds : undefined).subscribe({
-      next: (chunk: string) => {
-        // Update streaming content with each chunk
-        this.streamingContent.update(current => current + chunk);
-      },
-      error: (error) => {
-        // Handle error
-        this.isLoading.set(false);
-        this.streamingContent.set('');
-        this.pendingQuestion.set('');
-        this.messageInput()?.setDisabled(false);
+    this.apiService
+      .chatStream$(questionText, documentIds.length > 0 ? documentIds : undefined)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (chunk: string) => {
+          // Update streaming content with each chunk
+          this.streamingContent.update((current) => current + chunk);
+        },
+        error: (error) => {
+          // Handle error
+          this.isLoading.set(false);
+          this.streamingContent.set('');
+          this.pendingQuestion.set('');
+          this.messageInput()?.setDisabled(false);
 
-        const errorMsg = error.message || 'Une erreur est survenue. Veuillez réessayer.';
-        this.errorMessage.set(errorMsg);
+          const errorMsg = error.message || 'Une erreur est survenue. Veuillez réessayer.';
+          this.errorMessage.set(errorMsg);
 
-        // Clear error after 5 seconds
-        setTimeout(() => this.errorMessage.set(''), 5000);
-      },
-      complete: () => {
-        // When streaming completes, save the Q&A pair
-        const finalContent = this.streamingContent();
+          // Clear error after 5 seconds
+          setTimeout(() => this.errorMessage.set(''), 5000);
+        },
+        complete: () => {
+          // When streaming completes, save the Q&A pair
+          const finalContent = this.streamingContent();
 
-        // Parse sources from content and separate them
-        const { content, sources } = this.parseSourcesFromContent(finalContent);
+          // Parse sources from content and separate them
+          const { content, sources } = this.parseSourcesFromContent(finalContent);
 
-        const answer: Answer = {
-          content: content,
-          sources: sources,
-          timestamp: new Date(),
-          isStreaming: false
-        };
+          const answer: Answer = {
+            content: content,
+            sources: sources,
+            timestamp: new Date(),
+            isStreaming: false,
+          };
 
-        // Add to conversation history
-        this.conversationService.addMessage(question, answer);
+          // Add to conversation history
+          this.conversationService.addMessage(question, answer);
 
-        // Reset state
-        this.isLoading.set(false);
-        this.streamingContent.set('');
-        this.pendingQuestion.set('');
-        this.messageInput()?.setDisabled(false);
-      }
-    });
+          // Reset state
+          this.isLoading.set(false);
+          this.streamingContent.set('');
+          this.pendingQuestion.set('');
+          this.messageInput()?.setDisabled(false);
+        },
+      });
   }
 
   /**
    * Parse sources from response content
    * Backend appends sources in format: "\n\n\n\n**Sources:**\n- source1\n- source2"
    */
-  private parseSourcesFromContent(fullContent: string): { content: string; sources: SourceDocumentReference[] } {
+  private parseSourcesFromContent(fullContent: string): {
+    content: string;
+    sources: SourceDocumentReference[];
+  } {
     const sourcesMarker = '**Sources:**';
     const sourcesIndex = fullContent.indexOf(sourcesMarker);
 
@@ -136,11 +148,11 @@ export class ChatContainerComponent {
     // Parse source names from "- source1\n- source2" format
     const sources: SourceDocumentReference[] = sourcesSection
       .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.startsWith('- '))
-      .map(line => ({
+      .map((line) => line.trim())
+      .filter((line) => line.startsWith('- '))
+      .map((line) => ({
         documentName: line.substring(2).trim(),
-        excerpt: ''
+        excerpt: '',
       }));
 
     return { content, sources };
