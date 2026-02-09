@@ -1,13 +1,11 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   inject,
   output,
   signal,
   computed,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FileUploadModule, FileUploadHandlerEvent, FileSelectEvent } from 'primeng/fileupload';
 import { ProgressBarModule } from 'primeng/progressbar';
@@ -38,7 +36,6 @@ import { ErrorMessageComponent } from '../../../../shared/components/error-messa
 })
 export class DocumentUploadComponent {
   private documentService = inject(DocumentService);
-  private destroyRef = inject(DestroyRef);
 
   // Validation constants
   readonly MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
@@ -153,42 +150,39 @@ export class DocumentUploadComponent {
     // Pass category if provided (trim and check for empty string)
     const category = this.selectedCategory.trim() || undefined;
 
-    this.documentService
-      .uploadDocument(file, category)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (progress) => {
-          if (
-            progress.status === UploadStatus.UPLOADING ||
-            progress.status === UploadStatus.PROCESSING
-          ) {
-            this.uploadProgress.set(progress.percentComplete);
-          } else if (progress.status === UploadStatus.COMPLETE) {
-            this.uploadProgress.set(100);
-            const progressWithDoc = progress as typeof progress & { document: Document };
-            if (progressWithDoc.document) {
-              this.uploadSuccess.emit(progressWithDoc.document);
-            }
-            this.selectedFile.set(null);
-            this.selectedCategory = '';
-            this.isUploading.set(false);
-
-            // Reset progress after delay
-            setTimeout(() => this.uploadProgress.set(0), 2000);
+    this.documentService.uploadDocument(file, category).subscribe({
+      next: (progress) => {
+        if (
+          progress.status === UploadStatus.UPLOADING ||
+          progress.status === UploadStatus.PROCESSING
+        ) {
+          this.uploadProgress.set(progress.percentComplete);
+        } else if (progress.status === UploadStatus.COMPLETE) {
+          this.uploadProgress.set(100);
+          const progressWithDoc = progress as typeof progress & { document: Document };
+          if (progressWithDoc.document) {
+            this.uploadSuccess.emit(progressWithDoc.document);
           }
-        },
-        error: (error: HttpErrorResponse) => {
+          this.selectedFile.set(null);
+          this.selectedCategory = '';
           this.isUploading.set(false);
-          this.uploadProgress.set(0);
 
-          const errorMsg = this.getErrorMessage(error);
-          this.errorMessage.set(errorMsg);
-          this.uploadError.emit({
-            message: 'Upload échoué',
-            details: errorMsg,
-          });
-        },
-      });
+          // Reset progress after delay
+          setTimeout(() => this.uploadProgress.set(0), 2000);
+        }
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isUploading.set(false);
+        this.uploadProgress.set(0);
+
+        const errorMsg = this.getErrorMessage(error);
+        this.errorMessage.set(errorMsg);
+        this.uploadError.emit({
+          message: 'Upload échoué',
+          details: errorMsg,
+        });
+      },
+    });
   }
 
   /**

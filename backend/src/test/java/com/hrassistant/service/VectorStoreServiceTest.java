@@ -2,8 +2,6 @@ package com.hrassistant.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -21,20 +19,19 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.Filter;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class VectorStoreServiceTest {
 
   @Mock private VectorStore vectorStore;
-  @Mock private JdbcTemplate jdbcTemplate;
+  @Mock private VectorStoreMetadataRepository vectorStoreMetadataRepository;
 
   private VectorStoreService vectorStoreService;
 
   @BeforeEach
   void setUp() {
-    vectorStoreService = new VectorStoreService(vectorStore, jdbcTemplate);
+    vectorStoreService = new VectorStoreService(vectorStore, vectorStoreMetadataRepository);
     ReflectionTestUtils.setField(vectorStoreService, "maxResults", 5);
     ReflectionTestUtils.setField(vectorStoreService, "minScore", 0.3);
   }
@@ -158,24 +155,26 @@ class VectorStoreServiceTest {
   class UpdateDocumentNameTests {
 
     @Test
-    @DisplayName("Updates document name using native SQL")
-    void updatesDocumentNameViaSql() {
-      when(jdbcTemplate.update(anyString(), anyString(), anyString())).thenReturn(3);
+    @DisplayName("Delegates to repository for document name update")
+    void delegatesToRepository() {
+      when(vectorStoreMetadataRepository.updateDocumentName("doc-123", "new-name.pdf"))
+          .thenReturn(3);
 
       vectorStoreService.updateDocumentName("doc-123", "new-name.pdf");
 
-      verify(jdbcTemplate).update(anyString(), eq("new-name.pdf"), eq("doc-123"));
+      verify(vectorStoreMetadataRepository).updateDocumentName("doc-123", "new-name.pdf");
     }
 
     @Test
     @DisplayName("Handles zero rows updated gracefully")
     void handlesZeroRowsUpdated() {
-      when(jdbcTemplate.update(anyString(), anyString(), anyString())).thenReturn(0);
+      when(vectorStoreMetadataRepository.updateDocumentName("nonexistent", "new.pdf"))
+          .thenReturn(0);
 
       // Should not throw
       vectorStoreService.updateDocumentName("nonexistent", "new.pdf");
 
-      verify(jdbcTemplate).update(anyString(), eq("new.pdf"), eq("nonexistent"));
+      verify(vectorStoreMetadataRepository).updateDocumentName("nonexistent", "new.pdf");
     }
   }
 }
