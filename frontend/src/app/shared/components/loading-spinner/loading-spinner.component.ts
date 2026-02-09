@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 /**
@@ -9,7 +9,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
   selector: 'app-loading-spinner',
   imports: [ProgressSpinnerModule],
   templateUrl: './loading-spinner.component.html',
-  styleUrl: './loading-spinner.component.css'
+  styleUrl: './loading-spinner.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoadingSpinnerComponent {
   // Optional loading message

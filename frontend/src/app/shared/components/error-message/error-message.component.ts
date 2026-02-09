@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { MessageModule } from 'primeng/message';
 
 /**
@@ -9,7 +9,8 @@ import { MessageModule } from 'primeng/message';
   selector: 'app-error-message',
   imports: [MessageModule],
   templateUrl: './error-message.component.html',
-  styleUrl: './error-message.component.css'
+  styleUrl: './error-message.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ErrorMessageComponent {
   // Message content
@@ -39,7 +40,7 @@ export class ErrorMessageComponent {
       success: 'pi-check-circle',
       info: 'pi-info-circle',
       warn: 'pi-exclamation-triangle',
-      error: 'pi-times-circle'
+      error: 'pi-times-circle',
     };
     return icons[this.severity()];
   }
@@ -52,7 +53,7 @@ export class ErrorMessageComponent {
       success: 'Success',
       info: 'Information',
       warn: 'Warning',
-      error: 'Error'
+      error: 'Error',
     };
     return titles[this.severity()];
   }

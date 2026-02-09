@@ -1,4 +1,4 @@
-import { Component, output, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, output, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 /**
@@ -9,7 +9,8 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-message-input',
   imports: [FormsModule],
   templateUrl: './message-input.component.html',
-  styleUrl: './message-input.component.css'
+  styleUrl: './message-input.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MessageInputComponent {
   // Question text signal

@@ -5,6 +5,7 @@ import com.hrassistant.model.ChatRequest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.messages.SystemMessage;
@@ -85,8 +86,7 @@ public class StreamingRagService {
   }
 
   private static final String OUTPUT_FALLBACK_MESSAGE =
-      "Je ne suis pas en mesure de répondre à cette question. "
-          + "Veuillez contacter le service RH directement.";
+      "I am unable to answer this question. Please contact HR directly.";
 
   /** Streams the LLM response token by token, validates the full output, then emits. */
   private Flux<String> streamResponse(Prompt prompt, List<String> sources) {
@@ -106,7 +106,8 @@ public class StreamingRagService {
                 return Flux.just(OUTPUT_FALLBACK_MESSAGE);
               }
               log.info("Streaming complete. Adding sources: {}", sources);
-              return Flux.fromIterable(tokens).concatWith(Flux.just(buildSourcesText(sources)));
+              return Flux.fromIterable(tokens)
+                  .concatWith(Flux.just(SourceParsingUtil.buildSourcesText(sources)));
             })
         .doOnError(error -> log.error("Streaming error: {}", error.getMessage(), error))
         .onErrorMap(
@@ -116,15 +117,6 @@ public class StreamingRagService {
                     "The response generation service is temporarily unavailable. Please try again"
                         + " later.",
                     error));
-  }
-
-  /** Builds the sources text to append at the end of the response. */
-  private String buildSourcesText(List<String> sources) {
-    if (sources.isEmpty()) {
-      return "";
-    }
-    return "\n\n\n\n**Sources:**\n"
-        + String.join("\n", sources.stream().map(source -> "- " + source).toList());
   }
 
   /** Builds context from retrieved documents. */
@@ -153,7 +145,8 @@ public class StreamingRagService {
   /** Extracts unique document names from matches. */
   private List<String> extractSources(List<Document> matches) {
     return matches.stream()
-        .map(doc -> (String) doc.getMetadata().get("documentName"))
+        .map(doc -> Objects.toString(doc.getMetadata().get("documentName"), null))
+        .filter(Objects::nonNull)
         .distinct()
         .toList();
   }

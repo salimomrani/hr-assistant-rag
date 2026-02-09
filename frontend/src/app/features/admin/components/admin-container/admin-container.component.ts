@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
@@ -31,11 +31,12 @@ import { Document, UploadStatus } from '../../../../core/models';
     ProgressBarModule,
     DocumentUploadComponent,
     DocumentListComponent,
-    PdfPreviewModalComponent
+    PdfPreviewModalComponent,
   ],
   providers: [MessageService],
   templateUrl: './admin-container.component.html',
-  styleUrl: './admin-container.component.css'
+  styleUrl: './admin-container.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminContainerComponent {
   private documentService = inject(DocumentService);
@@ -81,7 +82,7 @@ export class AdminContainerComponent {
       severity: 'success',
       summary: 'Upload réussi',
       detail: `${document.filename} a été uploadé avec succès`,
-      life: 5000
+      life: 5000,
     });
 
     // Refresh document list
@@ -95,9 +96,9 @@ export class AdminContainerComponent {
   onUploadError(error: { message: string; details?: string }): void {
     this.messageService.add({
       severity: 'error',
-      summary: 'Erreur d\'upload',
+      summary: "Erreur d'upload",
       detail: error.details || error.message,
-      life: 7000
+      life: 7000,
     });
   }
 
@@ -110,7 +111,7 @@ export class AdminContainerComponent {
       severity: 'info',
       summary: 'Document supprimé',
       detail: 'Le document a été supprimé avec succès',
-      life: 5000
+      life: 5000,
     });
 
     // Refresh document list
@@ -125,7 +126,7 @@ export class AdminContainerComponent {
       severity: 'error',
       summary: 'Erreur de suppression',
       detail: error,
-      life: 7000
+      life: 7000,
     });
   }
 
@@ -164,7 +165,7 @@ export class AdminContainerComponent {
         severity: 'error',
         summary: 'Erreur',
         detail: 'Le nom du fichier ne peut pas dépasser 255 caractères',
-        life: 5000
+        life: 5000,
       });
       return;
     }
@@ -179,7 +180,7 @@ export class AdminContainerComponent {
           severity: 'success',
           summary: 'Document renommé',
           detail: `Le document a été renommé en "${filename}"`,
-          life: 5000
+          life: 5000,
         });
         // Refresh document list
         this.loadDocuments();
@@ -190,9 +191,9 @@ export class AdminContainerComponent {
           severity: 'error',
           summary: 'Erreur de renommage',
           detail: error.error?.message || 'Impossible de renommer le document',
-          life: 7000
+          life: 7000,
         });
-      }
+      },
     });
   }
 
@@ -238,7 +239,7 @@ export class AdminContainerComponent {
           severity: 'error',
           summary: 'Erreur',
           detail: 'Type de fichier non accepté. Formats acceptés: PDF, TXT',
-          life: 5000
+          life: 5000,
         });
         return;
       }
@@ -248,7 +249,7 @@ export class AdminContainerComponent {
           severity: 'error',
           summary: 'Erreur',
           detail: 'Fichier trop volumineux. Taille maximale: 10 MB',
-          life: 5000
+          life: 5000,
         });
         return;
       }
@@ -288,7 +289,10 @@ export class AdminContainerComponent {
 
         this.documentService.uploadDocument(renamedFile).subscribe({
           next: (progress) => {
-            if (progress.status === UploadStatus.UPLOADING || progress.status === UploadStatus.PROCESSING) {
+            if (
+              progress.status === UploadStatus.UPLOADING ||
+              progress.status === UploadStatus.PROCESSING
+            ) {
               this.replaceProgress.set(progress.percentComplete);
             } else if (progress.status === UploadStatus.COMPLETE) {
               this.replaceProgress.set(100);
@@ -299,7 +303,7 @@ export class AdminContainerComponent {
                 severity: 'success',
                 summary: 'Document remplacé',
                 detail: `"${document.filename}" a été remplacé avec succès`,
-                life: 5000
+                life: 5000,
               });
 
               // Refresh document list
@@ -311,11 +315,11 @@ export class AdminContainerComponent {
             this.replaceProgress.set(0);
             this.messageService.add({
               severity: 'error',
-              summary: 'Erreur d\'upload',
-              detail: error.error?.message || 'Impossible d\'uploader le nouveau fichier',
-              life: 7000
+              summary: "Erreur d'upload",
+              detail: error.error?.message || "Impossible d'uploader le nouveau fichier",
+              life: 7000,
             });
-          }
+          },
         });
       },
       error: (error) => {
@@ -323,10 +327,10 @@ export class AdminContainerComponent {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur de suppression',
-          detail: error.error?.message || 'Impossible de supprimer l\'ancien document',
-          life: 7000
+          detail: error.error?.message || "Impossible de supprimer l'ancien document",
+          life: 7000,
         });
-      }
+      },
     });
   }
 
@@ -374,10 +378,10 @@ export class AdminContainerComponent {
           severity: 'error',
           summary: 'Erreur de chargement',
           detail: 'Impossible de charger les documents',
-          life: 5000
+          life: 5000,
         });
         console.error('Error loading documents:', error);
-      }
+      },
     });
   }
 }

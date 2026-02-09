@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { ChatSidebarComponent } from '../chat-sidebar/chat-sidebar.component';
 import { ChatContainerComponent } from '../chat-container/chat-container.component';
 
@@ -7,19 +7,17 @@ import { ChatContainerComponent } from '../chat-container/chat-container.compone
  */
 @Component({
   selector: 'app-chat-page',
-  imports: [
-    ChatSidebarComponent,
-    ChatContainerComponent
-  ],
+  imports: [ChatSidebarComponent, ChatContainerComponent],
   templateUrl: './chat-page.component.html',
-  styleUrl: './chat-page.component.css'
+  styleUrl: './chat-page.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatPageComponent {
   // Mobile sidebar toggle
   sidebarOpen = signal<boolean>(false);
 
   toggleSidebar(): void {
-    this.sidebarOpen.update(v => !v);
+    this.sidebarOpen.update((v) => !v);
   }
 
   closeSidebar(): void {
