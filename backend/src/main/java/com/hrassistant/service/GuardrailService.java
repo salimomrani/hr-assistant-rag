@@ -9,8 +9,6 @@ import com.hrassistant.model.OutputGuardrailResult;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;
@@ -28,7 +26,7 @@ import org.springframework.util.StringUtils;
 @Service
 public class GuardrailService {
 
-  private static final long CLASSIFICATION_TIMEOUT_SECONDS = 5;
+  private static final long CLASSIFICATION_TIMEOUT_SECONDS = 2;
 
   private static final String[] OFF_TOPIC_KEYWORDS = {
     "météo", "weather",
@@ -82,23 +80,8 @@ public class GuardrailService {
    * @return classification result with category and confidence
    */
   public GuardrailResult classifyQuestion(String question) {
-    try {
-      GuardrailResult result =
-          CompletableFuture.supplyAsync(() -> classifyWithLlm(question))
-              .orTimeout(CLASSIFICATION_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-              .join();
-
-      log.info(
-          "Question classified: hrRelated={}, category={}, confidence={}",
-          result.hrRelated(),
-          result.category(),
-          result.confidence());
-      return result;
-
-    } catch (Exception e) {
-      log.warn("LLM classification failed, falling back to keyword detection: {}", e.getMessage());
-      return classifyWithKeywords(question);
-    }
+    // LLM classification disabled — keyword detection only for now (no latency cost)
+    return classifyWithKeywords(question);
   }
 
   /**

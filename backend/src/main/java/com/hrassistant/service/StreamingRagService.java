@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture; // NOSONAR - used with var inference
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.messages.SystemMessage;
@@ -47,11 +48,15 @@ public class StreamingRagService {
         "Processing streaming question: '{}' with documentIds filter: {}", question, documentIds);
 
     try {
-      // Step 1: Validate question
-      guardrailService.validateQuestion(question);
+      // Run guardrail validation and vector search in parallel
+      var guardrailFuture =
+          CompletableFuture.runAsync(() -> guardrailService.validateQuestion(question));
+      var searchFuture =
+          CompletableFuture.supplyAsync(() -> vectorStoreService.search(question, documentIds));
 
-      // Step 2: Search similar chunks (with optional document filter)
-      List<Document> matches = vectorStoreService.search(question, documentIds);
+      // Wait for both — guardrail may throw HrAssistantException
+      guardrailFuture.join();
+      List<Document> matches = searchFuture.join();
 
       // Check if relevant information was found
       if (matches.isEmpty()) {
@@ -62,18 +67,24 @@ public class StreamingRagService {
                 + " answer.");
       }
 
-      // Step 3: Build context from retrieved chunks
+      // Build context, prompt and stream
       String context = buildContext(matches);
-
-      // Step 4: Build prompt with system/user message separation
       Prompt prompt = buildPrompt(context, question);
-
-      // Step 5: Extract sources for later
       List<String> sources = extractSources(matches);
-
-      // Step 6: Stream response using Spring AI ChatModel
       return streamResponse(prompt, sources);
 
+    } catch (java.util.concurrent.CompletionException e) {
+      Throwable cause = e.getCause();
+      if (cause instanceof HrAssistantException hae) {
+        log.error("RAG pipeline error: {}", hae.getMessage());
+        return Flux.error(hae);
+      }
+      log.error("Unexpected error during streaming: {}", cause.getMessage(), cause);
+      return Flux.error(
+          new HrAssistantException(
+              HrAssistantException.ErrorCode.INTERNAL_ERROR,
+              "An unexpected error occurred",
+              cause));
     } catch (HrAssistantException e) {
       log.error("RAG pipeline error: {}", e.getMessage());
       return Flux.error(e);
