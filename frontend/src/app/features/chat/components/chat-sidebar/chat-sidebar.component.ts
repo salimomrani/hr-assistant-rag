@@ -1,4 +1,4 @@
-import { Component, inject, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
 import { ConversationService } from '../../../../core/services/conversation.service';
 import { Conversation } from '../../../../core/models';
 
@@ -8,7 +8,8 @@ import { Conversation } from '../../../../core/models';
 @Component({
   selector: 'app-chat-sidebar',
   templateUrl: './chat-sidebar.component.html',
-  styleUrl: './chat-sidebar.component.css'
+  styleUrl: './chat-sidebar.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatSidebarComponent {
   private conversationService = inject(ConversationService);
