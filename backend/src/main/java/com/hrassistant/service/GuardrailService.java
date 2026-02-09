@@ -28,7 +28,7 @@ import org.springframework.util.StringUtils;
 @Service
 public class GuardrailService {
 
-  private static final long CLASSIFICATION_TIMEOUT_SECONDS = 5;
+  private static final long CLASSIFICATION_TIMEOUT_SECONDS = 2;
 
   private static final String[] OFF_TOPIC_KEYWORDS = {
     "météo", "weather",
