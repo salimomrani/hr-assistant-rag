@@ -2,6 +2,7 @@ package com.hrassistant.controller;
 
 import com.hrassistant.model.ChatRequest;
 import com.hrassistant.model.ChatResponse;
+import com.hrassistant.service.CacheService;
 import com.hrassistant.service.CachingStreamingRagService;
 import com.hrassistant.service.RagService;
 import jakarta.validation.Valid;
@@ -9,10 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 @Slf4j
@@ -21,40 +19,49 @@ import reactor.core.publisher.Flux;
 @RequiredArgsConstructor
 public class ChatController {
 
-    private final RagService ragService;
-    private final CachingStreamingRagService cachingStreamingRagService;
+  private final RagService ragService;
+  private final CachingStreamingRagService cachingStreamingRagService;
+  private final CacheService cacheService;
 
-    /**
-     * Handles chat requests using RAG pipeline.
-     * Returns complete response in one blocking call.
-     *
-     * @param request Chat request containing the user's question
-     * @return Chat response with answer and sources
-     */
-    @PostMapping
-    public ResponseEntity<ChatResponse> chat(@Valid @RequestBody ChatRequest request) {
-        log.info("Received chat request: {}", request.getQuestion());
+  /**
+   * Handles chat requests using RAG pipeline. Returns complete response in one blocking call.
+   *
+   * @param request Chat request containing the user's question
+   * @return Chat response with answer and sources
+   */
+  @PostMapping
+  public ResponseEntity<ChatResponse> chat(@Valid @RequestBody ChatRequest request) {
+    log.info("Received chat request: {}", request.getQuestion());
 
-        ChatResponse response = ragService.chat(request);
+    ChatResponse response = ragService.chat(request);
 
-        log.info("Returning response with {} sources", response.getSources().size());
-        return ResponseEntity.ok(response);
-    }
+    log.info("Returning response with {} sources", response.getSources().size());
+    return ResponseEntity.ok(response);
+  }
 
-    /**
-     * Handles streaming chat requests using RAG pipeline.
-     * Returns tokens progressively via Server-Sent Events (SSE).
-     *
-     * @param request Chat request containing the user's question
-     * @return Flux of response tokens streamed in real-time
-     */
-    @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> chatStream(@Valid @RequestBody ChatRequest request) {
+  /**
+   * Handles streaming chat requests using RAG pipeline. Returns tokens progressively via
+   * Server-Sent Events (SSE).
+   *
+   * @param request Chat request containing the user's question
+   * @return Flux of response tokens streamed in real-time
+   */
+  @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  public Flux<String> chatStream(@Valid @RequestBody ChatRequest request) {
 
-        log.info("Received streaming chat request: {}", request.getQuestion());
+    log.info("Received streaming chat request: {}", request.getQuestion());
 
-        return cachingStreamingRagService.chatStream(request)
-                .doOnComplete(() -> log.info("Streaming completed for question: {}", request.getQuestion()))
-                .doOnError(error -> log.error("Streaming error for question: {}", request.getQuestion(), error));
-    }
+    return cachingStreamingRagService
+        .chatStream(request)
+        .doOnComplete(() -> log.info("Streaming completed for question: {}", request.getQuestion()))
+        .doOnError(
+            error -> log.error("Streaming error for question: {}", request.getQuestion(), error));
+  }
+
+  @DeleteMapping("/cache")
+  public ResponseEntity<Void> clearCache() {
+    log.info("Received cache clear request");
+    cacheService.invalidateAll();
+    return ResponseEntity.noContent().build();
+  }
 }

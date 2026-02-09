@@ -62,7 +62,7 @@ hr-assistant:
   rag:
     chunk-size: 800
     chunk-overlap: 100
-    max-results: 15
+    max-results: 8
     similarity-threshold: 0.3
   documents:
     allowed-types: pdf,txt

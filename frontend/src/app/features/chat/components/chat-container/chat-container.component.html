@@ -4,8 +4,15 @@
     <div class="error-banner">
       <span>{{ errorMessage() }}</span>
       <button class="error-close" (click)="onErrorClosed()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 6L6 18M6 6l12 12"/>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M18 6L6 18M6 6l12 12" />
         </svg>
       </button>
     </div>
@@ -18,22 +25,59 @@
       [streamingContent]="streamingContent()"
       [isLoading]="isLoading()"
       [pendingQuestion]="pendingQuestion()"
-      (suggestionClicked)="onQuestionSubmitted($event)">
+      (suggestionClicked)="onQuestionSubmitted($event)"
+    >
     </app-message-list>
   </div>
 
   <!-- Input Area with Document Selector -->
   <div class="chat-input-area">
-    <!-- Document Selector -->
-    <div class="document-selector-area">
-      <app-document-selector
-        (selectionChanged)="onDocumentSelectionChanged($event)">
-      </app-document-selector>
+    <!-- Document Selector + Actions -->
+    <div class="input-toolbar">
+      <div class="document-selector-area">
+        <app-document-selector (selectionChanged)="onDocumentSelectionChanged($event)">
+        </app-document-selector>
+      </div>
+      <button
+        class="clear-cache-btn"
+        [disabled]="isClearingCache()"
+        (click)="onClearCache()"
+        title="Vider le cache Redis"
+      >
+        @if (isClearingCache()) {
+          <svg
+            class="spinner-icon"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"
+            />
+          </svg>
+        } @else {
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="1 4 1 10 7 10" />
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+          </svg>
+        }
+        <span>Vider le cache</span>
+      </button>
     </div>
 
     <!-- Message Input -->
-    <app-message-input
-      (questionSubmitted)="onQuestionSubmitted($event)">
-    </app-message-input>
+    <app-message-input (questionSubmitted)="onQuestionSubmitted($event)"> </app-message-input>
   </div>
 </div>
