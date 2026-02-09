@@ -219,4 +219,8 @@ export class ApiService {
   getDocumentFileUrl(documentId: string): string {
     return `${this.apiUrl}/documents/${documentId}/file`;
   }
+
+  clearCache$(): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/chat/cache`);
+  }
 }

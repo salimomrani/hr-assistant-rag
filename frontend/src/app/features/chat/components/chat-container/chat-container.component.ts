@@ -43,6 +43,9 @@ export class ChatContainerComponent {
   // Selected document IDs for filtering RAG search
   selectedDocumentIds = signal<string[]>([]);
 
+  // Cache clear state
+  isClearingCache = signal<boolean>(false);
+
   // Expose conversation service signals
   messages = this.conversationService.messages;
 
@@ -163,5 +166,21 @@ export class ChatContainerComponent {
    */
   onErrorClosed(): void {
     this.errorMessage.set('');
+  }
+
+  onClearCache(): void {
+    if (this.isClearingCache()) return;
+
+    this.isClearingCache.set(true);
+    this.apiService.clearCache$().subscribe({
+      next: () => {
+        this.isClearingCache.set(false);
+      },
+      error: () => {
+        this.isClearingCache.set(false);
+        this.errorMessage.set('Erreur lors du vidage du cache.');
+        setTimeout(() => this.errorMessage.set(''), 5000);
+      },
+    });
   }
 }
