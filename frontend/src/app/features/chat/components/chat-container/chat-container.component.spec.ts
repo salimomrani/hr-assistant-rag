@@ -14,19 +14,19 @@ describe('ChatContainerComponent', () => {
     addMessage: ReturnType<typeof vi.fn>;
     messages: ReturnType<typeof signal>;
   };
-  let apiService: { chatStream: ReturnType<typeof vi.fn> };
+  let apiService: { chatStream$: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     conversationService = {
       addMessage: vi.fn(),
       messages: signal([]),
     };
-    apiService = { chatStream: vi.fn() };
+    apiService = { chatStream$: vi.fn() };
 
     const documentServiceMock = {
       documents: signal([]),
       isLoading: signal(false),
-      loadDocuments: vi.fn().mockReturnValue(EMPTY),
+      loadDocuments$: vi.fn().mockReturnValue(EMPTY),
     };
 
     await TestBed.configureTestingModule({
@@ -48,15 +48,15 @@ describe('ChatContainerComponent', () => {
   });
 
   it('should handle question submission', () => {
-    apiService.chatStream.mockReturnValue(of('Test response'));
+    apiService.chatStream$.mockReturnValue(of('Test response'));
 
     component.onQuestionSubmitted('Test question');
 
-    expect(apiService.chatStream).toHaveBeenCalledWith('Test question', undefined);
+    expect(apiService.chatStream$).toHaveBeenCalledWith('Test question', undefined);
   });
 
   it('should handle error during streaming', () => {
-    apiService.chatStream.mockReturnValue(throwError(() => new Error('Test error')));
+    apiService.chatStream$.mockReturnValue(throwError(() => new Error('Test error')));
 
     component.onQuestionSubmitted('Test question');
 

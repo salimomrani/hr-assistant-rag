@@ -11,7 +11,7 @@ describe('AdminContainerComponent', () => {
   let component: AdminContainerComponent;
   let fixture: ComponentFixture<AdminContainerComponent>;
   let documentServiceMock: {
-    loadDocuments: ReturnType<typeof vi.fn>;
+    loadDocuments$: ReturnType<typeof vi.fn>;
     documents: ReturnType<typeof signal>;
     isLoading: ReturnType<typeof signal>;
   };
@@ -19,7 +19,7 @@ describe('AdminContainerComponent', () => {
 
   beforeEach(async () => {
     documentServiceMock = {
-      loadDocuments: vi.fn().mockReturnValue(EMPTY),
+      loadDocuments$: vi.fn().mockReturnValue(EMPTY),
       documents: signal([]),
       isLoading: signal(false),
     };
@@ -44,7 +44,7 @@ describe('AdminContainerComponent', () => {
   });
 
   it('should load documents on init', () => {
-    expect(documentServiceMock.loadDocuments).toHaveBeenCalled();
+    expect(documentServiceMock.loadDocuments$).toHaveBeenCalled();
   });
 
   it('should show success toast on upload success', () => {
