@@ -46,13 +46,15 @@ cd backend && docker compose up -d     # pgvector + Redis
 | POST | `/api/documents` | Upload document |
 | GET | `/api/documents` | List documents |
 | DELETE | `/api/documents/{id}` | Delete document |
+| GET | `/api/analytics/dashboard` | Dashboard analytics |
+| DELETE | `/api/chat/cache` | Clear semantic cache |
 
 ## Backend Architecture
 
 Layered architecture in `backend/src/main/java/com/hrassistant/`:
 
-- **controller/** — REST endpoints (Chat, Document, Health)
-- **service/** — RagService, StreamingRagService, CachingStreamingRagService, EmbeddingService, VectorStoreService, DocumentService, CacheService, GuardrailService
+- **controller/** — REST endpoints (Chat, Document, Health, Analytics)
+- **service/** — RagService, StreamingRagService, CachingStreamingRagService, EmbeddingService, VectorStoreService, DocumentService, CacheService, GuardrailService, AnalyticsService
 - **model/** — DTOs and JPA entities
 - **mapper/** — MapStruct mappers
 - **repository/** — Spring Data JPA
@@ -61,7 +63,7 @@ Layered architecture in `backend/src/main/java/com/hrassistant/`:
 ## Coding Standards
 
 - **Comments**: ALWAYS in English, NEVER in French
-- **Java**: Lombok, Spring utilities (StringUtils), MapStruct for mappings, records for DTOs, JPA entities with `@Entity` + `@Id`
+- **Java**: Lombok, Spring utilities (StringUtils), MapStruct for mappings, records for DTOs (use `@Builder` when >2 properties), JPA entities with `@Entity` + `@Id`
 - **Don't Reinvent the Wheel**: Use existing libraries
 
 ## Development Workflow
@@ -90,3 +92,4 @@ Layered architecture in `backend/src/main/java/com/hrassistant/`:
 - BOM version via `${spring-ai.version}`, Ollama auto-configured via `spring.ai.ollama.*`
 - pgvector via `spring-ai-starter-vector-store-pgvector`
 - Semantic caching via `CacheService` + `CachingStreamingRagService`
+
