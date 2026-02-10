@@ -1,5 +1,7 @@
 package com.hrassistant.model;
 
+import lombok.Builder;
+
 /**
  * Structure expected from the LLM classification response. Parsed via {@link
  * org.springframework.ai.converter.BeanOutputConverter}.
@@ -8,4 +10,5 @@ package com.hrassistant.model;
  * @param category category name (mapped to {@link HrCategory} enum)
  * @param confidence confidence level (mapped to {@link ConfidenceLevel} enum)
  */
+@Builder
 public record ClassificationResponse(boolean hrRelated, String category, String confidence) {}

@@ -51,15 +51,16 @@ public class AnalyticsService {
         totalDocuments,
         conversationsThisWeek);
 
-    return new DashboardAnalytics(
-        totalQuestionsToday,
-        averageResponseTimeMs,
-        totalDocuments,
-        conversationsThisWeek,
-        popularQuestions,
-        topDocuments,
-        dailyUsage,
-        dailyResponseTimes);
+    return DashboardAnalytics.builder()
+        .totalQuestionsToday(totalQuestionsToday)
+        .averageResponseTimeMs(averageResponseTimeMs)
+        .totalDocuments(totalDocuments)
+        .conversationsThisWeek(conversationsThisWeek)
+        .popularQuestions(popularQuestions)
+        .topDocuments(topDocuments)
+        .dailyUsage(dailyUsage)
+        .dailyResponseTimes(dailyResponseTimes)
+        .build();
   }
 
   private List<QuestionFrequency> mapQuestionFrequencies(List<Object[]> rows) {
@@ -72,8 +73,11 @@ public class AnalyticsService {
     return rows.stream()
         .map(
             row ->
-                new DocumentReference(
-                    (String) row[0], (String) row[1], ((Number) row[2]).longValue()))
+                DocumentReference.builder()
+                    .documentId((String) row[0])
+                    .documentName((String) row[1])
+                    .referenceCount(((Number) row[2]).longValue())
+                    .build())
         .toList();
   }
 
