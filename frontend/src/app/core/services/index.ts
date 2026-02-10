@@ -7,3 +7,4 @@ export * from './api.service';
 export * from './storage.service';
 export * from './conversation.service';
 export * from './document.service';
+export * from './analytics.service';

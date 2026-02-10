@@ -1,0 +1,51 @@
+/**
+ * Usage Chart - Midnight Studio
+ */
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.chart-panel {
+  background: var(--midnight-900, #0f1629);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.chart-header svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--accent-400, #22d3ee);
+  flex-shrink: 0;
+}
+
+.chart-header h3 {
+  margin: 0;
+  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--midnight-50, #e8eaf0);
+}
+
+.chart-body {
+  padding: 1.25rem;
+  height: 280px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}

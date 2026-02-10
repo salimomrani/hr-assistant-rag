@@ -7,24 +7,31 @@ export const routes: Routes = [
   {
     path: '',
     redirectTo: '/chat',
-    pathMatch: 'full'
+    pathMatch: 'full',
   },
   {
     path: 'chat',
     loadComponent: () =>
       import('./features/chat/components/chat-page/chat-page.component').then(
-        m => m.ChatPageComponent
-      )
+        (m) => m.ChatPageComponent,
+      ),
   },
   {
     path: 'admin',
     loadComponent: () =>
       import('./features/admin/components/admin-container/admin-container.component').then(
-        m => m.AdminContainerComponent
-      )
+        (m) => m.AdminContainerComponent,
+      ),
+  },
+  {
+    path: 'analytics',
+    loadComponent: () =>
+      import('./features/analytics/components/analytics-page/analytics-page.component').then(
+        (m) => m.AnalyticsPageComponent,
+      ),
   },
   {
     path: '**',
-    redirectTo: '/chat'
-  }
+    redirectTo: '/chat',
+  },
 ];

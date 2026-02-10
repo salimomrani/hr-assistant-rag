@@ -1,0 +1,28 @@
+<div class="panel">
+  <div class="panel-header">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+      <path
+        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+    <h3>Top Documents</h3>
+  </div>
+
+  @if (documents().length === 0) {
+    <div class="empty-state">
+      <span>No document references recorded yet</span>
+    </div>
+  } @else {
+    <ul class="document-list">
+      @for (doc of documents(); track doc.documentId; let i = $index) {
+        <li class="document-item">
+          <span class="rank">#{{ i + 1 }}</span>
+          <span class="document-name">{{ doc.documentName }}</span>
+          <span class="count-badge">{{ doc.referenceCount }}</span>
+        </li>
+      }
+    </ul>
+  }
+</div>

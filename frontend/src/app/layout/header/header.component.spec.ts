@@ -21,10 +21,11 @@ describe('HeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have menu items for Chat and Admin', () => {
-    expect(component.menuItems).toHaveLength(2);
+  it('should have menu items for Chat, Admin, and Analytics', () => {
+    expect(component.menuItems).toHaveLength(3);
     expect(component.menuItems[0].label).toBe('Chat');
     expect(component.menuItems[1].label).toBe('Admin');
+    expect(component.menuItems[2].label).toBe('Analytics');
   });
 
   it('should display brand title', () => {
@@ -36,7 +37,7 @@ describe('HeaderComponent', () => {
   it('should have navigation links', () => {
     const compiled = fixture.nativeElement;
     const navLinks = compiled.querySelectorAll('.nav-link');
-    expect(navLinks.length).toBe(2);
+    expect(navLinks.length).toBe(3);
   });
 
   it('should have Chat navigation link with correct route', () => {
@@ -62,7 +63,7 @@ describe('HeaderComponent', () => {
   it('should have navigation SVG icons', () => {
     const compiled = fixture.nativeElement;
     const icons = compiled.querySelectorAll('.nav-link svg');
-    expect(icons.length).toBe(2);
+    expect(icons.length).toBe(3);
   });
 
   it('should use routerLinkActive directive', () => {

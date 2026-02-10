@@ -30,5 +30,11 @@ export class HeaderComponent {
       routerLink: '/admin',
       command: () => this.router.navigate(['/admin']),
     },
+    {
+      label: 'Analytics',
+      icon: 'pi pi-chart-bar',
+      routerLink: '/analytics',
+      command: () => this.router.navigate(['/analytics']),
+    },
   ];
 }
