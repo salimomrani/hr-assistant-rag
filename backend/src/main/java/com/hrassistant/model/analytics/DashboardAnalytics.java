@@ -1,7 +1,9 @@
 package com.hrassistant.model.analytics;
 
 import java.util.List;
+import lombok.Builder;
 
+@Builder
 public record DashboardAnalytics(
     long totalQuestionsToday,
     double averageResponseTimeMs,

@@ -26,15 +26,22 @@ class AnalyticsControllerTest {
   @DisplayName("GET /api/analytics/dashboard returns 200 with correct data")
   void getDashboardReturns200WithCorrectData() {
     DashboardAnalytics analytics =
-        new DashboardAnalytics(
-            42L,
-            1500.0,
-            10L,
-            120L,
-            List.of(new QuestionFrequency("leave policy", 15)),
-            List.of(new DocumentReference("doc-1", "handbook.pdf", 25)),
-            List.of(new DailyCount(LocalDate.of(2026, 2, 8), 5)),
-            List.of(new DailyAverage(LocalDate.of(2026, 2, 8), 1200.5)));
+        DashboardAnalytics.builder()
+            .totalQuestionsToday(42L)
+            .averageResponseTimeMs(1500.0)
+            .totalDocuments(10L)
+            .conversationsThisWeek(120L)
+            .popularQuestions(List.of(new QuestionFrequency("leave policy", 15)))
+            .topDocuments(
+                List.of(
+                    DocumentReference.builder()
+                        .documentId("doc-1")
+                        .documentName("handbook.pdf")
+                        .referenceCount(25)
+                        .build()))
+            .dailyUsage(List.of(new DailyCount(LocalDate.of(2026, 2, 8), 5)))
+            .dailyResponseTimes(List.of(new DailyAverage(LocalDate.of(2026, 2, 8), 1200.5)))
+            .build();
 
     when(analyticsService.getDashboardAnalytics()).thenReturn(analytics);
 
@@ -60,7 +67,16 @@ class AnalyticsControllerTest {
   @DisplayName("GET /api/analytics/dashboard returns empty analytics when no data")
   void getDashboardReturnsEmptyAnalytics() {
     DashboardAnalytics emptyAnalytics =
-        new DashboardAnalytics(0L, 0.0, 0L, 0L, List.of(), List.of(), List.of(), List.of());
+        DashboardAnalytics.builder()
+            .totalQuestionsToday(0L)
+            .averageResponseTimeMs(0.0)
+            .totalDocuments(0L)
+            .conversationsThisWeek(0L)
+            .popularQuestions(List.of())
+            .topDocuments(List.of())
+            .dailyUsage(List.of())
+            .dailyResponseTimes(List.of())
+            .build();
 
     when(analyticsService.getDashboardAnalytics()).thenReturn(emptyAnalytics);
 
