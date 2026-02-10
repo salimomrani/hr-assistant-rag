@@ -12,3 +12,4 @@ export * from './document.model';
 export * from './upload-progress.model';
 export * from './api-error.model';
 export * from './environment.model';
+export * from './analytics.model';

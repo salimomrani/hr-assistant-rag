@@ -1,0 +1,149 @@
+openapi: 3.1.0
+info:
+  title: HR Assistant RAG - Analytics API
+  version: 1.0.0
+  description: Analytics endpoints for the HR Assistant RAG dashboard
+
+paths:
+  /api/analytics/dashboard:
+    get:
+      operationId: getDashboardAnalytics
+      summary: Get all dashboard analytics data
+      description: Returns aggregated analytics including KPIs, popular questions, top documents, and time-series data.
+      tags:
+        - Analytics
+      responses:
+        '200':
+          description: Dashboard analytics data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardAnalytics'
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    DashboardAnalytics:
+      type: object
+      required:
+        - totalQuestionsToday
+        - averageResponseTimeMs
+        - totalDocuments
+        - conversationsThisWeek
+        - popularQuestions
+        - topDocuments
+        - dailyUsage
+        - dailyResponseTimes
+      properties:
+        totalQuestionsToday:
+          type: integer
+          format: int64
+          description: Count of chat interactions created today
+          example: 42
+        averageResponseTimeMs:
+          type: number
+          format: double
+          description: Average response time in milliseconds across all interactions
+          example: 1250.5
+        totalDocuments:
+          type: integer
+          format: int64
+          description: Total number of documents in the system
+          example: 15
+        conversationsThisWeek:
+          type: integer
+          format: int64
+          description: Count of chat interactions in the current week (Monday to Sunday)
+          example: 128
+        popularQuestions:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionFrequency'
+          description: Top 10 most frequently asked questions
+        topDocuments:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentReference'
+          description: Top 10 most referenced documents in RAG responses
+        dailyUsage:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyCount'
+          description: Daily question counts for the last 30 days
+        dailyResponseTimes:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyAverage'
+          description: Daily average response times for the last 30 days
+
+    QuestionFrequency:
+      type: object
+      required:
+        - question
+        - count
+      properties:
+        question:
+          type: string
+          description: The question text
+          example: "Comment poser des jours de congé ?"
+        count:
+          type: integer
+          format: int64
+          description: Number of times this question was asked
+          example: 15
+
+    DocumentReference:
+      type: object
+      required:
+        - documentId
+        - documentName
+        - referenceCount
+      properties:
+        documentId:
+          type: string
+          description: Document identifier
+          example: "d1a2b3c4-5678-9012-3456-789abcdef012"
+        documentName:
+          type: string
+          description: Document filename
+          example: "politique-conges-2025.pdf"
+        referenceCount:
+          type: integer
+          format: int64
+          description: Number of times referenced in RAG responses
+          example: 42
+
+    DailyCount:
+      type: object
+      required:
+        - date
+        - count
+      properties:
+        date:
+          type: string
+          format: date
+          description: The day
+          example: "2026-02-10"
+        count:
+          type: integer
+          format: int64
+          description: Number of interactions that day
+          example: 12
+
+    DailyAverage:
+      type: object
+      required:
+        - date
+        - averageMs
+      properties:
+        date:
+          type: string
+          format: date
+          description: The day
+          example: "2026-02-10"
+        averageMs:
+          type: number
+          format: double
+          description: Average response time in milliseconds
+          example: 1340.2
